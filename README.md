@@ -54,7 +54,7 @@ The block mode uses private keys, proxies (optional), and configurations to exec
 
 
 ### Config
-There are two main block types: `fixed` and `dynamic`. The dynamic config block allows for real-time adjustments, such as changing the maximum ETH gas price if needed. To get started, copy the `config/block.example.json5` file, rename it as needed, and adjust the following values:
+There are two main block types: `fixed` and `dynamic`. The dynamic config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. To get started, copy the `config/block.example.json5` file, rename it as needed, and adjust the following values:
 - `dynamic`:
     - `maxLineaGwei` - the maximum Linea Gwei limit. System will check it before each transaction
     - `minEthBalance` - minimum ETH balance on account to work with (generate job/start new block)
@@ -71,6 +71,7 @@ There are two main block types: `fixed` and `dynamic`. The dynamic config block 
     - `files`:
         - `privateKeys` - specify the file name in the `assets` folder containing private keys
         - `proxies` - specify the file name in the `assets` folder containing proxies. Can be empty string for `none` proxy type
+    - `isBlockDuplicates` - `true` if block duplicates are allowed when generating job blocks; in other case - `false`
     - `isShuffle` - determine whether the private keys file should be shuffled (set to `true` or `false`)
     - `maxParallelAccounts` - set the maximum number of parallel accounts (see the run example below). If mobile proxy used it can be only 1 parallel account.
     - `proxy`: 
@@ -114,6 +115,7 @@ Developers can create branches to contribute to the project. There are some code
 5. Not every block should `resetSteps`. It must only be specified when resetting block steps and returning all tokens/liquidity to ETH.
 6. Each block cannot depend on another block, and a action cannot depend on another action.
 7. Eslint and prettier must be used to format on save.
+8. Use `checklist.md` file.
 
 ## Additional Links:
 
