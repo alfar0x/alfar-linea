@@ -5,16 +5,16 @@ import Chain from "../../core/chain";
 class SyncSwapEthWbtcSwap extends BaseSyncSwapEthToTokenSwap {
   name = BLOCK_SYNC_SWAP_ETH_WBTC_SWAP;
 
-  constructor(
-    chain: Chain,
-    minWorkAmountPercent: number,
-    maxWorkAmountPercent: number
-  ) {
-    super(
-      chain.getTokenByName("WBTC"),
-      minWorkAmountPercent,
-      maxWorkAmountPercent
-    );
+  constructor(params: {
+    chain: Chain;
+    minWorkAmountPercent: number;
+    maxWorkAmountPercent: number;
+  }) {
+    const { chain, minWorkAmountPercent, maxWorkAmountPercent } = params;
+
+    const token = chain.getTokenByName("WBTC");
+
+    super({ token, minWorkAmountPercent, maxWorkAmountPercent });
   }
 }
 

@@ -21,14 +21,9 @@ import Big from "big.js";
 import prompts from "prompts";
 import randomInteger from "../../utils/randomInteger";
 import Linea from "../../chain/linea";
-import SyncSwapEthUsdcSwap from "../../block/syncSwapSwap/syncSwapEthUsdcSwap";
-import SyncSwapEthWbtcSwap from "../../block/syncSwapSwap/syncSwapEthWbtcSwap";
-import DmailSendMail from "../../block/dmail/dmailSendMail";
-import VelocoreEthUsdcSwap from "../../block/velocoreSwap/velocoreEthUsdcSwap";
-import VelocoreEthCebusdSwap from "../../block/velocoreSwap/velocoreEthCebusdSwap";
-import SyncSwapEthCebusdSwap from "../../block/syncSwapSwap/syncSwapEthCebusdSwap";
 import availableBlocks from "../../config/block/availableBlocks";
 import randomChoices from "../../utils/randomChoices";
+import initializeBlocks from "./initializeBlocks";
 
 const waitGasSec = 10 * 60;
 
@@ -44,12 +39,18 @@ class BlockWorker {
   private jobs: Job[];
 
   constructor(configFileName: string) {
-    this.config = new BlockConfig(configFileName);
+    this.config = new BlockConfig({ configFileName });
 
     this.chain = new Linea({ rpc: this.config.fixed.rpc.linea });
 
     this.proxy = this.initializeProxy();
-    this.availableBlocks = this.initializeBlocks();
+
+    this.availableBlocks = initializeBlocks({
+      chain: this.chain,
+      minWorkAmountPercent: this.config.fixed.workingAmountPercent.min,
+      maxWorkAmountPercent: this.config.fixed.workingAmountPercent.max,
+    });
+
     this.jobs = [];
   }
 
@@ -85,37 +86,6 @@ class BlockWorker {
         throw new Error(`${proxyType} proxy type not supported in block mode`);
       }
     }
-  }
-
-  private initializeBlocks() {
-    return [
-      new SyncSwapEthUsdcSwap(
-        this.chain,
-        this.config.fixed.workingAmountPercent.min,
-        this.config.fixed.workingAmountPercent.max
-      ),
-      new SyncSwapEthWbtcSwap(
-        this.chain,
-        this.config.fixed.workingAmountPercent.min,
-        this.config.fixed.workingAmountPercent.max
-      ),
-      new SyncSwapEthCebusdSwap(
-        this.chain,
-        this.config.fixed.workingAmountPercent.min,
-        this.config.fixed.workingAmountPercent.max
-      ),
-      new VelocoreEthUsdcSwap(
-        this.chain,
-        this.config.fixed.workingAmountPercent.min,
-        this.config.fixed.workingAmountPercent.max
-      ),
-      new VelocoreEthCebusdSwap(
-        this.chain,
-        this.config.fixed.workingAmountPercent.min,
-        this.config.fixed.workingAmountPercent.max
-      ),
-      new DmailSendMail({ chain: this.chain }),
-    ];
   }
 
   private async shouldAccountBeFiltered(account: Account) {

@@ -12,12 +12,15 @@ class BasePancakeEthToTokenSwap extends Block {
   maxWorkAmountPercent: number;
   token: Token;
 
-  constructor(
-    token: Token,
-    minWorkAmountPercent: number,
-    maxWorkAmountPercent: number
-  ) {
+  constructor(params: {
+    token: Token;
+    minWorkAmountPercent: number;
+    maxWorkAmountPercent: number;
+  }) {
+    const { token, minWorkAmountPercent, maxWorkAmountPercent } = params;
+
     super({ chain: token.chain });
+
     this.minWorkAmountPercent = minWorkAmountPercent;
     this.maxWorkAmountPercent = maxWorkAmountPercent;
     this.token = token;
