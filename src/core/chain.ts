@@ -35,7 +35,7 @@ class Chain {
     this.explorer = explorer;
     this.w3 = new Web3(new HttpProvider(this.rpc));
     this.tokens = this.initializeTokens(rawTokens);
-    this.contracts = contracts;
+    this.contracts = this.initializeContracts(contracts);
     this.native = null;
     this.wrappedNative = null;
   }
@@ -52,6 +52,18 @@ class Chain {
         isWrappedNative: rawToken.isWrappedNative,
       });
     });
+  }
+
+  private initializeContracts(contacts: Contracts) {
+    return Object.keys(contacts).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: Web3.utils.toChecksumAddress(
+          contacts[key as keyof Contracts] as string
+        ),
+      }),
+      {} as Contracts
+    );
   }
 
   getTokenByName(name: string) {

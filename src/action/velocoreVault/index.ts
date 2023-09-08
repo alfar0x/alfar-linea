@@ -57,7 +57,7 @@ class VelocoreVault extends Action {
 
     return ethers.solidityPacked(
       ["uint8", "uint88", "address"],
-      [tokenTypes.erc20, id, token.address]
+      [tokenTypes.erc20, id, token.getAddressOrWrappedForNative()]
     );
   }
 

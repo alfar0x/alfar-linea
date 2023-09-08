@@ -51,7 +51,10 @@ class SyncSwapRouter extends Action {
       });
 
       const poolAddress = await classicPoolFactoryContract.methods
-        .getPool(fromToken.address, toToken.address)
+        .getPool(
+          fromToken.getAddressOrWrappedForNative(),
+          toToken.getAddressOrWrappedForNative()
+        )
         .call();
 
       return poolAddress;
@@ -158,7 +161,11 @@ class SyncSwapRouter extends Action {
 
     const swapData = encoder.encode(
       ["address", "address", "uint8"],
-      [fromToken.address, account.address, withdrawMode.WITHDRAW_ETH]
+      [
+        fromToken.getAddressOrWrappedForNative(),
+        account.address,
+        withdrawMode.WITHDRAW_ETH,
+      ]
     );
 
     const routerContract = getContract({

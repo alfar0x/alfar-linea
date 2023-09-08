@@ -67,6 +67,10 @@ class Token {
     });
   }
 
+  getAddressOrWrappedForNative() {
+    return this.isNative ? this.chain.getWrappedNative().address : this.address;
+  }
+
   async decimals() {
     if (this.isNative) {
       if (!this._decimals) this._decimals = 18;
@@ -122,10 +126,13 @@ class Token {
     return await this.contract.methods.balanceOf(address).call();
   }
 
-  async toReadableAmount(normalizedAmount: number | string) {
+  async toReadableAmount(
+    normalizedAmount: number | string,
+    isOriginal = false
+  ) {
     const decimals = await this.decimals();
     const readableAmountBig = Big(normalizedAmount).div(Big(10).pow(decimals));
-    return this.readableDecimals === null
+    return this.readableDecimals === null || isOriginal
       ? readableAmountBig.toString()
       : readableAmountBig.round(this.readableDecimals).toString();
   }

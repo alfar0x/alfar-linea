@@ -3,7 +3,7 @@ import { RawToken } from "../../types";
 const rawTokens: RawToken[] = [
   {
     name: "ETH",
-    address: "0xe5d7c2a44ffddf6b295a15c148167daaaf5cf34f",
+    address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     geskoId: "ethereum",
     readableDecimals: 5,
     isNative: true,
@@ -44,6 +44,36 @@ const rawTokens: RawToken[] = [
     address: "0x7d43AABC515C356145049227CeE54B608342c0ad",
     geskoId: "binance-usd-linea",
     readableDecimals: 3,
+  },
+  {
+    name: "IUSD",
+    address: "0x0A3BB08b3a15A19b4De82F8AcFc862606FB69A2D",
+    geskoId: "izumi-bond-usd",
+    readableDecimals: 3,
+  },
+  {
+    name: "IZI",
+    address: "0x60D01EC2D5E98Ac51C8B4cF84DfCCE98D527c747",
+    geskoId: "izumi-finance",
+    readableDecimals: 5,
+  },
+  {
+    name: "wAVAX",
+    address: "0x5471ea8f739dd37E9B81Be9c5c77754D8AA953E4",
+    geskoId: "wrapped-avax",
+    readableDecimals: 5,
+  },
+  {
+    name: "wMATIC",
+    address: "0x265B25e22bcd7f10a5bD6E6410F10537Cc7567e8",
+    geskoId: "wmatic",
+    readableDecimals: 3,
+  },
+  {
+    name: "wBNB",
+    address: "0xf5C6825015280CdfD0b56903F9F8B5A2233476F5",
+    geskoId: "wbnb",
+    readableDecimals: 6,
   },
 ];
 

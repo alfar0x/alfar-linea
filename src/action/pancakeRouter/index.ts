@@ -43,7 +43,11 @@ class PancakeRouter extends Action {
     });
 
     const poolAddress = await poolFactoryContract.methods
-      .getPool(fromToken.address, toToken.address, this.defaultFee)
+      .getPool(
+        fromToken.getAddressOrWrappedForNative(),
+        toToken.getAddressOrWrappedForNative(),
+        this.defaultFee
+      )
       .call();
 
     return poolAddress;
@@ -78,8 +82,8 @@ class PancakeRouter extends Action {
     });
 
     const exactInputSingleCall = routerContract.methods.exactInputSingle([
-      fromToken.address,
-      toToken.address,
+      fromToken.getAddressOrWrappedForNative(),
+      toToken.getAddressOrWrappedForNative(),
       this.defaultFee,
       account.address,
       normalizedAmount,
@@ -126,8 +130,8 @@ class PancakeRouter extends Action {
     });
 
     const exactInputSingleCall = routerContract.methods.exactInputSingle([
-      fromToken.address,
-      toToken.address,
+      fromToken.getAddressOrWrappedForNative(),
+      toToken.getAddressOrWrappedForNative(),
       this.defaultFee,
       ethers.ZeroAddress,
       normalizedAmount,
