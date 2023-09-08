@@ -1,0 +1,11 @@
+.env
+.vscode/
+assets/*
+config/*
+logs
+node_modules
+src/test.ts
+yarn.lock
+
+!assets/**.example.txt
+!config/**.example.json5
