@@ -58,7 +58,7 @@ class BlockWorker {
     this.jobs = [];
   }
 
-  private async shouldAccountBeFiltered(account: Account) {
+  private async isBalanceAllowed(account: Account) {
     const native = this.chain.getNative();
 
     const nativeReadableBalance = await native.readableBalanceOf(
@@ -77,7 +77,7 @@ class BlockWorker {
     const allowedAccounts: Account[] = [];
 
     for (const account of accounts) {
-      const { isAllowedAccount } = await this.shouldAccountBeFiltered(account);
+      const { isAllowedAccount } = await this.isBalanceAllowed(account);
 
       if (isAllowedAccount) {
         allowedAccounts.push(account);
@@ -271,7 +271,7 @@ class BlockWorker {
     const job = this.getRandomJob();
 
     const { isAllowedAccount, nativeReadableBalance } =
-      await this.shouldAccountBeFiltered(job.account);
+      await this.isBalanceAllowed(job.account);
 
     if (!isAllowedAccount) {
       logger.error(
