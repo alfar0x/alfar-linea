@@ -44,13 +44,20 @@ There are several modes available for the account manager (script runner) to use
 5. Select the desired mode and the corresponding config file
 
 ## Block
-The block mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them. Currently works with 3 dapps, has 6 blocks:
+The block mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them. Currently works with 4 dapps, has 12 blocks:
 - syncswap - swap eth -> usdc -> eth
 - syncswap - swap eth -> cebusd -> eth
 - syncswap - swap eth -> wbtc -> eth
 - velocore - swap eth -> usdc -> eth
 - velocore - swap eth -> cebusd -> eth
 - dmail - send random email
+- open ocean - swap eth -> usdc -> eth
+- open ocean - swap eth -> iusd -> eth
+- open ocean - swap eth -> izi -> eth
+- open ocean - swap eth -> wavax -> eth
+- open ocean - swap eth -> wmatic -> eth
+- open ocean - swap eth -> wbnb -> eth
+- open ocean - swap eth -> cebusd -> eth
 
 
 ### Config
