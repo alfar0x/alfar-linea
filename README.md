@@ -57,7 +57,7 @@ The block mode uses private keys, proxies (optional), and configurations to exec
 There are two main block types: `fixed` and `dynamic`. The dynamic config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. To get started, copy the `config/block.example.json5` file, rename it as needed, and adjust the following values:
 - `dynamic`:
     - `maxLineaGwei` - the maximum Linea Gwei limit. System will check it before each transaction
-    - `minEthBalance` - minimum ETH balance on account to work with (generate job/start new block)
+    - `minEthBalance` - minimum ETH balance on account to work with (generate job/start new block). To forcefully stop the script and complete all current blocks, set value to `100`. It will skip next blocks due to insufficient balance.
 - `fixed`:
     - `blocks` - specify the blocks to be used in this mode. All possible values are already defined in the example config file. To exclude certain blocks, simply comment them out (add `//` before the block ID). For example, the following lines in the config file mean that SYNC_SWAP_ETH_USDC_SWAP will be used while SYNC_SWAP_ETH_WBTC_SWAP won't be:
         ```

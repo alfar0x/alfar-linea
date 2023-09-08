@@ -16,7 +16,7 @@ class Job {
   private getNextBlockSteps() {
     const nextBlockSteps = this.blocks.shift();
 
-    if (!nextBlockSteps) return [];
+    if (!nextBlockSteps) return null;
 
     return nextBlockSteps.allSteps(this.account);
   }
@@ -30,9 +30,9 @@ class Job {
 
     if (nextStep) return nextStep;
 
-    const length = this.setNextCurrentSteps();
+    const isSet = this.setNextCurrentSteps();
 
-    if (!length) return null;
+    if (!isSet) return null;
 
     return this.nextStep();
   }
@@ -47,9 +47,13 @@ class Job {
   }
 
   setNextCurrentSteps() {
-    this.currentSteps = this.getNextBlockSteps();
+    const nextBlockStep = this.getNextBlockSteps();
 
-    return this.currentSteps.length;
+    if (!nextBlockStep) return false;
+
+    this.currentSteps = nextBlockStep;
+
+    return true;
   }
 }
 
