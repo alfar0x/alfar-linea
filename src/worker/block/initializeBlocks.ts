@@ -1,4 +1,5 @@
 import DmailSendMail from "../../block/dmail/dmailSendMail";
+import LineaBankSupplyEth from "../../block/lineaBankSupply/lineaBankSupplyEth";
 import OpenOceanEthCebusdSwap from "../../block/openOceanSwap/openOceanEthCebusdSwap";
 import OpenOceanEthIusdSwap from "../../block/openOceanSwap/openOceanEthIusdSwap";
 import OpenOceanEthIziSwap from "../../block/openOceanSwap/openOceanEthIziSwap";
@@ -107,6 +108,11 @@ const initializeBlocks = (params: {
       maxWorkAmountPercent,
     }),
     new WoofiEthUsdcSwap({
+      chain,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    }),
+    new LineaBankSupplyEth({
       chain,
       minWorkAmountPercent,
       maxWorkAmountPercent,

@@ -23,6 +23,7 @@
       "BLOCK_XY_FINANCE_ETH_USDT_SWAP",
       "BLOCK_PANCAKE_ETH_USDC_SWAP",
       "BLOCK_WOOFI_ETH_USDC_SWAP",
+      "BLOCK_LINEA_BANK_SUPPLY_ETH",
     ],
     blocksCount: { min: 3, max: 6 },
     delaySec: {

@@ -5,6 +5,8 @@ import Web3, { Contract, ContractAbi } from "web3";
 
 import { DMAIL } from "../../abi/types/DMAIL";
 import { ERC_20 } from "../../abi/types/ERC_20";
+import { LINEA_BANK_CORE } from "../../abi/types/LINEA_BANK_CORE";
+import { LINEA_BANK_LAB_DISTRIBUTOR } from "../../abi/types/LINEA_BANK_LAB_DISTRIBUTOR";
 import { SYNC_SWAP_CLASSIC_POOL_FACTORY } from "../../abi/types/SYNC_SWAP_CLASSIC_POOL_FACTORY";
 import { SYNC_SWAP_ROUTER } from "../../abi/types/SYNC_SWAP_ROUTER";
 import { VELOCORE_FACTORY } from "../../abi/types/VELOCORE_FACTORY";
@@ -18,6 +20,8 @@ import {
   CONTRACT_VELOCORE_FACTORY,
   CONTRACT_DMAIL,
   CONTRACT_WOOFI_ROUTER,
+  CONTRACT_LINEA_BANK_CORE,
+  CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR,
 } from "../../constants";
 
 export type ContractRec = {
@@ -28,6 +32,8 @@ export type ContractRec = {
   [CONTRACT_VELOCORE_FACTORY]: VELOCORE_FACTORY;
   [CONTRACT_DMAIL]: DMAIL;
   [CONTRACT_WOOFI_ROUTER]: WOOFI_ROUTER;
+  [CONTRACT_LINEA_BANK_CORE]: LINEA_BANK_CORE;
+  [CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR]: LINEA_BANK_LAB_DISTRIBUTOR;
 };
 
 const getContract = <C extends keyof ContractRec>(args: {
