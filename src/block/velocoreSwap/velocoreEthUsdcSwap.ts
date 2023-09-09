@@ -1,6 +1,7 @@
-import BaseVelocoreEthToTokenSwap from "./base";
 import { BLOCK_VELOCORE_ETH_USDC_SWAP } from "../../constants";
 import Chain from "../../core/chain";
+
+import BaseVelocoreEthToTokenSwap from "./base";
 
 class VelocoreEthUsdcSwap extends BaseVelocoreEthToTokenSwap {
   name = BLOCK_VELOCORE_ETH_USDC_SWAP;

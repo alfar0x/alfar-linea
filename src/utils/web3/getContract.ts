@@ -1,6 +1,14 @@
 import fs from "fs";
 import path from "path";
+
 import Web3, { Contract, ContractAbi } from "web3";
+
+import { DMAIL } from "../../abi/types/DMAIL";
+import { ERC_20 } from "../../abi/types/ERC_20";
+import { SYNC_SWAP_CLASSIC_POOL_FACTORY } from "../../abi/types/SYNC_SWAP_CLASSIC_POOL_FACTORY";
+import { SYNC_SWAP_ROUTER } from "../../abi/types/SYNC_SWAP_ROUTER";
+import { VELOCORE_FACTORY } from "../../abi/types/VELOCORE_FACTORY";
+import { VELOCORE_VAULT } from "../../abi/types/VELOCORE_VAULT";
 import {
   CONTRACT_ERC_20,
   CONTRACT_SYNC_SWAP_ROUTER,
@@ -8,13 +16,7 @@ import {
   CONTRACT_VELOCORE_VAULT,
   CONTRACT_VELOCORE_FACTORY,
   CONTRACT_DMAIL,
-} from "../constants";
-import { VELOCORE_VAULT } from "../abi/types/VELOCORE_VAULT";
-import { ERC_20 } from "../abi/types/ERC_20";
-import { SYNC_SWAP_ROUTER } from "../abi/types/SYNC_SWAP_ROUTER";
-import { SYNC_SWAP_CLASSIC_POOL_FACTORY } from "../abi/types/SYNC_SWAP_CLASSIC_POOL_FACTORY";
-import { VELOCORE_FACTORY } from "../abi/types/VELOCORE_FACTORY";
-import { DMAIL } from "../abi/types/DMAIL";
+} from "../../constants";
 
 export type ContractRec = {
   [CONTRACT_ERC_20]: ERC_20;

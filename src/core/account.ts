@@ -1,12 +1,14 @@
-import { z } from "zod";
-import getShortString from "../utils/getShortString";
-import { Transaction as Web3Transaction, Web3 } from "web3";
-import { ethers } from "ethers";
-import Chain from "./chain";
-import randomInteger from "../utils/randomInteger";
 import Big from "big.js";
+import { ethers } from "ethers";
+import { Transaction as Web3Transaction, Web3 } from "web3";
+import { z } from "zod";
+
+import logger from "../utils/other/logger";
+import randomInteger from "../utils/random/randomInteger";
+import getShortString from "../utils/string/getShortString";
+
+import Chain from "./chain";
 import Token from "./token";
-import logger from "../utils/logger";
 
 const evmAccountPrivateKeyLength = 66;
 

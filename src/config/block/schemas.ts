@@ -1,5 +1,7 @@
 import { z } from "zod";
-import createUnionSchema from "../../utils/createUnionSchema";
+
+import createUnionSchema from "../../utils/zod/createUnionSchema";
+
 import availableBlocks from "./availableBlocks";
 
 const minMaxRefine = [

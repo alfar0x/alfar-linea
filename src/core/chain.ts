@@ -1,9 +1,11 @@
+import Big from "big.js";
 import Web3, { HttpProvider } from "web3";
+
 import { CONTRACTS } from "../constants";
 import { RawToken } from "../types";
+import sleep from "../utils/other/sleep";
+
 import Token from "./token";
-import Big from "big.js";
-import sleep from "../utils/sleep";
 
 type ContractName = (typeof CONTRACTS)[number];
 type Contracts = Partial<Record<ContractName, string>>;

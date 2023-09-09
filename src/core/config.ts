@@ -1,8 +1,10 @@
 import fs from "fs";
-import { z } from "zod";
+
 import json5 from "json5";
-import logger from "../utils/logger";
+import { z } from "zod";
 import { generateErrorMessage } from "zod-error";
+
+import logger from "../utils/other/logger";
 
 class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
   private fileName: string;

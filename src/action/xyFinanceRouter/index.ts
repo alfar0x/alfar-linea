@@ -1,17 +1,19 @@
+import axios from "axios";
+import Big from "big.js";
 import Web3 from "web3";
+
 import {
   ACTION_XY_FINANCE_SWAP,
   CONTRACT_XY_FINANCE_ROUTER,
   SLIPPAGE_PERCENT,
 } from "../../constants";
-import Action from "../../core/action";
-import Token from "../../core/token";
-import axios from "axios";
 import Account from "../../core/account";
-import Big from "big.js";
+import Action from "../../core/action";
 import Chain from "../../core/chain";
+import Token from "../../core/token";
+import sleep from "../../utils/other/sleep";
+
 import { XyFinanceBuildTx, XyFinanceQuote } from "./types";
-import sleep from "../../utils/sleep";
 
 class XyFinanceRouter extends Action {
   name = ACTION_XY_FINANCE_SWAP;

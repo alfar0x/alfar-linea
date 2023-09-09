@@ -1,9 +1,10 @@
-import Account from "../../core/account";
-import VelocoreVault from "../../action/velocoreVault";
 import Big from "big.js";
-import Token from "../../core/token";
+
+import VelocoreVault from "../../action/velocoreVault";
+import Account from "../../core/account";
 import Block from "../../core/block";
 import Step from "../../core/step";
+import Token from "../../core/token";
 import Transaction from "../../core/transaction";
 
 class BaseVelocoreEthToTokenSwap extends Block {

@@ -1,6 +1,7 @@
-import BaseSyncSwapEthToTokenSwap from "./base";
 import { BLOCK_SYNC_SWAP_ETH_WBTC_SWAP } from "../../constants";
 import Chain from "../../core/chain";
+
+import BaseSyncSwapEthToTokenSwap from "./base";
 
 class SyncSwapEthWbtcSwap extends BaseSyncSwapEthToTokenSwap {
   name = BLOCK_SYNC_SWAP_ETH_WBTC_SWAP;

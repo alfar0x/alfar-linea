@@ -1,11 +1,5 @@
-import Chain from "../../core/chain";
 
-import SyncSwapEthUsdcSwap from "../../block/syncSwapSwap/syncSwapEthUsdcSwap";
-import SyncSwapEthWbtcSwap from "../../block/syncSwapSwap/syncSwapEthWbtcSwap";
 import DmailSendMail from "../../block/dmail/dmailSendMail";
-import VelocoreEthUsdcSwap from "../../block/velocoreSwap/velocoreEthUsdcSwap";
-import VelocoreEthCebusdSwap from "../../block/velocoreSwap/velocoreEthCebusdSwap";
-import SyncSwapEthCebusdSwap from "../../block/syncSwapSwap/syncSwapEthCebusdSwap";
 import OpenOceanEthCebusdSwap from "../../block/openOceanSwap/openOceanEthCebusdSwap";
 import OpenOceanEthIusdSwap from "../../block/openOceanSwap/openOceanEthIusdSwap";
 import OpenOceanEthIziSwap from "../../block/openOceanSwap/openOceanEthIziSwap";
@@ -13,10 +7,16 @@ import OpenOceanEthUsdcSwap from "../../block/openOceanSwap/openOceanEthUsdcSwap
 import OpenOceanEthWavaxSwap from "../../block/openOceanSwap/openOceanEthWavaxSwap";
 import OpenOceanEthWbnbSwap from "../../block/openOceanSwap/openOceanEthWbnbSwap";
 import OpenOceanEthWmaticSwap from "../../block/openOceanSwap/openOceanEthWmaticSwap";
+import PancakeEthUsdcSwap from "../../block/pancakeSwap/pancakeEthUsdcSwap";
+import SyncSwapEthCebusdSwap from "../../block/syncSwapSwap/syncSwapEthCebusdSwap";
+import SyncSwapEthUsdcSwap from "../../block/syncSwapSwap/syncSwapEthUsdcSwap";
+import SyncSwapEthWbtcSwap from "../../block/syncSwapSwap/syncSwapEthWbtcSwap";
+import VelocoreEthCebusdSwap from "../../block/velocoreSwap/velocoreEthCebusdSwap";
+import VelocoreEthUsdcSwap from "../../block/velocoreSwap/velocoreEthUsdcSwap";
 import XyFinanceEthCebusdSwap from "../../block/xyFinanceSwap/xyFinanceEthCebusdSwap";
 import XyFinanceEthUsdcSwap from "../../block/xyFinanceSwap/xyFinanceEthUsdcSwap";
 import XyFinanceEthUsdtSwap from "../../block/xyFinanceSwap/xyFinanceEthUsdtSwap";
-import PancakeEthUsdcSwap from "../../block/pancakeSwap/pancakeEthUsdcSwap";
+import Chain from "../../core/chain";
 
 const initializeBlocks = (params: {
   chain: Chain;

@@ -1,9 +1,10 @@
-import Account from "../../core/account";
-import XyFinanceRouter from "../../action/xyFinanceRouter";
 import Big from "big.js";
-import Token from "../../core/token";
+
+import XyFinanceRouter from "../../action/xyFinanceRouter";
+import Account from "../../core/account";
 import Block from "../../core/block";
 import Step from "../../core/step";
+import Token from "../../core/token";
 import Transaction from "../../core/transaction";
 
 class BaseXyFinanceEthToTokenSwap extends Block {

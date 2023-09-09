@@ -1,6 +1,7 @@
-import BaseSyncSwapEthToTokenSwap from "./base";
 import { BLOCK_SYNC_SWAP_ETH_USDC_SWAP } from "../../constants";
 import Chain from "../../core/chain";
+
+import BaseSyncSwapEthToTokenSwap from "./base";
 
 class SyncSwapEthUsdcSwap extends BaseSyncSwapEthToTokenSwap {
   name = BLOCK_SYNC_SWAP_ETH_USDC_SWAP;

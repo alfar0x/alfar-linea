@@ -1,5 +1,6 @@
-import { runTypeChain, glob } from "typechain";
 import path from "path";
+
+import { runTypeChain, glob } from "typechain";
 
 async function main() {
   const cwd = process.cwd();

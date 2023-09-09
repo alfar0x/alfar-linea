@@ -1,17 +1,18 @@
-import Action from "../../core/action";
-import Account from "../../core/account";
+import Big from "big.js";
+import { ethers } from "ethers";
+
 import {
   ACTION_VELOCORE_VAULT,
   CONTRACT_VELOCORE_FACTORY,
   CONTRACT_VELOCORE_VAULT,
   SLIPPAGE_PERCENT,
 } from "../../constants";
-import Token from "../../core/token";
-import getContract from "../../utils/getContract";
-import { ethers } from "ethers";
-import Big from "big.js";
+import Account from "../../core/account";
+import Action from "../../core/action";
 import Chain from "../../core/chain";
-import logger from "../../utils/logger";
+import Token from "../../core/token";
+import logger from "../../utils/other/logger";
+import getContract from "../../utils/web3/getContract";
 
 const tokenTypes = {
   erc20: 0,

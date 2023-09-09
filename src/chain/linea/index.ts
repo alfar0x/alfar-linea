@@ -1,4 +1,5 @@
 import Chain from "../../core/chain";
+
 import contracts from "./contracts";
 import rawTokens from "./rawTokens";
 

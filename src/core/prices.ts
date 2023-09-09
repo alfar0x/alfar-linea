@@ -1,9 +1,10 @@
 import axios from "axios";
-import getMyIp from "../utils/getMyIp";
-import waitInternetConnection from "../utils/waitInternetConnection";
-import rawTokens from "../chain/linea/rawTokens";
 import Big from "big.js";
-import logger from "../utils/logger";
+
+import rawTokens from "../chain/linea/rawTokens";
+import getMyIp from "../utils/other/getMyIp";
+import logger from "../utils/other/logger";
+import waitInternetConnection from "../utils/other/waitInternetConnection";
 
 type TokenId = string;
 

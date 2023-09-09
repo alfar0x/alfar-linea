@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { Primitive, z, ZodLiteral, ZodNever } from "zod";
 
 type MappedZodLiterals<T extends readonly Primitive[]> = {
@@ -14,15 +13,18 @@ function createManyUnion<
 }
 
 export default function createUnionSchema<T extends readonly []>(
+  // eslint-disable-next-line no-unused-vars
   values: T
 ): ZodNever;
 
 export default function createUnionSchema<T extends readonly [Primitive]>(
+  // eslint-disable-next-line no-unused-vars
   values: T
 ): ZodLiteral<T[0]>;
 
 export default function createUnionSchema<
   T extends readonly [Primitive, Primitive, ...Primitive[]]
+  // eslint-disable-next-line no-unused-vars
 >(values: T): z.ZodUnion<MappedZodLiterals<T>>;
 
 export default function createUnionSchema<T extends readonly Primitive[]>(

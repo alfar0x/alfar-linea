@@ -1,7 +1,8 @@
-import logger from "../utils/logger";
+import logger from "../utils/other/logger";
+
 import Account from "./account";
-import Step from "./step";
 import Chain from "./chain";
+import Step from "./step";
 
 abstract class Block {
   public abstract name: string;

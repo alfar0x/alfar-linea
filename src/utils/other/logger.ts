@@ -1,6 +1,7 @@
-import { format, createLogger, transports } from "winston";
-import env from "./env";
 import dateFormat from "date-fns/format";
+import { format, createLogger, transports } from "winston";
+
+import env from "./env";
 
 const time = dateFormat(Date.now(), "yyMMddHHmmss");
 

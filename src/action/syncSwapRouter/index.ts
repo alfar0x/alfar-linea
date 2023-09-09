@@ -1,16 +1,17 @@
-import Action from "../../core/action";
-import Account from "../../core/account";
+import Big from "big.js";
+import { ethers } from "ethers";
+
 import {
   ACTION_SYNC_SWAP_ROUTER,
   CONTRACT_SYNC_SWAP_CLASSIC_POOL_FACTORY,
   CONTRACT_SYNC_SWAP_ROUTER,
   SLIPPAGE_PERCENT,
 } from "../../constants";
-import Token from "../../core/token";
-import getContract from "../../utils/getContract";
-import { ethers } from "ethers";
-import Big from "big.js";
+import Account from "../../core/account";
+import Action from "../../core/action";
 import Chain from "../../core/chain";
+import Token from "../../core/token";
+import getContract from "../../utils/web3/getContract";
 
 const withdrawMode = {
   VAULT_INTERNAL_TRANSFER: 0,

@@ -1,9 +1,10 @@
-import Account from "../../core/account";
-import OpenOceanExchange from "../../action/openOceanExchange";
 import Big from "big.js";
-import Token from "../../core/token";
+
+import OpenOceanExchange from "../../action/openOceanExchange";
+import Account from "../../core/account";
 import Block from "../../core/block";
 import Step from "../../core/step";
+import Token from "../../core/token";
 import Transaction from "../../core/transaction";
 
 class BaseOpenOceanEthToTokenSwap extends Block {

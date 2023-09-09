@@ -1,5 +1,5 @@
 import Cli from "./cli";
-import logger from "./utils/logger";
+import logger from "./utils/other/logger";
 import BlockWorker from "./worker/block";
 
 const main = async () => {

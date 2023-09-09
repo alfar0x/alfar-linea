@@ -1,6 +1,6 @@
 import BlockConfig from "../../config/block";
 import Proxy from "../../core/proxy";
-import isFileAvailable from "../../utils/isFileAvailable";
+import isFileAvailable from "../../utils/file/isFileAvailable";
 
 type BlockConfigProxy = BlockConfig["fixed"]["proxy"];
 

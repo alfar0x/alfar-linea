@@ -1,7 +1,9 @@
-import sleep from "../utils/sleep";
-import logger from "../utils/logger";
-import formatIntervalSec from "./formatIntervalSec";
+import formatIntervalSec from "../datetime/formatIntervalSec";
+
 import getMyIp from "./getMyIp";
+import logger from "./logger";
+import sleep from "./sleep";
+
 const sleepSec = 60;
 
 const waitInternetConnection = async () => {

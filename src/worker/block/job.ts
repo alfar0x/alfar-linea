@@ -1,5 +1,5 @@
-import Block from "../../core/block";
 import Account from "../../core/account";
+import Block from "../../core/block";
 import Step from "../../core/step";
 
 class Job {

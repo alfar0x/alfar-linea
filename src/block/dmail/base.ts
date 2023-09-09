@@ -1,8 +1,8 @@
+import Dmail from "../../action/dmail";
 import Account from "../../core/account";
 import Block from "../../core/block";
 import Step from "../../core/step";
 import Transaction from "../../core/transaction";
-import Dmail from "../../action/dmail";
 
 class BaseDmail extends Block {
   name = "";

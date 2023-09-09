@@ -1,6 +1,7 @@
-import BaseXyFinanceEthToTokenSwap from "./base";
 import { BLOCK_XY_FINANCE_ETH_CEBUSD_SWAP } from "../../constants";
 import Chain from "../../core/chain";
+
+import BaseXyFinanceEthToTokenSwap from "./base";
 
 class XyFinanceEthCebusdSwap extends BaseXyFinanceEthToTokenSwap {
   name = BLOCK_XY_FINANCE_ETH_CEBUSD_SWAP;

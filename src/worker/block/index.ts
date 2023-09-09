@@ -1,30 +1,31 @@
+import Big from "big.js";
+import tunnel from "tunnel";
 import { HttpProvider } from "web3";
 
+import Linea from "../../chain/linea";
+import BlockConfig from "../../config/block";
+import availableBlocks from "../../config/block/availableBlocks";
 import Account from "../../core/account";
 import Block from "../../core/block";
-import BlockConfig from "../../config/block";
-import Job from "./job";
+import Chain from "../../core/chain";
 import Proxy from "../../core/proxy";
 import Transaction from "../../core/transaction";
-import formatIntervalSec from "../../utils/formatIntervalSec";
-import getMyIp from "../../utils/getMyIp";
-import isFileAvailable from "../../utils/isFileAvailable";
-import logger from "../../utils/logger";
-import randomShuffle from "../../utils/randomShuffle";
-import readFileSyncByLine from "../../utils/readFileSyncByLine";
-import sleep from "../../utils/sleep";
-import waitGasPrice from "../../utils/waitGasPrice";
-import waitInternetConnection from "../../utils/waitInternetConnection";
-import Chain from "../../core/chain";
-import tunnel from "tunnel";
-import Big from "big.js";
-import randomInteger from "../../utils/randomInteger";
-import Linea from "../../chain/linea";
-import availableBlocks from "../../config/block/availableBlocks";
-import randomChoices from "../../utils/randomChoices";
+import formatIntervalSec from "../../utils/datetime/formatIntervalSec";
+import isFileAvailable from "../../utils/file/isFileAvailable";
+import readFileSyncByLine from "../../utils/file/readFileSyncByLine";
+import getMyIp from "../../utils/other/getMyIp";
+import logger from "../../utils/other/logger";
+import sleep from "../../utils/other/sleep";
+import waitInternetConnection from "../../utils/other/waitInternetConnection";
+import randomChoices from "../../utils/random/randomChoices";
+import randomInteger from "../../utils/random/randomInteger";
+import randomShuffle from "../../utils/random/randomShuffle";
+import waitGasPrice from "../../utils/web3/waitGasPrice";
+
+import confirmRun from "./confirmRun";
 import initializeBlocks from "./initializeBlocks";
 import initializeProxy from "./initializeProxy";
-import confirmRun from "./confirmRun";
+import Job from "./job";
 
 const waitGasSec = 10 * 60;
 

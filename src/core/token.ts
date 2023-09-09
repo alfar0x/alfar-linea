@@ -1,11 +1,13 @@
-import Web3 from "web3";
-import { CONTRACT_ERC_20 } from "../constants";
-import { ERC_20 } from "../abi/types/ERC_20";
-import prices from "./prices";
 import Big from "big.js";
+import Web3 from "web3";
+
+import { ERC_20 } from "../abi/types/ERC_20";
+import { CONTRACT_ERC_20 } from "../constants";
+import getContract from "../utils/web3/getContract";
+
 import Account from "./account";
 import Chain from "./chain";
-import getContract from "../utils/getContract";
+import prices from "./prices";
 
 class Token {
   public name: string;

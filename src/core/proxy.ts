@@ -1,10 +1,11 @@
-import { z } from "zod";
-import readFileSyncByLine from "../utils/readFileSyncByLine";
-import randomChoice from "../utils/randomChoice";
 import axios from "axios";
-import logger from "../utils/logger";
-import sleep from "../utils/sleep";
-import getMyIp from "../utils/getMyIp";
+import { z } from "zod";
+
+import readFileSyncByLine from "../utils/file/readFileSyncByLine";
+import getMyIp from "../utils/other/getMyIp";
+import logger from "../utils/other/logger";
+import sleep from "../utils/other/sleep";
+import randomChoice from "../utils/random/randomChoice";
 
 type ProxyType = "none" | "server" | "mobile";
 

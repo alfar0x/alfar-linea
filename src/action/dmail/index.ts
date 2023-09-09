@@ -1,10 +1,11 @@
 import { randomInt } from "crypto";
+
 import { ACTION_DMAIL, CONTRACT_DMAIL } from "../../constants";
 import Account from "../../core/account";
 import Action from "../../core/action";
 import Chain from "../../core/chain";
-import getContract from "../../utils/getContract";
-import randomChoice from "../../utils/randomChoice";
+import randomChoice from "../../utils/random/randomChoice";
+import getContract from "../../utils/web3/getContract";
 
 class Dmail extends Action {
   name = ACTION_DMAIL;

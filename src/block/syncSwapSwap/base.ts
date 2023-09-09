@@ -1,9 +1,10 @@
-import Account from "../../core/account";
-import SyncSwapRouter from "../../action/syncSwapRouter";
 import Big from "big.js";
-import Token from "../../core/token";
+
+import SyncSwapRouter from "../../action/syncSwapRouter";
+import Account from "../../core/account";
 import Block from "../../core/block";
 import Step from "../../core/step";
+import Token from "../../core/token";
 import Transaction from "../../core/transaction";
 
 class BaseSyncSwapEthToTokenSwap extends Block {

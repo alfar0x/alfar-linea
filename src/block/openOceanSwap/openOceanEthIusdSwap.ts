@@ -1,6 +1,7 @@
-import BaseOpenOceanEthToTokenSwap from "./base";
 import { BLOCK_OPEN_OCEAN_ETH_IUSD_SWAP } from "../../constants";
 import Chain from "../../core/chain";
+
+import BaseOpenOceanEthToTokenSwap from "./base";
 
 class OpenOceanEthIusdSwap extends BaseOpenOceanEthToTokenSwap {
   name = BLOCK_OPEN_OCEAN_ETH_IUSD_SWAP;
