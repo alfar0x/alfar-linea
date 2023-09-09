@@ -21,6 +21,7 @@
       "BLOCK_XY_FINANCE_ETH_CEBUSD_SWAP",
       "BLOCK_XY_FINANCE_ETH_USDC_SWAP",
       "BLOCK_XY_FINANCE_ETH_USDT_SWAP",
+      "BLOCK_PANCAKE_ETH_USDC_SWAP",
     ],
     blocksCount: { min: 3, max: 6 },
     delaySec: {

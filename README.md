@@ -61,6 +61,7 @@ The block mode uses private keys, proxies (optional), and configurations to exec
 - xy finance - swap eth -> cebusd => eth
 - xy finance - swap eth -> usdc => eth
 - xy finance - swap eth -> usdt => eth
+- pancake - swap eth -> usdc => eth
 
 
 ### Config
