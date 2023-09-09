@@ -62,6 +62,7 @@ The block mode uses private keys, proxies (optional), and configurations to exec
 1. xy finance - swap eth -> usdc => eth
 1. xy finance - swap eth -> usdt => eth
 1. pancake - swap eth -> usdc => eth
+1. woofi - swap eth -> usdc => eth
 
 
 ### Config

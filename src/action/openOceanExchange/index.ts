@@ -3,7 +3,7 @@ import Big from "big.js";
 import Web3 from "web3";
 
 import {
-  ACTION_OPEN_OCEAN_SWAP,
+  ACTION_OPEN_OCEAN_ROUTER,
   CONTRACT_OPEN_OCEAN_EXCHANGE,
   SLIPPAGE_PERCENT,
 } from "../../constants";
@@ -16,7 +16,7 @@ import { chainData } from "./chainData";
 import { OpenOceanSwapQuote } from "./types";
 
 class OpenOceanExchange extends Action {
-  name = ACTION_OPEN_OCEAN_SWAP;
+  name = ACTION_OPEN_OCEAN_ROUTER;
   url = "https://open-api.openocean.finance/v3";
 
   public getAddressToApprove(chain: Chain) {

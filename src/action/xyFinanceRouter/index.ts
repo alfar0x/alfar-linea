@@ -3,7 +3,7 @@ import Big from "big.js";
 import Web3 from "web3";
 
 import {
-  ACTION_XY_FINANCE_SWAP,
+  ACTION_XY_FINANCE_ROUTER,
   CONTRACT_XY_FINANCE_ROUTER,
   SLIPPAGE_PERCENT,
 } from "../../constants";
@@ -16,7 +16,7 @@ import sleep from "../../utils/other/sleep";
 import { XyFinanceBuildTx, XyFinanceQuote } from "./types";
 
 class XyFinanceRouter extends Action {
-  name = ACTION_XY_FINANCE_SWAP;
+  name = ACTION_XY_FINANCE_ROUTER;
   url = "https://aggregator-api.xy.finance/v1/";
   gasPriceMultiplier = 1.5;
 

@@ -16,6 +16,7 @@ import {
   BLOCK_XY_FINANCE_ETH_USDC_SWAP,
   BLOCK_XY_FINANCE_ETH_USDT_SWAP,
   BLOCK_PANCAKE_ETH_USDC_SWAP,
+  BLOCK_WOOFI_ETH_USDC_SWAP,
 } from "../../constants";
 
 const availableBlocks = [
@@ -36,6 +37,7 @@ const availableBlocks = [
   BLOCK_XY_FINANCE_ETH_USDC_SWAP,
   BLOCK_XY_FINANCE_ETH_USDT_SWAP,
   BLOCK_PANCAKE_ETH_USDC_SWAP,
+  BLOCK_WOOFI_ETH_USDC_SWAP,
 ] as const;
 
 export default availableBlocks;

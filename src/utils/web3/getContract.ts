@@ -9,6 +9,7 @@ import { SYNC_SWAP_CLASSIC_POOL_FACTORY } from "../../abi/types/SYNC_SWAP_CLASSI
 import { SYNC_SWAP_ROUTER } from "../../abi/types/SYNC_SWAP_ROUTER";
 import { VELOCORE_FACTORY } from "../../abi/types/VELOCORE_FACTORY";
 import { VELOCORE_VAULT } from "../../abi/types/VELOCORE_VAULT";
+import { WOOFI_ROUTER } from "../../abi/types/WOOFI_ROUTER";
 import {
   CONTRACT_ERC_20,
   CONTRACT_SYNC_SWAP_ROUTER,
@@ -16,6 +17,7 @@ import {
   CONTRACT_VELOCORE_VAULT,
   CONTRACT_VELOCORE_FACTORY,
   CONTRACT_DMAIL,
+  CONTRACT_WOOFI_ROUTER,
 } from "../../constants";
 
 export type ContractRec = {
@@ -25,6 +27,7 @@ export type ContractRec = {
   [CONTRACT_VELOCORE_VAULT]: VELOCORE_VAULT;
   [CONTRACT_VELOCORE_FACTORY]: VELOCORE_FACTORY;
   [CONTRACT_DMAIL]: DMAIL;
+  [CONTRACT_WOOFI_ROUTER]: WOOFI_ROUTER;
 };
 
 const getContract = <C extends keyof ContractRec>(args: {

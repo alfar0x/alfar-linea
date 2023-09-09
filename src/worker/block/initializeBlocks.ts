@@ -1,4 +1,3 @@
-
 import DmailSendMail from "../../block/dmail/dmailSendMail";
 import OpenOceanEthCebusdSwap from "../../block/openOceanSwap/openOceanEthCebusdSwap";
 import OpenOceanEthIusdSwap from "../../block/openOceanSwap/openOceanEthIusdSwap";
@@ -13,6 +12,7 @@ import SyncSwapEthUsdcSwap from "../../block/syncSwapSwap/syncSwapEthUsdcSwap";
 import SyncSwapEthWbtcSwap from "../../block/syncSwapSwap/syncSwapEthWbtcSwap";
 import VelocoreEthCebusdSwap from "../../block/velocoreSwap/velocoreEthCebusdSwap";
 import VelocoreEthUsdcSwap from "../../block/velocoreSwap/velocoreEthUsdcSwap";
+import WoofiEthUsdcSwap from "../../block/woofiSwap/woofiEthUsdcSwap";
 import XyFinanceEthCebusdSwap from "../../block/xyFinanceSwap/xyFinanceEthCebusdSwap";
 import XyFinanceEthUsdcSwap from "../../block/xyFinanceSwap/xyFinanceEthUsdcSwap";
 import XyFinanceEthUsdtSwap from "../../block/xyFinanceSwap/xyFinanceEthUsdtSwap";
@@ -102,6 +102,11 @@ const initializeBlocks = (params: {
       maxWorkAmountPercent,
     }),
     new PancakeEthUsdcSwap({
+      chain,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    }),
+    new WoofiEthUsdcSwap({
       chain,
       minWorkAmountPercent,
       maxWorkAmountPercent,
