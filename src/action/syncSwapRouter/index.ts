@@ -5,7 +5,7 @@ import {
   CONTRACT_SYNC_SWAP_CLASSIC_POOL_FACTORY,
   CONTRACT_SYNC_SWAP_ROUTER,
   SLIPPAGE_PERCENT,
-} from "../../common/constants";
+} from "../../constants";
 import Token from "../../core/token";
 import getContract from "../../utils/getContract";
 import { ethers } from "ethers";

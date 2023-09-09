@@ -1,9 +1,9 @@
 import fs from "fs";
 import path from "path";
-import logger from "../common/logger";
 import prompts from "prompts";
 import greetingsStr from "../utils/greetingsStr";
-import sleep from "../common/sleep";
+import logger from "../utils/logger";
+import sleep from "../utils/sleep";
 
 const modeChoices = [
   {

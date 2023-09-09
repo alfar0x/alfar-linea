@@ -1,7 +1,7 @@
 import fs from "fs";
 import { z } from "zod";
 import json5 from "json5";
-import logger from "../common/logger";
+import logger from "../utils/logger";
 import { generateErrorMessage } from "zod-error";
 
 class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {

@@ -2,7 +2,7 @@ import Account from "../../core/account";
 import Block from "../../core/block";
 import Step from "../../core/step";
 import Transaction from "../../core/transaction";
-import sleep from "../../common/sleep";
+import sleep from "../../utils/sleep";
 
 class TestBlock extends Block {
   name = "TEST_BLOCK";

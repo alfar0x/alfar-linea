@@ -3,7 +3,7 @@ import {
   ACTION_OPEN_OCEAN_SWAP,
   CONTRACT_OPEN_OCEAN_EXCHANGE,
   SLIPPAGE_PERCENT,
-} from "../../common/constants";
+} from "../../constants";
 import Action from "../../core/action";
 import Token from "../../core/token";
 import axios from "axios";

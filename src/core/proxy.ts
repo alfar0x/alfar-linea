@@ -2,8 +2,8 @@ import { z } from "zod";
 import readFileSyncByLine from "../utils/readFileSyncByLine";
 import randomChoice from "../utils/randomChoice";
 import axios from "axios";
-import logger from "../common/logger";
-import sleep from "../common/sleep";
+import logger from "../utils/logger";
+import sleep from "../utils/sleep";
 import getMyIp from "../utils/getMyIp";
 
 type ProxyType = "none" | "server" | "mobile";

@@ -1,5 +1,5 @@
 import BaseXyFinanceEthToTokenSwap from "./base";
-import { BLOCK_XY_FINANCE_ETH_USDC_SWAP } from "../../common/constants";
+import { BLOCK_XY_FINANCE_ETH_USDC_SWAP } from "../../constants";
 import Chain from "../../core/chain";
 
 class XyFinanceEthUsdcSwap extends BaseXyFinanceEthToTokenSwap {

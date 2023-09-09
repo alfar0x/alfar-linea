@@ -23,7 +23,8 @@
     "es6": true
   },
   "ignorePatterns": [
-    "node_modules"
+    "node_modules",
+    "src/test.ts"
   ],
   "settings": {
     "import/parsers": {

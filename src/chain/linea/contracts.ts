@@ -9,7 +9,7 @@ import {
   CONTRACT_DMAIL,
   CONTRACT_OPEN_OCEAN_EXCHANGE,
   CONTRACT_XY_FINANCE_ROUTER,
-} from "../../common/constants";
+} from "../../constants";
 
 const contracts = {
   [CONTRACT_SYNC_SWAP_ROUTER]: "0x80e38291e06339d10aab483c65695d004dbd5c69",

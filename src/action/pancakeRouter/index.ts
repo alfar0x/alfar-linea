@@ -6,12 +6,11 @@ import {
   CONTRACT_PANCAKE_FACTORY,
   CONTRACT_PANCAKE_QUOTE,
   SLIPPAGE_PERCENT,
-} from "../../common/constants";
+} from "../../constants";
 import Token from "../../core/token";
 import { ethers } from "ethers";
 import Chain from "../../core/chain";
 import Big from "big.js";
-import BN from "bn.js";
 
 // ethers encoder used due to web3 js does not support uint24
 const pancakeFactoryPartialInterface = new ethers.Interface([

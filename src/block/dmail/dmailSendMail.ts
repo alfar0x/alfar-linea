@@ -1,5 +1,5 @@
 import BaseDmail from "./base";
-import { BLOCK_DMAIL_SEND_MAIL } from "../../common/constants";
+import { BLOCK_DMAIL_SEND_MAIL } from "../../constants";
 
 class DmailSendMail extends BaseDmail {
   name = BLOCK_DMAIL_SEND_MAIL;

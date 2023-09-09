@@ -1,5 +1,5 @@
-import sleep from "../common/sleep";
-import logger from "../common/logger";
+import sleep from "../utils/sleep";
+import logger from "../utils/logger";
 import formatIntervalSec from "./formatIntervalSec";
 import getMyIp from "./getMyIp";
 const sleepSec = 60;

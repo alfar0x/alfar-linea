@@ -1,4 +1,4 @@
-import logger from "../common/logger";
+import logger from "../utils/logger";
 import Account from "./account";
 import Step from "./step";
 import Chain from "./chain";

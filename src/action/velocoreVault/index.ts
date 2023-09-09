@@ -5,13 +5,13 @@ import {
   CONTRACT_VELOCORE_FACTORY,
   CONTRACT_VELOCORE_VAULT,
   SLIPPAGE_PERCENT,
-} from "../../common/constants";
+} from "../../constants";
 import Token from "../../core/token";
 import getContract from "../../utils/getContract";
 import { ethers } from "ethers";
 import Big from "big.js";
 import Chain from "../../core/chain";
-import logger from "../../common/logger";
+import logger from "../../utils/logger";
 
 const tokenTypes = {
   erc20: 0,

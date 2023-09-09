@@ -15,7 +15,7 @@ import {
   BLOCK_XY_FINANCE_ETH_CEBUSD_SWAP,
   BLOCK_XY_FINANCE_ETH_USDC_SWAP,
   BLOCK_XY_FINANCE_ETH_USDT_SWAP,
-} from "../../common/constants";
+} from "../../constants";
 
 const availableBlocks = [
   BLOCK_SYNC_SWAP_ETH_USDC_SWAP,

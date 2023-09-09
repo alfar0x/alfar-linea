@@ -1,5 +1,5 @@
 import BaseVelocoreEthToTokenSwap from "./base";
-import { BLOCK_VELOCORE_ETH_CEBUSD_SWAP } from "../../common/constants";
+import { BLOCK_VELOCORE_ETH_CEBUSD_SWAP } from "../../constants";
 import Chain from "../../core/chain";
 
 class VelocoreEthCebusdSwap extends BaseVelocoreEthToTokenSwap {

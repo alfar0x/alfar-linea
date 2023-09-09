@@ -8,7 +8,7 @@ import {
   CONTRACT_VELOCORE_VAULT,
   CONTRACT_VELOCORE_FACTORY,
   CONTRACT_DMAIL,
-} from "../common/constants";
+} from "../constants";
 import { VELOCORE_VAULT } from "../abi/types/VELOCORE_VAULT";
 import { ERC_20 } from "../abi/types/ERC_20";
 import { SYNC_SWAP_ROUTER } from "../abi/types/SYNC_SWAP_ROUTER";

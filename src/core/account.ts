@@ -6,7 +6,7 @@ import Chain from "./chain";
 import randomInteger from "../utils/randomInteger";
 import Big from "big.js";
 import Token from "./token";
-import logger from "../common/logger";
+import logger from "../utils/logger";
 
 const evmAccountPrivateKeyLength = 66;
 

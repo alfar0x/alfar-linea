@@ -3,7 +3,7 @@ import getMyIp from "../utils/getMyIp";
 import waitInternetConnection from "../utils/waitInternetConnection";
 import rawTokens from "../chain/linea/rawTokens";
 import Big from "big.js";
-import logger from "../common/logger";
+import logger from "../utils/logger";
 
 type TokenId = string;
 

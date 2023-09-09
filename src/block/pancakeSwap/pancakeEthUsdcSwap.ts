@@ -1,5 +1,5 @@
 import BasePancakeEthToTokenSwap from "./base";
-import { BLOCK_PANCAKE_ETH_USDC_SWAP } from "../../common/constants";
+import { BLOCK_PANCAKE_ETH_USDC_SWAP } from "../../constants";
 import Chain from "../../core/chain";
 
 class PancakeEthUsdcSwap extends BasePancakeEthToTokenSwap {

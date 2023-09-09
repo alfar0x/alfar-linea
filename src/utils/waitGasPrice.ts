@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 import Web3 from "web3";
-import sleep from "../common/sleep";
+import sleep from "../utils/sleep";
 import Big from "big.js";
-import logger from "../common/logger";
+import logger from "../utils/logger";
 import formatIntervalSec from "./formatIntervalSec";
 
 const waitGasLimit = async (
