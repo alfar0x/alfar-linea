@@ -44,24 +44,24 @@ There are several modes available for the account manager (script runner) to use
 5. Select the desired mode and the corresponding config file
 
 ## Block
-The block mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them. Currently works with 4 dapps, has 12 blocks:
-- syncswap - swap eth -> usdc -> eth
-- syncswap - swap eth -> cebusd -> eth
-- syncswap - swap eth -> wbtc -> eth
-- velocore - swap eth -> usdc -> eth
-- velocore - swap eth -> cebusd -> eth
-- dmail - send random email
-- open ocean - swap eth -> usdc -> eth
-- open ocean - swap eth -> iusd -> eth
-- open ocean - swap eth -> izi -> eth
-- open ocean - swap eth -> wavax -> eth
-- open ocean - swap eth -> wmatic -> eth
-- open ocean - swap eth -> wbnb -> eth
-- open ocean - swap eth -> cebusd -> eth
-- xy finance - swap eth -> cebusd => eth
-- xy finance - swap eth -> usdc => eth
-- xy finance - swap eth -> usdt => eth
-- pancake - swap eth -> usdc => eth
+The block mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them. Currently next blocks are available:
+1. syncswap - swap eth -> usdc -> eth
+1. syncswap - swap eth -> cebusd -> eth
+1. syncswap - swap eth -> wbtc -> eth
+1. velocore - swap eth -> usdc -> eth
+1. velocore - swap eth -> cebusd -> eth
+1. dmail - send random email
+1. open ocean - swap eth -> usdc -> eth
+1. open ocean - swap eth -> iusd -> eth
+1. open ocean - swap eth -> izi -> eth
+1. open ocean - swap eth -> wavax -> eth
+1. open ocean - swap eth -> wmatic -> eth
+1. open ocean - swap eth -> wbnb -> eth
+1. open ocean - swap eth -> cebusd -> eth
+1. xy finance - swap eth -> cebusd => eth
+1. xy finance - swap eth -> usdc => eth
+1. xy finance - swap eth -> usdt => eth
+1. pancake - swap eth -> usdc => eth
 
 
 ### Config
