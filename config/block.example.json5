@@ -18,6 +18,9 @@
       "BLOCK_OPEN_OCEAN_ETH_WMATIC_SWAP",
       "BLOCK_OPEN_OCEAN_ETH_WBNB_SWAP",
       "BLOCK_OPEN_OCEAN_ETH_CEBUSD_SWAP",
+      "BLOCK_XY_FINANCE_ETH_CEBUSD_SWAP",
+      "BLOCK_XY_FINANCE_ETH_USDC_SWAP",
+      "BLOCK_XY_FINANCE_ETH_USDT_SWAP",
     ],
     blocksCount: { min: 3, max: 6 },
     delaySec: {

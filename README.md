@@ -58,6 +58,9 @@ The block mode uses private keys, proxies (optional), and configurations to exec
 - open ocean - swap eth -> wmatic -> eth
 - open ocean - swap eth -> wbnb -> eth
 - open ocean - swap eth -> cebusd -> eth
+- xy finance - swap eth -> cebusd => eth
+- xy finance - swap eth -> usdc => eth
+- xy finance - swap eth -> usdt => eth
 
 
 ### Config

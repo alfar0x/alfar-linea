@@ -18,3 +18,4 @@
 * [ ] Add the name to the block example `config/block.example.json5`  
 * [ ] Add it to the available blocks in `src/config/block/availableBlocks.ts`  
 * [ ] Add the block class to the worker so it can use it in `src/worker/block/initializeBlocks.ts`
+* [ ] Add the block description in README file `README.md`

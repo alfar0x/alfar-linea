@@ -1,24 +1,25 @@
 import Web3 from "web3";
 import {
-  ACTION_OPEN_OCEAN_SWAP,
-  CONTRACT_OPEN_OCEAN_EXCHANGE,
+  ACTION_XY_FINANCE_SWAP,
+  CONTRACT_XY_FINANCE_ROUTER,
   SLIPPAGE_PERCENT,
 } from "../../common/constants";
 import Action from "../../core/action";
 import Token from "../../core/token";
 import axios from "axios";
 import Account from "../../core/account";
-import { OpenOceanSwapQuote } from "./types";
-import { chainData } from "./chainData";
 import Big from "big.js";
 import Chain from "../../core/chain";
+import { XyFinanceBuildTx, XyFinanceQuote } from "./types";
+import sleep from "../../common/sleep";
 
-class OpenOceanExchange extends Action {
-  name = ACTION_OPEN_OCEAN_SWAP;
-  url = "https://open-api.openocean.finance/v3";
+class XyFinanceRouter extends Action {
+  name = ACTION_XY_FINANCE_SWAP;
+  url = "https://aggregator-api.xy.finance/v1/";
+  gasPriceMultiplier = 1.5;
 
   public getAddressToApprove(chain: Chain) {
-    return chain.getContractAddressByName(CONTRACT_OPEN_OCEAN_EXCHANGE);
+    return chain.getContractAddressByName(CONTRACT_XY_FINANCE_ROUTER);
   }
 
   private getRandomWalletAddress() {
@@ -34,14 +35,50 @@ class OpenOceanExchange extends Action {
     return randomWalletAddress.join("");
   }
 
-  async swapQuoteRequest(params: {
+  async quoteRequest(params: {
+    fromToken: Token;
+    toToken: Token;
+    normalizedAmount: number | string;
+  }) {
+    const { fromToken, toToken, normalizedAmount } = params;
+
+    const chainId = String(fromToken.chain.chainId);
+    const searchParams = {
+      srcChainId: chainId,
+      srcQuoteTokenAddress: fromToken.address,
+      srcQuoteTokenAmount: String(normalizedAmount),
+      dstChainId: chainId,
+      dstQuoteTokenAddress: toToken.address,
+      slippage: String(SLIPPAGE_PERCENT),
+    };
+
+    const urlParams = new URLSearchParams(searchParams).toString();
+    const url = `${this.url}/quote?${urlParams}`;
+
+    const { data } = await axios.get<XyFinanceQuote>(url);
+
+    if (!data.success) throw new Error(data.errorMsg || String(data.errorCode));
+
+    if (data.routes.length !== 1) {
+      throw new Error(
+        `Unexpected error. Routes === ${data.routes.length}. Please contact developer`
+      );
+    }
+
+    const { srcSwapDescription, contractAddress } = data.routes[0];
+    const { provider } = srcSwapDescription;
+
+    return { provider, contractAddress };
+  }
+
+  async buildTxRequest(params: {
     account: Account;
     fromToken: Token;
     toToken: Token;
     normalizedAmount: number | string;
-    chainPath: string;
+    provider: string;
   }) {
-    const { account, fromToken, toToken, normalizedAmount, chainPath } = params;
+    const { account, fromToken, toToken, normalizedAmount, provider } = params;
 
     const randomWalletAddress = this.getRandomWalletAddress();
 
@@ -49,43 +86,49 @@ class OpenOceanExchange extends Action {
       "0x" + randomWalletAddress
     );
 
-    const readableAmount = await fromToken.toReadableAmount(
-      normalizedAmount,
-      true
-    );
-    const gasPrice = await fromToken.chain.w3.eth.getGasPrice();
+    const chainId = String(fromToken.chain.chainId);
 
     const searchParams = {
-      inTokenAddress: fromToken.address,
-      outTokenAddress: toToken.address,
-      amount: readableAmount,
-      gasPrice: gasPrice.toString(),
+      srcChainId: chainId,
+      srcQuoteTokenAddress: fromToken.address,
+      srcQuoteTokenAmount: String(normalizedAmount),
+      dstChainId: chainId,
+      dstQuoteTokenAddress: toToken.address,
       slippage: String(SLIPPAGE_PERCENT),
-      account: fullRandomAddress,
+      receiver: fullRandomAddress,
+      srcSwapProvider: provider,
     };
 
     const urlParams = new URLSearchParams(searchParams).toString();
-    const url = `${this.url}/${chainPath}/swap_quote?${urlParams}`;
+    const url = `${this.url}/buildTx?${urlParams}`;
 
-    const { data } = await axios.get<OpenOceanSwapQuote>(url);
+    const { data } = await axios.get<XyFinanceBuildTx>(url);
+    console.log(JSON.stringify(data, null, 2));
 
-    if (data.code !== 200) throw new Error(data.errorMsg || data.error);
+    if (!data.success) throw new Error(data.errorMsg || String(data.errorCode));
 
-    const { to, value, estimatedGas, minOutAmount } = data.data;
+    const { minReceiveAmount, estimatedGas } = data.route;
+    const { to, value } = data.tx;
 
     const addressToChangeTo = account.address.toLocaleLowerCase().substring(2);
 
-    const contractData = data.data.data.replaceAll(
+    const contractData = data.tx.data.replaceAll(
       randomWalletAddress,
       addressToChangeTo
     );
+
+    console.log(randomWalletAddress);
+    console.log(addressToChangeTo);
+    console.log(data.tx.data);
+    console.log("\n\n");
+    console.log(contractData);
 
     return {
       data: contractData,
       to,
       value,
       estimatedGas,
-      minOutNormalizedAmount: minOutAmount,
+      minOutNormalizedAmount: minReceiveAmount,
     };
   }
 
@@ -99,18 +142,16 @@ class OpenOceanExchange extends Action {
 
     const { chain } = fromToken;
 
-    const { chainPath } = chainData[chain.chainId] || {};
+    const routerContractAddress = this.getAddressToApprove(chain);
 
-    const exchangeContractAddress = this.getAddressToApprove(chain);
-
-    if (!chainPath || !exchangeContractAddress) {
+    if (!routerContractAddress) {
       throw new Error(`${this.name} action is not available in ${chain.name}`);
     }
 
     if (!fromToken.isNative) {
       const normalizedAllowance = await fromToken.normalizedAllowance(
         account,
-        exchangeContractAddress
+        routerContractAddress
       );
 
       if (Big(normalizedAllowance).lt(normalizedAmount)) {
@@ -148,7 +189,7 @@ class OpenOceanExchange extends Action {
       );
     }
 
-    return { chainPath, exchangeContractAddress };
+    return { routerContractAddress };
   }
 
   async swap(params: {
@@ -161,25 +202,39 @@ class OpenOceanExchange extends Action {
 
     const { chain } = fromToken;
     const { w3 } = chain;
-    const { chainPath, exchangeContractAddress } = await this.checkIsAllowed({
+    const { routerContractAddress } = await this.checkIsAllowed({
       account,
       fromToken,
       toToken,
       normalizedAmount,
     });
 
+    const { provider, contractAddress } = await this.quoteRequest({
+      fromToken,
+      toToken,
+      normalizedAmount,
+    });
+
+    if (contractAddress !== routerContractAddress) {
+      throw new Error(
+        `Unexpected error: contractAddress !== routerContractAddress: ${contractAddress} !== ${routerContractAddress}. Please contact developer`
+      );
+    }
+
+    await sleep(3);
+
     const { data, to, value, estimatedGas, minOutNormalizedAmount } =
-      await this.swapQuoteRequest({
+      await this.buildTxRequest({
         account,
         fromToken,
         toToken,
         normalizedAmount,
-        chainPath,
+        provider,
       });
 
-    if (to !== exchangeContractAddress) {
+    if (to !== routerContractAddress) {
       throw new Error(
-        `Unexpected error: to !== exchangeContractAddress: ${to} !== ${exchangeContractAddress}. Please contact developer`
+        `Unexpected error: to !== routerContractAddress: ${to} !== ${routerContractAddress}. Please contact developer`
       );
     }
 
@@ -190,12 +245,14 @@ class OpenOceanExchange extends Action {
     const tx = {
       data,
       from: account.address,
-      gas: estimatedGas,
+      gas: Big(estimatedGas).times(this.gasPriceMultiplier).round().toString(),
       gasPrice,
       nonce,
-      to: exchangeContractAddress,
-      value,
+      to: routerContractAddress,
+      value: normalizedAmount,
     };
+
+    console.log(tx);
 
     const hash = await account.signAndSendTransaction(chain, tx);
 
@@ -208,4 +265,4 @@ class OpenOceanExchange extends Action {
   }
 }
 
-export default OpenOceanExchange;
+export default XyFinanceRouter;

@@ -13,6 +13,9 @@ import OpenOceanEthUsdcSwap from "../../block/openOceanSwap/openOceanEthUsdcSwap
 import OpenOceanEthWavaxSwap from "../../block/openOceanSwap/openOceanEthWavaxSwap";
 import OpenOceanEthWbnbSwap from "../../block/openOceanSwap/openOceanEthWbnbSwap";
 import OpenOceanEthWmaticSwap from "../../block/openOceanSwap/openOceanEthWmaticSwap";
+import XyFinanceEthCebusdSwap from "../../block/xyFinanceSwap/xyFinanceEthCebusdSwap";
+import XyFinanceEthUsdcSwap from "../../block/xyFinanceSwap/xyFinanceEthUsdcSwap";
+import XyFinanceEthUsdtSwap from "../../block/xyFinanceSwap/xyFinanceEthUsdtSwap";
 
 const initializeBlocks = (params: {
   chain: Chain;
@@ -78,6 +81,21 @@ const initializeBlocks = (params: {
       maxWorkAmountPercent,
     }),
     new OpenOceanEthWmaticSwap({
+      chain,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    }),
+    new XyFinanceEthCebusdSwap({
+      chain,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    }),
+    new XyFinanceEthUsdcSwap({
+      chain,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    }),
+    new XyFinanceEthUsdtSwap({
       chain,
       minWorkAmountPercent,
       maxWorkAmountPercent,
