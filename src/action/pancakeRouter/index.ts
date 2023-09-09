@@ -4,29 +4,46 @@ import {
   ACTION_PANCAKE_ROUTER,
   CONTRACT_PANCAKE_SWAP_ROUTER,
   CONTRACT_PANCAKE_FACTORY,
+  CONTRACT_PANCAKE_QUOTE,
   SLIPPAGE_PERCENT,
 } from "../../common/constants";
 import Token from "../../core/token";
-import getContract from "../../utils/getContract";
 import { ethers } from "ethers";
 import Chain from "../../core/chain";
 import Big from "big.js";
+import BN from "bn.js";
+
+// ethers encoder used due to web3 js does not support uint24
+const pancakeFactoryPartialInterface = new ethers.Interface([
+  "function getPool(address, address, uint24) view",
+]);
+
+const pancakeRouterPartialInterface = new ethers.Interface([
+  "function exactInputSingle(tuple(address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96) params) payable returns (uint256 amountOut)",
+  "function multicall(uint256 deadline, bytes[] data) payable returns (bytes[])",
+  "function unwrapWETH9(uint256 amountMinimum, address recipient)",
+]);
+
+type QuoteExactInputSingleResult = readonly [bigint, bigint, bigint, bigint];
+
+const pancakeQuotePartialInterface = new ethers.Interface([
+  "function quoteExactInputSingle(tuple(address tokenIn, address tokenOut, uint256 amountIn, uint24 fee, uint160 sqrtPriceLimitX96) params) returns (uint256 amountOut, uint160 sqrtPriceX96After, uint32 initializedTicksCrossed, uint256 gasEstimate)",
+]);
 
 class PancakeRouter extends Action {
   name = ACTION_PANCAKE_ROUTER;
-  defaultFee = 500;
+  defaultFee = 100;
   defaultSqrtPriceLimitX96 = 0;
+  addressToUnwrapEth = "0x0000000000000000000000000000000000000002";
+  defaultGasMultiplier = 2.5;
 
   public getAddressToApprove(chain: Chain) {
     return chain.getContractAddressByName(CONTRACT_PANCAKE_SWAP_ROUTER);
   }
 
-  protected async getPool(params: {
-    chain: Chain;
-    fromToken: Token;
-    toToken: Token;
-  }) {
-    const { chain, fromToken, toToken } = params;
+  async getPool(params: { fromToken: Token; toToken: Token }) {
+    const { fromToken, toToken } = params;
+    const { chain } = fromToken;
 
     const poolFactoryContractAddress = chain.getContractAddressByName(
       CONTRACT_PANCAKE_FACTORY
@@ -36,132 +53,82 @@ class PancakeRouter extends Action {
       throw new Error(`${this.name} action is not available in ${chain.name}`);
     }
 
-    const poolFactoryContract = getContract({
-      w3: chain.w3,
-      name: CONTRACT_PANCAKE_FACTORY,
-      address: poolFactoryContractAddress,
-    });
-
-    const poolAddress = await poolFactoryContract.methods
-      .getPool(
+    const getPoolData = pancakeFactoryPartialInterface.encodeFunctionData(
+      "getPool",
+      [
         fromToken.getAddressOrWrappedForNative(),
         toToken.getAddressOrWrappedForNative(),
-        this.defaultFee
-      )
-      .call();
+        this.defaultFee,
+      ]
+    );
+
+    const poolAddress = await chain.w3.eth.call({
+      data: getPoolData,
+      to: poolFactoryContractAddress,
+    });
 
     return poolAddress;
   }
 
-  private async swapFromEth(params: {
-    account: Account;
+  private async getQuote(params: {
+    chain: Chain;
     fromToken: Token;
     toToken: Token;
-    normalizedAmount: number | string;
-    minOutNormalizedAmount: number | string;
-    routerContractAddress: string;
+    normalizedAmount: string | number;
   }) {
-    const {
-      account,
-      fromToken,
-      toToken,
-      normalizedAmount,
-      minOutNormalizedAmount,
-      routerContractAddress,
-    } = params;
+    const { chain, fromToken, toToken, normalizedAmount } = params;
 
-    const { chain } = fromToken;
-    const { w3 } = chain;
-
-    const deadline = await chain.getSwapDeadline();
-
-    const routerContract = getContract({
-      w3,
-      name: CONTRACT_PANCAKE_SWAP_ROUTER,
-      address: routerContractAddress,
-    });
-
-    const exactInputSingleCall = routerContract.methods.exactInputSingle([
-      fromToken.getAddressOrWrappedForNative(),
-      toToken.getAddressOrWrappedForNative(),
-      this.defaultFee,
-      account.address,
-      normalizedAmount,
-      minOutNormalizedAmount,
-      this.defaultSqrtPriceLimitX96,
-    ]);
-
-    const multicallFunction =
-      routerContract.methods["multicall(uint256,bytes[])"];
-
-    const multicallCall = multicallFunction(deadline, [
-      exactInputSingleCall.encodeABI(),
-    ]);
-
-    return multicallCall;
-  }
-
-  private async swapToEthCall(params: {
-    account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
-    minOutNormalizedAmount: number | string;
-    routerContractAddress: string;
-  }) {
-    const {
-      account,
-      fromToken,
-      toToken,
-      normalizedAmount,
-      minOutNormalizedAmount,
-      routerContractAddress,
-    } = params;
-
-    const { chain } = fromToken;
-    const { w3 } = chain;
-
-    const deadline = await chain.getSwapDeadline();
-
-    const routerContract = getContract({
-      w3,
-      name: CONTRACT_PANCAKE_SWAP_ROUTER,
-      address: routerContractAddress,
-    });
-
-    const exactInputSingleCall = routerContract.methods.exactInputSingle([
-      fromToken.getAddressOrWrappedForNative(),
-      toToken.getAddressOrWrappedForNative(),
-      this.defaultFee,
-      ethers.ZeroAddress,
-      normalizedAmount,
-      minOutNormalizedAmount,
-      this.defaultSqrtPriceLimitX96,
-    ]);
-
-    const wrapEthCall = routerContract.methods.unwrapWETH9(
-      minOutNormalizedAmount,
-      account.address
+    const poolQuoteContractAddress = chain.getContractAddressByName(
+      CONTRACT_PANCAKE_QUOTE
     );
 
-    const multicallFunction =
-      routerContract.methods["multicall(uint256,bytes[])"];
+    if (!poolQuoteContractAddress) {
+      throw new Error(`${this.name} action is not available in ${chain.name}`);
+    }
 
-    const multicallCall = multicallFunction(deadline, [
-      exactInputSingleCall.encodeABI(),
-      wrapEthCall.encodeABI(),
-    ]);
+    const quoteExactInputSingleData =
+      pancakeQuotePartialInterface.encodeFunctionData("quoteExactInputSingle", [
+        [
+          fromToken.getAddressOrWrappedForNative(),
+          toToken.getAddressOrWrappedForNative(),
+          normalizedAmount,
+          this.defaultFee,
+          this.defaultSqrtPriceLimitX96,
+        ],
+      ]);
 
-    return multicallCall;
+    const quoteExactInputSingleResult = await chain.w3.eth.call({
+      data: quoteExactInputSingleData,
+      to: poolQuoteContractAddress,
+    });
+
+    const [amountOut, , , gasEstimate] =
+      pancakeQuotePartialInterface.decodeFunctionResult(
+        "quoteExactInputSingle",
+        quoteExactInputSingleResult
+      ) as unknown as QuoteExactInputSingleResult;
+
+    const amount = amountOut.toString();
+    const slippageAmount = Big(amount).times(SLIPPAGE_PERCENT).div(100);
+    const minOutNormalizedAmount = Big(amount)
+      .minus(slippageAmount)
+      .round()
+      .toString();
+
+    const estimatedGas = Big(gasEstimate.toString())
+      .times(this.defaultGasMultiplier)
+      .round()
+      .toString();
+
+    return { minOutNormalizedAmount, estimatedGas };
   }
 
-  private async getSwapCall(params: {
+  private async getSwapData(params: {
     account: Account;
     fromToken: Token;
     toToken: Token;
     normalizedAmount: number | string;
     minOutNormalizedAmount: number | string;
-    routerContractAddress: string;
   }) {
     const {
       account,
@@ -169,34 +136,51 @@ class PancakeRouter extends Action {
       toToken,
       normalizedAmount,
       minOutNormalizedAmount,
-      routerContractAddress,
     } = params;
 
-    if (fromToken.isNative) {
-      return await this.swapToEthCall({
-        account,
-        fromToken,
-        toToken,
-        normalizedAmount,
-        minOutNormalizedAmount,
-        routerContractAddress,
-      });
+    if (!fromToken.isNative && !toToken.isNative) {
+      throw new Error(
+        `swap token -> token (not native) is not implemented yet: ${fromToken} -> ${toToken}`
+      );
     }
+
+    const { chain } = fromToken;
+
+    const deadline = await chain.getSwapDeadline();
+
+    const address = toToken.isNative
+      ? this.addressToUnwrapEth
+      : account.address;
+
+    const exactInputSingleData =
+      pancakeRouterPartialInterface.encodeFunctionData("exactInputSingle", [
+        [
+          fromToken.getAddressOrWrappedForNative(),
+          toToken.getAddressOrWrappedForNative(),
+          this.defaultFee,
+          address,
+          normalizedAmount,
+          minOutNormalizedAmount,
+          this.defaultSqrtPriceLimitX96,
+        ],
+      ]);
+
+    const multicallBytesArray = [exactInputSingleData];
 
     if (toToken.isNative) {
-      return await this.swapFromEth({
-        account,
-        fromToken,
-        toToken,
-        normalizedAmount,
-        minOutNormalizedAmount,
-        routerContractAddress,
-      });
+      const unwrapEthData = pancakeRouterPartialInterface.encodeFunctionData(
+        "unwrapWETH9",
+        [minOutNormalizedAmount, account.address]
+      );
+      multicallBytesArray.push(unwrapEthData);
     }
 
-    throw new Error(
-      `swap token -> token (not native) is not implemented yet: ${fromToken} -> ${toToken}`
-    );
+    const data = pancakeRouterPartialInterface.encodeFunctionData("multicall", [
+      deadline,
+      multicallBytesArray,
+    ]);
+
+    return { data };
   }
 
   private async checkIsAllowed(params: {
@@ -223,7 +207,7 @@ class PancakeRouter extends Action {
       );
     }
 
-    const poolAddress = await this.getPool({ chain, fromToken, toToken });
+    const poolAddress = await this.getPool({ fromToken, toToken });
 
     if (!poolAddress) {
       throw new Error(`${fromToken.name} -> ${toToken.name} pool not found`);
@@ -286,24 +270,19 @@ class PancakeRouter extends Action {
 
     const value = fromToken.isNative ? normalizedAmount : 0;
 
-    const minOutNormalizedAmount = await toToken.getMinOutNormalizedAmount(
+    const { minOutNormalizedAmount, estimatedGas } = await this.getQuote({
+      chain,
       fromToken,
+      toToken,
       normalizedAmount,
-      SLIPPAGE_PERCENT
-    );
+    });
 
-    const swapFunctionCall = await this.getSwapCall({
+    const { data } = await this.getSwapData({
       account,
       fromToken,
       toToken,
       normalizedAmount,
       minOutNormalizedAmount,
-      routerContractAddress,
-    });
-
-    const estimatedGas = await swapFunctionCall.estimateGas({
-      from: account.address,
-      value,
     });
 
     const nonce = await account.nonce(w3);
@@ -311,7 +290,7 @@ class PancakeRouter extends Action {
     const gasPrice = await w3.eth.getGasPrice();
 
     const tx = {
-      data: swapFunctionCall.encodeABI(),
+      data,
       from: account.address,
       gas: estimatedGas,
       gasPrice,

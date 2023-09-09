@@ -113,11 +113,11 @@ class Chain {
     return this.chainId === chain.chainId;
   }
 
-  async getSwapDeadline(blocksToAdd = 1800) {
+  async getSwapDeadline(sec = 1800) {
     const lastBlock = await this.w3.eth.getBlock("latest");
     const currentTimestamp = lastBlock.timestamp;
 
-    return Big(currentTimestamp.toString()).plus(blocksToAdd).toNumber();
+    return Big(currentTimestamp.toString()).plus(sec).toNumber();
   }
 
   toString() {

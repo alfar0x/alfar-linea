@@ -103,7 +103,6 @@ class XyFinanceRouter extends Action {
     const url = `${this.url}/buildTx?${urlParams}`;
 
     const { data } = await axios.get<XyFinanceBuildTx>(url);
-    console.log(JSON.stringify(data, null, 2));
 
     if (!data.success) throw new Error(data.errorMsg || String(data.errorCode));
 
@@ -116,12 +115,6 @@ class XyFinanceRouter extends Action {
       randomWalletAddress,
       addressToChangeTo
     );
-
-    console.log(randomWalletAddress);
-    console.log(addressToChangeTo);
-    console.log(data.tx.data);
-    console.log("\n\n");
-    console.log(contractData);
 
     return {
       data: contractData,
@@ -251,8 +244,6 @@ class XyFinanceRouter extends Action {
       to: routerContractAddress,
       value: normalizedAmount,
     };
-
-    console.log(tx);
 
     const hash = await account.signAndSendTransaction(chain, tx);
 
