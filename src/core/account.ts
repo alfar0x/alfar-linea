@@ -50,7 +50,11 @@ class Account {
   }
 
   toString() {
-    return `[${this.fileIndex + 1}] ${this.shortAddress}`;
+    const idx = this.fileIndex + 1;
+    const addr = this.shortAddress;
+    const txs = this._transactionsPerformed;
+
+    return `[${idx}] ${addr} (txs:${txs})`;
   }
 
   isEquals(account: Account) {

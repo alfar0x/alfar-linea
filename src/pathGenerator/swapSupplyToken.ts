@@ -69,7 +69,9 @@ class SwapSupplyTokenPathGenerator extends PathGenerator {
   }) {
     const { account, minWorkAmountPercent, maxWorkAmountPercent } = params;
 
-    const { buySwapBlock, sellSwapBlock } = randomChoice(this.possibleWays);
+    const { buySwapBlock, supplyBlock, sellSwapBlock } = randomChoice(
+      this.possibleWays
+    );
 
     const buySteps = await buySwapBlock.swapPercentSteps({
       account,
@@ -77,9 +79,13 @@ class SwapSupplyTokenPathGenerator extends PathGenerator {
       maxWorkAmountPercent,
     });
 
+    const supplySteps = await supplyBlock.supplyBalanceSteps({ account });
+
+    const redeemAllSteps = await supplyBlock.redeemAllSteps({ account });
+
     const sellSteps = await sellSwapBlock.swapBalanceSteps({ account });
 
-    return [...buySteps, ...sellSteps];
+    return [...buySteps, ...supplySteps, ...redeemAllSteps, ...sellSteps];
   }
 }
 

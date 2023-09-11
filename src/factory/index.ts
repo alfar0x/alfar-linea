@@ -8,11 +8,14 @@ import Step from "../core/step";
 import RandomPathGenerator from "../pathGenerator/random";
 import SupplyEthPathGenerator from "../pathGenerator/supplyEth";
 import SwapEthTokenEthPathGenerator from "../pathGenerator/swapEthTokenEth";
+import SwapSupplyTokenPathGenerator from "../pathGenerator/swapSupplyToken";
 import randomChoice from "../utils/random/randomChoice";
 
-type Generator = "SWAP_ETH_TOKEN_ETH" | "SUPPLY_ETH" | "RANDOM";
-
-const TEMPORARY_RANDOM_STEPS_COUNT_MULTIPLIER = 5;
+type Generator =
+  | "SWAP_ETH_TOKEN_ETH"
+  | "SUPPLY_ETH"
+  | "SWAP_SUPPLY_TOKEN"
+  | "RANDOM";
 
 class Factory {
   /*
@@ -23,6 +26,7 @@ class Factory {
 
   private swapEthToTokenPath: SwapEthTokenEthPathGenerator;
   private supplyEthPath: SupplyEthPathGenerator;
+  private swapSupplyTokenPath: SwapSupplyTokenPathGenerator;
   private randomBlockPath: RandomPathGenerator;
 
   private randomBlocks: RandomBlock[];
@@ -48,13 +52,24 @@ class Factory {
 
     this.swapEthToTokenPath = new SwapEthTokenEthPathGenerator({ swapBlocks });
     this.supplyEthPath = new SupplyEthPathGenerator({ supplyBlocks });
+    this.swapSupplyTokenPath = new SwapSupplyTokenPathGenerator({
+      supplyBlocks,
+      swapBlocks,
+    });
     this.randomBlockPath = new RandomPathGenerator({ randomBlocks });
 
+    // this.generatorsWithWeights = {
+    //   SWAP_ETH_TOKEN_ETH: this.swapEthToTokenPath.count(),
+    //   SUPPLY_ETH: this.supplyEthPath.count(),
+    //   SWAP_SUPPLY_TOKEN: this.swapSupplyTokenPath.count(),
+    //   RANDOM: this.randomBlockPath.count(),
+    // };
+
     this.generatorsWithWeights = {
-      SWAP_ETH_TOKEN_ETH: this.swapEthToTokenPath.count(),
-      SUPPLY_ETH: this.supplyEthPath.count(),
-      RANDOM:
-        this.randomBlockPath.count() * TEMPORARY_RANDOM_STEPS_COUNT_MULTIPLIER,
+      SWAP_ETH_TOKEN_ETH: 60,
+      SUPPLY_ETH: 10,
+      SWAP_SUPPLY_TOKEN: 10,
+      RANDOM: 30,
     };
 
     this.randomBlocks = randomBlocks;
@@ -62,23 +77,17 @@ class Factory {
     this.maxWorkAmountPercent = maxWorkAmountPercent;
   }
 
-  private getRandomWeightedGenerator() {
-    const generatorKeys = Object.keys(
-      this.generatorsWithWeights
-    ) as Generator[];
-
-    const totalWeight = generatorKeys.reduce(
-      (acc, key) => acc + this.generatorsWithWeights[key],
+  getRandomWeightedItem() {
+    const totalWeight = Object.values(this.generatorsWithWeights).reduce(
+      (sum, weight) => sum + weight,
       0
     );
 
     let randomValue = Math.random() * totalWeight;
 
-    for (const key of generatorKeys) {
-      const weight = this.generatorsWithWeights[key];
-      if (randomValue < weight) return key;
-
+    for (const [key, weight] of Object.entries(this.generatorsWithWeights)) {
       randomValue -= weight;
+      if (randomValue <= 0) return key as Generator;
     }
 
     return null;
@@ -87,7 +96,7 @@ class Factory {
   private async generateRandomSteps(params: { account: Account }) {
     const { account } = params;
 
-    const generator = this.getRandomWeightedGenerator();
+    const generator = this.getRandomWeightedItem();
 
     switch (generator) {
       case "SWAP_ETH_TOKEN_ETH": {
@@ -99,6 +108,13 @@ class Factory {
       }
       case "SUPPLY_ETH": {
         return await this.supplyEthPath.generateSteps({
+          account,
+          minWorkAmountPercent: this.minWorkAmountPercent,
+          maxWorkAmountPercent: this.maxWorkAmountPercent,
+        });
+      }
+      case "SWAP_SUPPLY_TOKEN": {
+        return await this.swapSupplyTokenPath.generateSteps({
           account,
           minWorkAmountPercent: this.minWorkAmountPercent,
           maxWorkAmountPercent: this.maxWorkAmountPercent,
@@ -129,7 +145,7 @@ class Factory {
 
     return Big(this.generatorsWithWeights.RANDOM)
       .div(totalWeight)
-      .lte(Math.random());
+      .gte(Math.random());
   }
 
   private addRandomSteps(account: Account, steps: Step[]) {

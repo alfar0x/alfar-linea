@@ -10,7 +10,7 @@ const minMaxRefine = [
 
 export const dynamicSchema = z.object({
   maxLineaGwei: z.number().positive(),
-  minEthBalance: z.number().positive().min(0.001),
+  minEthBalance: z.number().min(0.001),
 });
 
 const providersSchema = z.array(createUnionSchema(ACTION_PROVIDERS)).min(1);
@@ -43,7 +43,7 @@ const filesSchema = z.object({
     ),
 });
 
-const maxParallelAccountsSchema = z.number().positive().min(1);
+const maxParallelAccountsSchema = z.number().positive().min(1).max(10);
 
 const proxySchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("none") }),
