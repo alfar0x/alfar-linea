@@ -66,10 +66,10 @@ class Factory {
     // };
 
     this.generatorsWithWeights = {
-      SWAP_ETH_TOKEN_ETH: 60,
+      SWAP_ETH_TOKEN_ETH: 70,
       SUPPLY_ETH: 10,
       SWAP_SUPPLY_TOKEN: 10,
-      RANDOM: 30,
+      RANDOM: 10,
     };
 
     this.randomBlocks = randomBlocks;

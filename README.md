@@ -7,7 +7,7 @@ Project designed to manage linea accounts. It utilizes REALLY RANDOM transaction
 
 **Use it at your own risk. The script was not tested on large volumes.**
 
-Check for updated here: [alfar](https://t.me/+FozX3VZA0RIyNWY6)
+Check for updates here: [alfar](https://t.me/+FozX3VZA0RIyNWY6)
 
 Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 
