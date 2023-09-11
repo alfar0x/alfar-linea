@@ -26,7 +26,7 @@ import Job from "./job";
 
 const WAIT_GAS_SEC = 10 * 60;
 
-class BlockWorker {
+class JobWorker {
   private config: BlockConfig;
   private chain: Chain;
   private proxy: Proxy;
@@ -349,4 +349,4 @@ class BlockWorker {
   }
 }
 
-export default BlockWorker;
+export default JobWorker;

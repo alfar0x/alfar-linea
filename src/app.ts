@@ -1,13 +1,13 @@
 import Cli from "./cli";
 import logger from "./utils/other/logger";
-import BlockWorker from "./worker/block";
+import JobWorker from "./worker/jobs";
 
 const main = async () => {
   const { mode, config } = await new Cli().run();
 
   switch (mode) {
     case "job-generator": {
-      await new BlockWorker(config).run();
+      await new JobWorker(config).run();
       break;
     }
     default: {
