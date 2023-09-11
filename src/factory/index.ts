@@ -58,26 +58,23 @@ class Factory {
     });
     this.randomBlockPath = new RandomPathGenerator({ randomBlocks });
 
-    // this.generatorsWithWeights = {
-    //   SWAP_ETH_TOKEN_ETH: this.swapEthToTokenPath.count(),
-    //   SUPPLY_ETH: this.supplyEthPath.count(),
-    //   SWAP_SUPPLY_TOKEN: this.swapSupplyTokenPath.count(),
-    //   RANDOM: this.randomBlockPath.count(),
-    // };
-
-    this.generatorsWithWeights = {
-      SWAP_ETH_TOKEN_ETH: 70,
-      SUPPLY_ETH: 10,
-      SWAP_SUPPLY_TOKEN: 10,
-      RANDOM: 10,
-    };
-
+    this.generatorsWithWeights = this.initializedWights();
     this.randomBlocks = randomBlocks;
     this.minWorkAmountPercent = minWorkAmountPercent;
     this.maxWorkAmountPercent = maxWorkAmountPercent;
   }
 
-  getRandomWeightedItem() {
+  private initializedWights() {
+    return {
+      // @TODO temporary hardcoded
+      SWAP_ETH_TOKEN_ETH: this.swapEthToTokenPath.count() ? 70 : 0,
+      SUPPLY_ETH: this.supplyEthPath.count() ? 10 : 0,
+      SWAP_SUPPLY_TOKEN: this.swapSupplyTokenPath.count() ? 10 : 0,
+      RANDOM: this.randomBlockPath.count() ? 10 : 0,
+    };
+  }
+
+  private getRandomWeightedItem() {
     const totalWeight = Object.values(this.generatorsWithWeights).reduce(
       (sum, weight) => sum + weight,
       0
