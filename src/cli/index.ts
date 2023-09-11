@@ -9,9 +9,9 @@ import sleep from "../utils/other/sleep";
 
 const modeChoices = [
   {
-    title: "block",
-    value: "block",
-    description: "run random linea blocks",
+    title: "job generator",
+    value: "job-generator",
+    description: "run random linea transactions",
   },
   {
     title: "eth returner",
@@ -20,8 +20,8 @@ const modeChoices = [
     disabled: true,
   },
   {
-    title: "deposit",
-    value: "deposit",
+    title: "depositor",
+    value: "depositor",
     description: "okx to linea",
     disabled: true,
   },
@@ -39,7 +39,12 @@ const modeChoices = [
   },
 ];
 
-type Mode = "block" | "reset" | "deposit" | "checker" | "config-creator";
+type Mode =
+  | "job-generator"
+  | "reset"
+  | "depositor"
+  | "checker"
+  | "config-creator";
 
 class Cli {
   configPath = "config";

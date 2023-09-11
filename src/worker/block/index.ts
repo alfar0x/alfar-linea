@@ -37,27 +37,40 @@ class BlockWorker {
   constructor(configFileName: string) {
     this.config = new BlockConfig({ configFileName });
 
-    this.chain = new Linea({ rpc: this.config.fixed.rpc.linea });
+    const {
+      rpc,
+      files,
+      isAccountsShuffle,
+      proxy,
+      providers,
+      workingAmountPercent,
+    } = this.config.fixed;
+
+    this.chain = new Linea({ rpc: rpc.linea });
 
     this.accountsLeft = initializeAccounts({
-      baseFileName: this.config.fixed.files.privateKeys,
-      isShuffle: this.config.fixed.isAccountsShuffle,
+      baseFileName: files.privateKeys,
+      isShuffle: isAccountsShuffle,
     });
 
     this.proxy = initializeProxy({
-      proxyConfig: this.config.fixed.proxy,
-      baseFileName: this.config.fixed.files.proxies,
+      proxyConfig: proxy,
+      baseFileName: files.proxies,
       accountsLength: this.accountsLeft.length,
     });
 
     this.factory = initializeFactory({
       chain: this.chain,
-      activeProviders: this.config.fixed.providers,
-      minWorkAmountPercent: this.config.fixed.workingAmountPercent.min,
-      maxWorkAmountPercent: this.config.fixed.workingAmountPercent.max,
+      activeProviders: providers,
+      minWorkAmountPercent: workingAmountPercent.min,
+      maxWorkAmountPercent: workingAmountPercent.max,
     });
 
     this.jobs = [];
+  }
+
+  private msg(texts: string[]) {
+    return texts.join(" | ");
   }
 
   private async updateJobs() {
@@ -73,12 +86,12 @@ class BlockWorker {
       if (job) this.jobs.push(job);
     }
 
-    const msg = [
-      `current jobs ${this.jobs.length}`,
-      `accounts left: ${this.accountsLeft.length}`,
-    ].join(" | ");
-
-    logger.info(msg);
+    logger.info(
+      this.msg([
+        `current jobs ${this.jobs.length}`,
+        `accounts left: ${this.accountsLeft.length}`,
+      ])
+    );
   }
 
   private async isBalanceAllowed(account: Account) {
@@ -103,7 +116,11 @@ class BlockWorker {
 
     if (!isAllowed) {
       logger.error(
-        `${account} | account was filtered due to insufficient ETH balance: ${nativeReadableBalance} < ${minEthBalance}`
+        this.msg([
+          String(account),
+          `account was filtered due to insufficient ETH balance`,
+          `${nativeReadableBalance} < ${minEthBalance}`,
+        ])
       );
       return null;
     }
@@ -119,7 +136,9 @@ class BlockWorker {
 
     const job = new Job({ account, minimumTransactionsLimit, steps });
 
-    logger.info(`${account} | job was generated: ${job.toString()}`);
+    logger.info(
+      this.msg([String(account), `job was generated: ${job.toString()}`])
+    );
 
     return job;
   }
@@ -143,9 +162,7 @@ class BlockWorker {
   private async removeJob(job: Job) {
     this.jobs = this.jobs.filter((jobItem) => !jobItem.isEquals(job));
 
-    const msg = [`${job.account} | account was removed from list`];
-
-    logger.info(msg);
+    logger.info(this.msg([`${job.account}`, `account was removed from list`]));
 
     await this.updateJobs();
   }
@@ -157,7 +174,7 @@ class BlockWorker {
 
     const nextStepRunTimeStr = formatIntervalSec(nextStepRunSec);
 
-    logger.info(`next step run ${nextStepRunTimeStr}`);
+    logger.info(this.msg([`next step run ${nextStepRunTimeStr}`]));
 
     await sleep(nextStepRunSec);
   }
@@ -169,7 +186,9 @@ class BlockWorker {
 
     const nextTransactionRunTimeStr = formatIntervalSec(nextTransactionRunSec);
 
-    logger.info(`next transaction run ${nextTransactionRunTimeStr}`);
+    logger.info(
+      this.msg([`next transaction run ${nextTransactionRunTimeStr}`])
+    );
 
     await sleep(nextTransactionRunSec);
   }
@@ -210,21 +229,17 @@ class BlockWorker {
 
     if (transaction && isStepSleep) await this.waitBeforeStep();
 
-    logger.info(`${job.account} | step start: ${step}`);
+    logger.info(this.msg([String(job.account), `step start: ${step}`]));
 
     while (transaction) {
-      logger.debug(`${job.account} | transaction start: ${transaction}`);
-
       await this.runTransaction(transaction);
-
-      logger.debug(`${job.account} | transaction finish: ${transaction}`);
 
       transaction = step.shift();
 
       if (transaction) await this.waitAfterTransaction();
     }
 
-    logger.info(`${job.account} | step finish: ${step}`);
+    logger.info(this.msg([String(job.account), `step finish: ${step}`]));
   }
 
   private async runRandomJob(isStepSleep = true) {
@@ -235,7 +250,11 @@ class BlockWorker {
 
     if (!isAllowed) {
       logger.error(
-        `${job.account} | account was filtered due to insufficient ETH balance: ${nativeReadableBalance} < ${minEthBalance}`
+        this.msg([
+          String(job.account),
+          `account was filtered due to insufficient ETH balance`,
+          `${nativeReadableBalance} < ${minEthBalance}`,
+        ])
       );
 
       await this.removeJob(job);
@@ -254,7 +273,11 @@ class BlockWorker {
         const transactionsPerformed = job.account.transactionsPerformed();
 
         logger.info(
-          `${job.account} | account job success. Transactions performed: ${transactionsPerformed}`
+          this.msg([
+            String(job.account),
+            `account job success`,
+            `transactions performed: ${transactionsPerformed}`,
+          ])
         );
 
         await this.proxy.postRequest();
@@ -271,12 +294,21 @@ class BlockWorker {
       job.setNextSteps(newSteps);
 
       logger.info(
-        `${job.account} | job success. New steps generated: ${job.toString()}`
+        this.msg([
+          String(job.account),
+          `job success`,
+          `new steps generated: ${job.toString()}`,
+        ])
       );
 
       return "STEP_SUCCESS_STEPS_ADDED";
     } catch (error) {
-      logger.error(`${job.account} | step error: ${(error as Error).message}`);
+      logger.error(
+        this.msg([
+          String(job.account),
+          `step error: ${(error as Error).message}`,
+        ])
+      );
 
       if (job.isMinimumTransactionsLimitReached()) {
         await this.proxy.postRequest();

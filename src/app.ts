@@ -6,7 +6,7 @@ const main = async () => {
   const { mode, config } = await new Cli().run();
 
   switch (mode) {
-    case "block": {
+    case "job-generator": {
       await new BlockWorker(config).run();
       break;
     }
