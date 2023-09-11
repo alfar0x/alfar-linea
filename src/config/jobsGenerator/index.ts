@@ -2,7 +2,10 @@ import Config from "../../core/config";
 
 import { dynamicSchema, fixedSchema } from "./schemas";
 
-class BlockConfig extends Config<typeof fixedSchema, typeof dynamicSchema> {
+class JobsGeneratorConfig extends Config<
+  typeof fixedSchema,
+  typeof dynamicSchema
+> {
   constructor(params: { configFileName: string }) {
     const { configFileName } = params;
 
@@ -10,4 +13,4 @@ class BlockConfig extends Config<typeof fixedSchema, typeof dynamicSchema> {
   }
 }
 
-export default BlockConfig;
+export default JobsGeneratorConfig;

@@ -1,11 +1,11 @@
-import BlockConfig from "../../config/block";
+import CheckerConfig from "../../config/jobsGenerator";
 import Proxy from "../../core/proxy";
 import isFileAvailable from "../../utils/file/isFileAvailable";
 
-type BlockConfigProxy = BlockConfig["fixed"]["proxy"];
+type CheckerConfigProxy = CheckerConfig["fixed"]["proxy"];
 
 const initializeProxy = (params: {
-  proxyConfig: BlockConfigProxy;
+  proxyConfig: CheckerConfigProxy;
   baseFileName: string;
   accountsLength: number;
 }) => {
@@ -42,7 +42,7 @@ const initializeProxy = (params: {
     }
     default: {
       throw new Error(
-        `${proxyConfig.type} proxy type not supported in block mode`
+        `${proxyConfig.type} proxy type not supported in checker mode`
       );
     }
   }

@@ -13,15 +13,15 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 
 ## Modes 
 There are several modes available for the account manager (script runner) to use (some of them are currently disabled but will be implemented in the near future):
-1. Job generator - the main script responsible for generating/executing transactions. 
-2. Eth returner - this script swaps all tokens used by the main script to ETH and removes all liquidity. It serves as a backup in case errors occur in block mode.
-3. Depositor - this mode facilitates deposits to linea accounts.
-4. Checker - check your accounts analytics.
-5. Config creator - used to create configuration files for different modes.
+- Job generator - the main script responsible for generating/executing transactions. 
+- Checker - check your accounts analytics.
+- Eth returner - this script swaps all tokens used by the main script to ETH and removes all liquidity. It serves as a backup in case errors occur in jobs generator mode.
+- Depositor - this mode facilitates deposits to linea accounts.
+- Config creator - used to create configuration files for different modes.
 
 ## Suggestions
 1. Avoid modifying the **example** files. Instead, make copies of the files you need and customize them. Updates may be released in the future for example files.
-2. Rather than downloading a zip file of the project, use the `git` command to install it (instructions below). Updates, including new blocks and modes, will be available in the near future, so it will be easier to stay up to date using the git command. 
+2. Rather than downloading a zip file of the project, use the `git` command to install it (instructions below). Updates, including new providers and modes, will be available in the near future, so it will be easier to stay up to date using the git command. 
 3. You can create multiple configuration/private_keys/proxies files with different settings to run them in separate terminals.
 4. Linea mainnet still throws some errors. It can suddenly stop. Don't use large volumes. The script was created to increase the number of transactions, not volume
 
@@ -43,7 +43,7 @@ There are several modes available for the account manager (script runner) to use
 5. Select the desired mode and the corresponding config file
 
 ## Job generator
-The block mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them. Currently next blocks are available (they can cross each other open ocean swap eth -> usdc, send dmail, xy finance swap usdc -> eth for example):
+The job generator mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them. Currently next blocks are available (they can cross each other open ocean swap eth -> usdc, send dmail, xy finance swap usdc -> eth for example):
 1. dmail - send random email
 1. syncswap - swap eth -> usdc -> eth
 1. syncswap - swap eth -> cebusd -> eth
@@ -71,7 +71,7 @@ The block mode uses private keys, proxies (optional), and configurations to exec
 There are two main block types: `fixed` and `dynamic`. The dynamic config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. To get started, copy the `config/block.example.json5` file, rename it as needed, and adjust the following values:
 - `dynamic`:
     - `maxLineaGwei` - the maximum Linea Gwei limit. System will check it before each transaction
-    - `minEthBalance` - minimum ETH balance on account to work with (generate job/start new block). To forcefully stop the script and complete all current blocks, set value to `100`. It will skip next blocks due to insufficient balance.
+    - `minEthBalance` - minimum ETH balance on account to work with (generate job/start new block). To forcefully stop the script and complete all current steps, set value to `100`. It will skip next blocks due to insufficient balance.
 - `fixed`:
     - `delaySec`:
         - `step` - set the minimum and maximum step delay in seconds 
@@ -155,7 +155,22 @@ and so on...
 **Disabled** for now until it is implemented
 
 ## Checker
-**Disabled** for now until it is implemented
+Check accounts nonce and tokens that are used by script. Use `config/checker.example.json5` to create config: 
+    - `dynamic`: just empty block
+    - `fixed`:
+        - `files`:
+            - `addresses` - specify the file name in the `assets` folder containing addresses
+            - `privateKeys` - specify the file name in the `assets` folder containing private keys. Either privateKeys or addresses must be filled in.
+            - `proxies` - specify the file name in the `assets` folder containing proxies. Can be empty string for `none` proxy type
+        - `maxParallelAccounts` - set the maximum number of parallel accounts (see the run example below). If mobile proxy used it can be only 1 parallel account.
+        - `delayBetweenChunkSec` - set delay between parallel accounts requests
+        - `hideBalanceLessThanUsd` - set usd value of token that can be hidden. Set `-1` to see all tokens. 
+        - `proxy`: 
+            - `type` - specify the type of proxy to be used, choosing from `none`/`mobile`/`server`. Currently only `none` type can be used.
+            - `mobileIpChangeUrl` - if you want the system to use a mobile proxy, add it to your proxies file in one line and specify the rotation URL here
+            - `serverIsRandom` - when using a server proxy, enable this option by setting it to `true` if you want the system to use a random proxy for each account. Setting it to `false` means that each account has its proxy, so the number of proxies must match the number of accounts.
+        - `rpc`: 
+            - `linea` - specify the linea RPC
 
 ## Config creator
 **Disabled** for now until it is implemented. Please use the `config/*.example.json5` files for the time now.

@@ -27,10 +27,12 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@types/cli-progress": "^3.11.2",
     "@types/tunnel": "^0.0.3",
     "axios": "^1.5.0",
     "big-integer": "^1.6.51",
     "big.js": "^6.2.1",
+    "cli-progress": "^3.12.0",
     "date-fns": "^2.30.0",
     "dotenv": "^16.0.3",
     "ethers": "^6.7.1",

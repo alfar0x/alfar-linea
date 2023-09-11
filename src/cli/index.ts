@@ -29,7 +29,6 @@ const modeChoices = [
     title: "checker",
     value: "checker",
     description: "check your wallets analytics",
-    disabled: true,
   },
   {
     title: "config creator",

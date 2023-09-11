@@ -3,7 +3,7 @@ import tunnel from "tunnel";
 import { HttpProvider } from "web3";
 
 import Linea from "../../chain/linea";
-import BlockConfig from "../../config/block";
+import BlockConfig from "../../config/jobsGenerator";
 import Account from "../../core/account";
 import Chain from "../../core/chain";
 import Proxy from "../../core/proxy";
@@ -26,7 +26,7 @@ import Job from "./job";
 
 const WAIT_GAS_SEC = 10 * 60;
 
-class JobWorker {
+class JobGenerator {
   private config: BlockConfig;
   private chain: Chain;
   private proxy: Proxy;
@@ -349,4 +349,4 @@ class JobWorker {
   }
 }
 
-export default JobWorker;
+export default JobGenerator;
