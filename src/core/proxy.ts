@@ -1,6 +1,7 @@
 import axios from "axios";
 import { z } from "zod";
 
+import formatIntervalSec from "../utils/datetime/formatIntervalSec";
 import readFileSyncByLine from "../utils/file/readFileSyncByLine";
 import getMyIp from "../utils/other/getMyIp";
 import logger from "../utils/other/logger";
@@ -22,6 +23,8 @@ const proxySchema = z.string().transform((str) => {
 });
 
 export type ProxyItem = z.infer<typeof proxySchema>;
+
+const WAIT_AFTER_POST_REQUEST_SEC = 30;
 
 class Proxy {
   private type: ProxyType;
@@ -119,7 +122,7 @@ class Proxy {
   }
 
   public async postRequest() {
-    if (this.type !== "mobile") return false;
+    if (this.type !== "mobile") return;
 
     if (!this.ipChangeUrl) {
       throw new Error(`ip change url is required for ${this.type} proxy type`);
@@ -131,8 +134,16 @@ class Proxy {
 
         if (status === 200) {
           const myIp = await getMyIp();
-          logger.info(`ip changed successfully: ${myIp}`);
-          return true;
+
+          const sleepUntilStr = formatIntervalSec(WAIT_AFTER_POST_REQUEST_SEC);
+
+          const msg = [
+            `ip changed successfully: ${myIp}`,
+            `sleeping until ${sleepUntilStr}`,
+          ].join(" | ");
+          logger.info(msg);
+
+          await sleep(WAIT_AFTER_POST_REQUEST_SEC);
         }
 
         throw new Error(`ip change response status is ${status}`);

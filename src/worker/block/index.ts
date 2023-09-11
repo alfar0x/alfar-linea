@@ -4,59 +4,81 @@ import { HttpProvider } from "web3";
 
 import Linea from "../../chain/linea";
 import BlockConfig from "../../config/block";
-import availableBlocks from "../../config/block/availableBlocks";
 import Account from "../../core/account";
-import Block from "../../core/block";
 import Chain from "../../core/chain";
 import Proxy from "../../core/proxy";
 import Transaction from "../../core/transaction";
+import Factory from "../../factory";
 import formatIntervalSec from "../../utils/datetime/formatIntervalSec";
-import isFileAvailable from "../../utils/file/isFileAvailable";
-import readFileSyncByLine from "../../utils/file/readFileSyncByLine";
 import getMyIp from "../../utils/other/getMyIp";
 import logger from "../../utils/other/logger";
 import sleep from "../../utils/other/sleep";
 import waitInternetConnection from "../../utils/other/waitInternetConnection";
-import randomChoices from "../../utils/random/randomChoices";
+import randomChoice from "../../utils/random/randomChoice";
 import randomInteger from "../../utils/random/randomInteger";
-import randomShuffle from "../../utils/random/randomShuffle";
 import waitGasPrice from "../../utils/web3/waitGasPrice";
 
 import confirmRun from "./confirmRun";
-import initializeBlocks from "./initializeBlocks";
+import initializeAccounts from "./initializeAccounts";
+import initializeFactory from "./initializeFactory";
 import initializeProxy from "./initializeProxy";
 import Job from "./job";
 
-const waitGasSec = 10 * 60;
-
-type BlockName = (typeof availableBlocks)[number];
+const WAIT_GAS_SEC = 10 * 60;
 
 class BlockWorker {
-  private sleepAfterPostRequestSec = 30;
-
   private config: BlockConfig;
   private chain: Chain;
   private proxy: Proxy;
-  private availableBlocks: Block[];
   private jobs: Job[];
+  private factory: Factory;
+  private accountsLeft: Account[];
 
   constructor(configFileName: string) {
     this.config = new BlockConfig({ configFileName });
 
     this.chain = new Linea({ rpc: this.config.fixed.rpc.linea });
 
+    this.accountsLeft = initializeAccounts({
+      baseFileName: this.config.fixed.files.privateKeys,
+      isShuffle: this.config.fixed.isAccountsShuffle,
+    });
+
     this.proxy = initializeProxy({
       proxyConfig: this.config.fixed.proxy,
       baseFileName: this.config.fixed.files.proxies,
+      accountsLength: this.accountsLeft.length,
     });
 
-    this.availableBlocks = initializeBlocks({
+    this.factory = initializeFactory({
       chain: this.chain,
+      activeProviders: this.config.fixed.providers,
       minWorkAmountPercent: this.config.fixed.workingAmountPercent.min,
       maxWorkAmountPercent: this.config.fixed.workingAmountPercent.max,
     });
 
     this.jobs = [];
+  }
+
+  private async updateJobs() {
+    const { maxParallelAccounts } = this.config.fixed;
+
+    while (this.jobs.length < maxParallelAccounts) {
+      const account = this.accountsLeft.shift();
+
+      if (!account) return;
+
+      const job = await this.createJob(account);
+
+      if (job) this.jobs.push(job);
+    }
+
+    const msg = [
+      `current jobs ${this.jobs.length}`,
+      `accounts left: ${this.accountsLeft.length}`,
+    ].join(" | ");
+
+    logger.info(msg);
   }
 
   private async isBalanceAllowed(account: Account) {
@@ -68,97 +90,38 @@ class BlockWorker {
 
     const minEthBalance = this.config.dynamic().minEthBalance;
 
-    const isAllowedAccount = Big(nativeReadableBalance).gte(minEthBalance);
+    const isAllowed = Big(nativeReadableBalance).gte(minEthBalance);
 
-    return { isAllowedAccount, nativeReadableBalance };
+    return { isAllowed, nativeReadableBalance, minEthBalance };
   }
 
-  private async filterInitialAccounts(accounts: Account[]) {
-    const filteredAccounts: Account[] = [];
-    const allowedAccounts: Account[] = [];
+  private async createJob(account: Account): Promise<Job | null> {
+    const { transactionsLimit } = this.config.fixed;
 
-    for (const account of accounts) {
-      const { isAllowedAccount } = await this.isBalanceAllowed(account);
+    const { isAllowed, nativeReadableBalance, minEthBalance } =
+      await this.isBalanceAllowed(account);
 
-      if (isAllowedAccount) {
-        allowedAccounts.push(account);
-      } else {
-        filteredAccounts.push(account);
-      }
+    if (!isAllowed) {
+      logger.error(
+        `${account} | account was filtered due to insufficient ETH balance: ${nativeReadableBalance} < ${minEthBalance}`
+      );
+      return null;
     }
 
-    const filteredAccountsMsg = [
-      `filtered ${filteredAccounts.length} accounts:`,
-      ...filteredAccounts.map(String),
-    ].join("\n");
+    const minimumTransactionsLimit = randomInteger(
+      transactionsLimit.min,
+      transactionsLimit.max
+    ).toNumber();
 
-    logger.info(filteredAccountsMsg);
-
-    return allowedAccounts;
-  }
-
-  private async initializeJobs() {
-    const {
-      files,
-      blocks: blockNames,
-      blocksCount,
-      isBlockDuplicates,
-      isShuffle,
-    } = this.config.fixed;
-
-    const fullFileName = `./assets/${files.privateKeys}`;
-
-    if (!isFileAvailable(fullFileName)) {
-      throw new Error(
-        `private keys file name ${files.privateKeys} is not valid`
-      );
-    }
-
-    const privateKeys = readFileSyncByLine(fullFileName);
-    const allAccounts = privateKeys.map(
-      (privateKey, fileIndex) => new Account({ privateKey, fileIndex })
-    );
-
-    const accounts = await this.filterInitialAccounts(allAccounts);
-
-    const blocks = this.availableBlocks.filter((block) =>
-      blockNames.includes(block.name as BlockName)
-    );
-
-    const isServerRandom = this.proxy.isServerRandom();
-    const proxyCount = this.proxy.count();
-
-    if (isServerRandom && accounts.length !== proxyCount) {
-      throw new Error(
-        `number of proxies (${proxyCount}) must be equal to the number accounts ${accounts.length} if serverIsRandom === false`
-      );
-    }
-
-    const jobs = accounts.map((account) => {
-      const randomBlocksCount = randomInteger(
-        blocksCount.min,
-        blocksCount.max
-      ).toNumber();
-
-      const randomBlocks = randomChoices(
-        blocks,
-        randomBlocksCount,
-        isBlockDuplicates
-      );
-
-      return new Job(account, randomBlocks);
+    const steps = await this.factory.getRandomSteps({
+      account,
     });
 
-    const sortedJobs = isShuffle ? randomShuffle(jobs) : jobs;
+    const job = new Job({ account, minimumTransactionsLimit, steps });
 
-    const generatedMsg = [
-      `generated ${sortedJobs.length} jobs:`,
-      ...sortedJobs.map(String),
-    ].join("\n");
+    logger.info(`${account} | job was generated: ${job.toString()}`);
 
-    logger.info(generatedMsg);
-
-    return sortedJobs;
+    return job;
   }
 
   private changeChainProvider(account: Account) {
@@ -177,18 +140,14 @@ class BlockWorker {
     this.chain.w3.setProvider(httpProvider);
   }
 
-  private getRandomJob() {
-    const { maxParallelAccounts } = this.config.fixed;
-    const maxIndexBaseOnOne = Math.min(this.jobs.length, maxParallelAccounts);
-    const maxIndex = maxIndexBaseOnOne - 1;
-    const randomIndex = randomInteger(0, maxIndex).toNumber();
-    return this.jobs[randomIndex];
-  }
-
-  private removeJob(job: Job) {
+  private async removeJob(job: Job) {
     this.jobs = this.jobs.filter((jobItem) => !jobItem.isEquals(job));
 
-    logger.info(`jobs left: ${this.jobs.length}`);
+    const msg = [`${job.account} | account was removed from list`];
+
+    logger.info(msg);
+
+    await this.updateJobs();
   }
 
   private async waitBeforeStep() {
@@ -222,7 +181,7 @@ class BlockWorker {
     try {
       await waitGasPrice(
         this.chain.w3,
-        waitGasSec,
+        WAIT_GAS_SEC,
         () => this.config.dynamic().maxLineaGwei
       );
 
@@ -269,16 +228,18 @@ class BlockWorker {
   }
 
   private async runRandomJob(isStepSleep = true) {
-    const job = this.getRandomJob();
+    const job = randomChoice(this.jobs);
 
-    const { isAllowedAccount, nativeReadableBalance } =
+    const { isAllowed, nativeReadableBalance, minEthBalance } =
       await this.isBalanceAllowed(job.account);
 
-    if (!isAllowedAccount) {
+    if (!isAllowed) {
       logger.error(
-        `${job.account} | balance is less that min balance for work: ${nativeReadableBalance}`
+        `${job.account} | account was filtered due to insufficient ETH balance: ${nativeReadableBalance} < ${minEthBalance}`
       );
-      this.removeJob(job);
+
+      await this.removeJob(job);
+
       return "JOB_SKIP";
     }
 
@@ -287,51 +248,64 @@ class BlockWorker {
 
       await this.runStep(job, isStepSleep);
 
-      if (job.isEmpty()) {
-        logger.info(`${job.account} | jobs finish: success`);
+      if (!job.isEmpty()) return "STEP_SUCCESS";
 
-        this.removeJob(job);
+      if (job.isMinimumTransactionsLimitReached()) {
+        const transactionsPerformed = job.account.transactionsPerformed();
 
-        const isPostRequestDone = await this.proxy.postRequest();
+        logger.info(
+          `${job.account} | account job success. Transactions performed: ${transactionsPerformed}`
+        );
 
-        if (isPostRequestDone) {
-          const sleepUntilStr = formatIntervalSec(
-            this.sleepAfterPostRequestSec
-          );
-          logger.info(`sleeping after account job done until ${sleepUntilStr}`);
-          await sleep(this.sleepAfterPostRequestSec);
-        }
+        await this.proxy.postRequest();
+
+        await this.removeJob(job);
 
         return "JOB_SUCCESS";
       }
+
+      const newSteps = await this.factory.getRandomSteps({
+        account: job.account,
+      });
+
+      job.setNextSteps(newSteps);
+
+      logger.info(
+        `${job.account} | job success. New steps generated: ${job.toString()}`
+      );
+
+      return "STEP_SUCCESS_STEPS_ADDED";
     } catch (error) {
       logger.error(`${job.account} | step error: ${(error as Error).message}`);
-      logger.info(`${job.account} | getting next block`);
 
-      const isSet = job.setNextCurrentSteps();
+      if (job.isMinimumTransactionsLimitReached()) {
+        await this.proxy.postRequest();
 
-      if (!isSet) this.removeJob(job);
+        await this.removeJob(job);
 
-      return "STEP_ERROR";
+        return "JOB_ERROR";
+      } else {
+        const newSteps = await this.factory.getRandomSteps({
+          account: job.account,
+        });
+
+        job.setNextSteps(newSteps);
+
+        return "JOB_ERROR_STEPS_ADDED";
+      }
     }
-
-    return "STEP_SUCCESS";
-  }
-
-  private isEmpty() {
-    return !this.jobs.length;
   }
 
   async run() {
     try {
-      this.jobs = await this.initializeJobs();
+      await this.updateJobs();
 
       await confirmRun();
 
       // should not sleep before first step
       let isBeforeStepSleep = false;
 
-      while (!this.isEmpty()) {
+      while (this.jobs.length) {
         const status = await this.runRandomJob(isBeforeStepSleep);
 
         isBeforeStepSleep = status === "JOB_SKIP" ? false : true;

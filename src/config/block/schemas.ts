@@ -1,8 +1,7 @@
 import { z } from "zod";
 
+import ACTION_PROVIDERS from "../../constants/actionProviders";
 import createUnionSchema from "../../utils/zod/createUnionSchema";
-
-import availableBlocks from "./availableBlocks";
 
 const minMaxRefine = [
   (schema: { min: number; max: number }) => schema.max >= schema.min,
@@ -14,9 +13,9 @@ export const dynamicSchema = z.object({
   minEthBalance: z.number().positive().min(0.001),
 });
 
-const blocksSchema = z.array(createUnionSchema(availableBlocks)).min(1);
+const providersSchema = z.array(createUnionSchema(ACTION_PROVIDERS)).min(1);
 
-const blocksCountSchema = z
+const transactionsLimitSchema = z
   .object({ min: z.number().positive().min(1), max: z.number().positive() })
   .refine(...minMaxRefine);
 
@@ -62,15 +61,14 @@ const workingAmountPercentSchema = z
   .refine(...minMaxRefine);
 
 export const fixedSchema = z.object({
-  blocks: blocksSchema,
-  blocksCount: blocksCountSchema,
   delaySec: delaySecSchema,
   files: filesSchema,
-  isBlockDuplicates: z.boolean(),
-  isShuffle: z.boolean(),
+  isAccountsShuffle: z.boolean(),
   maxParallelAccounts: maxParallelAccountsSchema,
+  providers: providersSchema,
   proxy: proxySchema,
   rpc: rpcSchema,
+  transactionsLimit: transactionsLimitSchema,
   workingAmountPercent: workingAmountPercentSchema,
 });
 // @TODO disabled until tested

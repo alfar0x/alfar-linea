@@ -1,10 +1,9 @@
 # Alfar linea
 
-Project designed to manage linea accounts. It utilizes random blocks to simulate user activity on accounts. Each account comprises a `job` consisting of `blocks`. Blocks, in turn, consist of `steps`, which represent a list of `transactions`. 
+Project designed to manage linea accounts. It utilizes REALLY RANDOM transactions to simulate user activity on accounts. Each account comprises a `job` consisting of `steps`, which represent a list of `transactions`. 
 
-1. A list of transactions (one step) consists of transactions sent to the blockchain by real users within a specific time frame. Approvals and swaps are completed in approximately 30 seconds for example. 
-2. A list of steps (block) can be executed within hours. Activities may include swapping to USDC, then swapping to ETH, or adding and removing liquidity from a pool. Each block concludes by returning all tokens/liquidity to ETH.
-3. A list of blocks (job) can be executed over several days. Today, users can perform swaps in just a few hours, and tokens can be added to various liquidity pools, for instance.
+1. A list of transactions (one step) consists of transactions sent to the blockchain by real users within a specific time frame. Approvals and swaps are completed in approximately 30 seconds for example. Step can currently consist of 1-3 transactions 
+2. A list of steps (job) can be executed within hours. Activities may include swapping to USDC, then swapping to ETH, or adding and removing liquidity from a pool. Each block concludes by returning all tokens/liquidity to ETH.
 
 **Use it at your own risk. The script was not tested on large volumes.**
 
@@ -14,9 +13,9 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 
 ## Modes 
 There are several modes available for the account manager (script runner) to use (some of them are currently disabled but will be implemented in the near future):
-1. Block - the main script responsible for generating/executing blocks. 
+1. Job generator - the main script responsible for generating/executing transactions. 
 2. Eth returner - this script swaps all tokens used by the main script to ETH and removes all liquidity. It serves as a backup in case errors occur in block mode.
-3. Deposit - this mode facilitates deposits to linea accounts.
+3. Depositor - this mode facilitates deposits to linea accounts.
 4. Checker - check your accounts analytics.
 5. Config creator - used to create configuration files for different modes.
 
@@ -43,14 +42,14 @@ There are several modes available for the account manager (script runner) to use
 4. Run `yarn start`
 5. Select the desired mode and the corresponding config file
 
-## Block
-The block mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them. Currently next blocks are available:
+## Job generator
+The block mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them. Currently next blocks are available (they can cross each other open ocean swap eth -> usdc, send dmail, xy finance swap usdc -> eth for example):
+1. dmail - send random email
 1. syncswap - swap eth -> usdc -> eth
 1. syncswap - swap eth -> cebusd -> eth
 1. syncswap - swap eth -> wbtc -> eth
 1. velocore - swap eth -> usdc -> eth
 1. velocore - swap eth -> cebusd -> eth
-1. dmail - send random email
 1. open ocean - swap eth -> usdc -> eth
 1. open ocean - swap eth -> iusd -> eth
 1. open ocean - swap eth -> izi -> eth
@@ -72,39 +71,80 @@ There are two main block types: `fixed` and `dynamic`. The dynamic config block 
     - `maxLineaGwei` - the maximum Linea Gwei limit. System will check it before each transaction
     - `minEthBalance` - minimum ETH balance on account to work with (generate job/start new block). To forcefully stop the script and complete all current blocks, set value to `100`. It will skip next blocks due to insufficient balance.
 - `fixed`:
-    - `blocks` - specify the blocks to be used in this mode. All possible values are already defined in the example config file. To exclude certain blocks, simply comment them out (add `//` before the block ID). For example, the following lines in the config file mean that SYNC_SWAP_ETH_USDC_SWAP will be used while SYNC_SWAP_ETH_WBTC_SWAP won't be:
-        ```
-        "SYNC_SWAP_ETH_USDC_SWAP",
-        // "SYNC_SWAP_ETH_WBTC_SWAP",
-        ```
-    - `blocksCount` - set the minimum and maximum number of blocks generated for **each** account
     - `delaySec`:
         - `step` - set the minimum and maximum step delay in seconds 
         - `transaction` - set the minimum and maximum transaction delay in seconds 
     - `files`:
         - `privateKeys` - specify the file name in the `assets` folder containing private keys
         - `proxies` - specify the file name in the `assets` folder containing proxies. Can be empty string for `none` proxy type
-    - `isBlockDuplicates` - `true` if block duplicates are allowed when generating job blocks; in other case - `false`
-    - `isShuffle` - determine whether the private keys file should be shuffled (set to `true` or `false`)
+    - `isAccountsShuffle` - determine whether the private keys file should be shuffled (set to `true` or `false`)
     - `maxParallelAccounts` - set the maximum number of parallel accounts (see the run example below). If mobile proxy used it can be only 1 parallel account.
+    - `providers` - specify the services to be used in this mode. All possible values are already defined in the example config file. To exclude certain blocks, simply comment them out (add `//` before the block ID). For example, the following lines in the config file mean that OPEN_OCEAN will be used while DMAIL won't be:
+        ```
+        "OPEN_OCEAN",
+        // "DMAIL",
+        ```
     - `proxy`: 
         - `type` - specify the type of proxy to be used, choosing from `none`/`mobile`/`server`. Currently only `none` type can be used.
         - `mobileIpChangeUrl` - if you want the system to use a mobile proxy, add it to your proxies file in one line and specify the rotation URL here
         - `serverIsRandom` - when using a server proxy, enable this option by setting it to `true` if you want the system to use a random proxy for each account. Setting it to `false` means that each account has its proxy, so the number of proxies must match the number of accounts.
     - `rpc`: 
         - `linea` - specify the linea RPC
+    - `transactionsLimit` - set the minimum and maximum number of transactions generated for **each** account. Script will generate min limit between this values. It is not exact value will be performed. It will end jobs generation for account If in the end of the job limit will be reached. Otherwise new job will be generated  
     - `workingAmountPercent` - set the minimum and maximum working amount in percent
 
 ### Run example
 Let's assume the following values were configured:
 - Proxy type - none
-- Maximum parallel accounts - 5
+- Maximum parallel accounts - 2
 - Minimum/maximum step delay - 300/3600
 - Minimum/maximum transaction delay - 30/240
-- Minimum/maximum blocks count - 2/2
-- Added 6 accounts 
+- Minimum/maximum transactions limit - 2/10
+- Added 4 accounts 
 
-The system will generate 6 jobs, each with 2 blocks. It will select a random job from the first 5 jobs in the generated list, then proceed to the next block, step, and transaction. After executing a transaction, if there are more transactions within the step, it will sleep for 60-240 seconds before moving on. After completing the transactions in a step, it will sleep for 300-6000 seconds before next step in random job and so on. This means that steps will be executed in a pseudo-parallel mode, with each account experiencing random delays between each step/block.
+The system will generate 6 jobs. It will select a random job from the first 5 jobs in the generated list, then proceed to the next step and transaction. After executing a transaction, if there are more transactions within the step, it will sleep for 60-240 seconds before moving on. After completing the transactions in a step, it will sleep for 300-6000 seconds before next step in random job (account) and so on: 
+```
+acc1 (min tx limit = 8) - [step1,step2,step3]; <- working account
+acc2 (min tx limit = 2) - [step1,step2]; <- working account
+acc3 (min tx limit = 6) - [step1,step2];
+acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+
+--- next iteration acc2 was run
+acc1 (min tx limit = 8) - [step1,step2,step3]; <- working account
+acc2 (min tx limit = 2) - [step2]; <- working account
+acc3 (min tx limit = 6) - [step1,step2];
+acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+
+--- next iteration acc1 was run
+acc1 (min tx limit = 8) - [step2,step3]; <- working account
+acc2 (min tx limit = 2) - [step2]; <- working account
+acc3 (min tx limit = 6) - [step1,step2];
+acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+
+--- next iteration acc1 was run
+acc1 (min tx limit = 8) - [step3]; <- working account
+acc2 (min tx limit = 2) - [step2]; <- working account
+acc3 (min tx limit = 6) - [step1,step2];
+acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+
+--- next iteration acc2 was run
+acc1 (min tx limit = 8) - [step3]; <- working account
+acc2 (min tx limit = 2) - []; <- working account. As soon as min transactions limit was reached it will be removed from jobs list.
+acc3 (min tx limit = 6) - [step1,step2];
+acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+
+--- next iteration acc3 was run
+acc1 (min tx limit = 8) - [step3]; <- working account
+acc3 (min tx limit = 6) - [step2]; <- working account
+acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+
+--- next iteration acc1 was run
+acc1 (min tx limit = 8) - [step4,step5,step6]; <- working account. Transactions was not reached. New steps were generated
+acc3 (min tx limit = 6) - [step2]; <- working account
+acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+
+and so on...
+```
 
 ## Eth returner
 **Disabled** for now until it is implemented
@@ -117,18 +157,6 @@ The system will generate 6 jobs, each with 2 blocks. It will select a random job
 
 ## Config creator
 **Disabled** for now until it is implemented. Please use the `config/*.example.json5` files for the time now.
-
-## Contribution
-Developers can create branches to contribute to the project. There are some code rules to follow when contributing:
-
-1. All contract logic must be implemented into the `action` folder files. Blocks can use action files to interact with the blockchain.
-2. Each action class must extend `Action`.
-3. Each block class must extend `Block`.
-4. Blocks must return a list of steps in the `allSteps` function for block mode.
-5. Not every block should `resetSteps`. It must only be specified when resetting block steps and returning all tokens/liquidity to ETH.
-6. Each block cannot depend on another block, and a action cannot depend on another action.
-7. Eslint and prettier must be used to format on save.
-8. Use `checklist.md` file.
 
 ## Additional Links:
 

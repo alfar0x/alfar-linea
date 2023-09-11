@@ -22,6 +22,7 @@ class Account {
   public fileIndex: number;
   public address: string;
   public shortAddress: string;
+  private _transactionsPerformed: number;
 
   constructor(params: { privateKey: string; fileIndex: number }) {
     const { privateKey, fileIndex } = params;
@@ -29,6 +30,7 @@ class Account {
     this.privateKey = this.initializePrivateKey(privateKey);
     this.address = this.initializeAddress();
     this.shortAddress = getShortString(this.address);
+    this._transactionsPerformed = 0;
   }
 
   private initializePrivateKey(privateKey: string) {
@@ -48,7 +50,7 @@ class Account {
   }
 
   toString() {
-    return `[${this.fileIndex}] ${this.shortAddress}`;
+    return `[${this.fileIndex + 1}] ${this.shortAddress}`;
   }
 
   isEquals(account: Account) {
@@ -81,7 +83,17 @@ class Account {
 
     await chain.waitTxReceipt(hash);
 
+    this.incrementTransactionsPerformed();
+
     return hash;
+  }
+
+  private incrementTransactionsPerformed() {
+    this._transactionsPerformed = this._transactionsPerformed + 1;
+  }
+
+  transactionsPerformed() {
+    return this._transactionsPerformed;
   }
 
   async nonce(w3: Web3) {

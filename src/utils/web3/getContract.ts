@@ -22,7 +22,7 @@ import {
   CONTRACT_WOOFI_ROUTER,
   CONTRACT_LINEA_BANK_CORE,
   CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR,
-} from "../../constants";
+} from "../../constants/contracts";
 
 export type ContractRec = {
   [CONTRACT_ERC_20]: ERC_20;

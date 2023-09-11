@@ -6,3 +6,5 @@ export type RawToken = {
   isNative?: boolean;
   isWrappedNative?: boolean;
 };
+
+export type Amount = number | string;

@@ -1,59 +1,47 @@
 import Account from "../../core/account";
-import Block from "../../core/block";
 import Step from "../../core/step";
 
 class Job {
   account: Account;
-  blocks: Block[];
-  currentSteps: Step[];
+  private minimumTransactionsLimit: number;
+  private steps: Step[];
 
-  constructor(account: Account, blocks: Block[]) {
+  constructor(params: {
+    account: Account;
+    minimumTransactionsLimit: number;
+    steps: Step[];
+  }) {
+    const { account, minimumTransactionsLimit, steps } = params;
+
     this.account = account;
-    this.blocks = blocks;
-    this.currentSteps = [];
-  }
-
-  private getNextBlockSteps() {
-    const nextBlockSteps = this.blocks.shift();
-
-    if (!nextBlockSteps) return null;
-
-    return nextBlockSteps.allSteps(this.account);
+    this.minimumTransactionsLimit = minimumTransactionsLimit;
+    this.steps = steps;
   }
 
   isEmpty() {
-    return !this.blocks.length && !this.currentSteps.length;
+    return !this.steps.length;
   }
 
-  nextStep(): Step | null {
-    const nextStep = this.currentSteps.shift();
-
-    if (nextStep) return nextStep;
-
-    const isSet = this.setNextCurrentSteps();
-
-    if (!isSet) return null;
-
-    return this.nextStep();
+  nextStep(): Step | undefined {
+    return this.steps.shift();
   }
 
   toString() {
-    const blocksStr = this.blocks.map(String).join(", ");
-    return `${String(this.account)} - [${blocksStr}]`;
+    return this.steps.map(String).join(", ");
   }
 
   isEquals(job: Job) {
     return this.account.isEquals(job.account);
   }
 
-  setNextCurrentSteps() {
-    const nextBlockStep = this.getNextBlockSteps();
+  isMinimumTransactionsLimitReached() {
+    return (
+      this.account.transactionsPerformed() >= this.minimumTransactionsLimit
+    );
+  }
 
-    if (!nextBlockStep) return false;
-
-    this.currentSteps = nextBlockStep;
-
-    return true;
+  setNextSteps(steps: Step[]) {
+    this.steps = steps;
   }
 }
 

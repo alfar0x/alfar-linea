@@ -1,7 +1,7 @@
 import Big from "big.js";
 import Web3, { HttpProvider } from "web3";
 
-import { CONTRACTS } from "../constants";
+import { CONTRACTS } from "../constants/contracts";
 import { RawToken } from "../types";
 import sleep from "../utils/other/sleep";
 

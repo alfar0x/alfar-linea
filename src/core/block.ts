@@ -2,15 +2,14 @@ import logger from "../utils/other/logger";
 
 import Account from "./account";
 import Chain from "./chain";
-import Step from "./step";
 
-abstract class Block {
-  public abstract name: string;
+class Block {
+  public name: string;
   protected chain: Chain;
 
-  constructor(params: { chain: Chain }) {
-    const { chain } = params;
-
+  constructor(params: { name: string; chain: Chain }) {
+    const { name, chain } = params;
+    this.name = name;
     this.chain = chain;
   }
 
@@ -21,11 +20,6 @@ abstract class Block {
   public toString() {
     return this.name;
   }
-
-  // eslint-disable-next-line no-unused-vars
-  abstract allSteps(account: Account): Step[];
-  // eslint-disable-next-line no-unused-vars
-  abstract resetSteps(account: Account): Step[];
 
   private getFullMsg(account: Account, msg: string) {
     return [account, this.name, msg].join(" | ");

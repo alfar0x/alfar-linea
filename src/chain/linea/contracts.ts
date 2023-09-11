@@ -12,7 +12,7 @@ import {
   CONTRACT_WOOFI_ROUTER,
   CONTRACT_LINEA_BANK_CORE,
   CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR,
-} from "../../constants";
+} from "../../constants/contracts";
 
 const contracts = {
   [CONTRACT_SYNC_SWAP_ROUTER]: "0x80e38291e06339d10aab483c65695d004dbd5c69",

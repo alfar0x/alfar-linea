@@ -2,7 +2,7 @@ import Big from "big.js";
 import Web3 from "web3";
 
 import { ERC_20 } from "../abi/types/ERC_20";
-import { CONTRACT_ERC_20 } from "../constants";
+import { CONTRACT_ERC_20 } from "../constants/contracts";
 import getContract from "../utils/web3/getContract";
 
 import Account from "./account";
