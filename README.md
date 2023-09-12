@@ -136,27 +136,34 @@ There are several modes available:
 - Linea mainnet still throws some errors. It can suddenly stop. Don't use large volumes. The script was created to increase the number of transactions, not volume
 
 ## Installation
-
-1. Install `Node.js` from the [official website](https://nodejs.org/en/download)
-1. Install `git` from the [official website](https://git-scm.com/downloads)  
-1. Install `yarn` using `npm install -g yarn` command
-1. Clone the project using the terminal command `git clone https://github.com/alfar0x/alfar-linea.git`
-1. Create a `.env` file in the root folder and provide variables using the example file `.env.example`:
-    - `NODE_ENV` - simply set it to `prod` 
-1. Run the `yarn install` command in the project root to install dependencies
+1. Download and install `Node.js` from the [official website](https://nodejs.org/en/download)
+1. Download and install `git` from the [official website](https://git-scm.com/downloads) (leave all default checks during installation)
+1. Open command terminal in folder you want to download script:
+    - Windows: shift+right click in folder and open `Power shell`
+1. Run next commands in command terminal:
+    - `npm install -g yarn` - install `yarn` to run this project
+    - `git clone https://github.com/alfar0x/alfar-linea.git` - download project
+    - `cd alfar-linea` - open project in terminal
+    - `yarn install` - install script dependencies
+1. Open project root in explorer
+1. Create a copy of `.env.example` file and name it `.env`. Set next variables in `.env` file:
+    - `NODE_ENV` - simply set it to `prod` (it is already provided)
 
 ## Running
-1. Create a file for private keys and place them in the `assets` folder
-2. Create a file for proxies and add them to the `assets` folder (`host:port:username:password`)
-3. Copy the required config file in the `config` folder (instructions on how to modify it are provided below)
-4. Run `yarn start`
-5. Select the desired mode and the corresponding config file
+1. Open `assets` folder in explorer and create next files (you can name it as you want. You will select Just don't change example files):
+    - create file for private keys (`private_keys.txt` for example) and fill it with private keys each from new line (must start from `0x`)
+    - (optional) create file for proxies (`proxies.txt` for example) and fill it with proxies data in next format: `host:port:username:password`
+1. Open `config` folder in explorer and create next files (you can name it as you want. You will select Just don't change example files):
+    - Copy the required config file (such as `jobs.example.json` or `checker.example.json`). Instructions on how to modify it are provided below
+1. Open command terminal (git bash for windows) in project root
+1. Run `yarn start` command
+1. Select the desired mode and the corresponding config file (use arrow-keys. Return to submit)
 
 ## Job generator
 The job generator mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them.
 
 ### Config
-There are two main block types: `fixed` and `dynamic`. The `dynamic` config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. Values can be changed during program run. To get started, copy the `config/block.example.json5` file, rename it as needed, and adjust the following values:
+There are two main block types: `fixed` and `dynamic`. The `dynamic` config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. Values can be changed during program run. To get started, copy the `config/jobs.example.json5` file, (name it as you want. Just don't change example files), and adjust the following values:
 - `dynamic`:
     - `maxLineaGwei` - the maximum Linea Gwei limit. System will check it before each transaction
     - `minEthBalance` - minimum ETH balance on account to work with (generate job/start new block). To forcefully stop the script and complete all current steps, set value to `100`. It will skip next blocks due to insufficient balance.
@@ -164,8 +171,8 @@ There are two main block types: `fixed` and `dynamic`. The `dynamic` config bloc
     - `delaySec`:
         - `step` - set the minimum and maximum step delay in seconds 
         - `transaction` - set the minimum and maximum transaction delay in seconds 
-    - `files`:
-        - `privateKeys` - specify the file name in the `assets` folder containing private keys
+    - `files` (each file name must be with file format `private_keys` is wrong value while `private_keys.txt` is right):
+        - `privateKeys` - specify the file name in the `assets` folder containing private keys 
         - `proxies` - specify the file name in the `assets` folder containing proxies. Can be empty string for `none` proxy type
     - `isAccountsShuffle` - determine whether the private keys file should be shuffled (set to `true` or `false`)
     - `maxParallelAccounts` - set the maximum number of parallel accounts (see the run example below). If mobile proxy used it can be only 1 parallel account.
