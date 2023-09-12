@@ -110,13 +110,13 @@ class SwapBlock extends Block {
     });
 
     const approveTransaction = new Transaction({
-      name: step.createDefaultTransactionName(`APPROVE_${namePrefix}`),
+      name: step.createDefaultTransactionName(`APPROVE`),
       fn: () => this.approve({ account, normalizedAmount }),
     });
     step.push(approveTransaction);
 
     const swapTransaction = new Transaction({
-      name: step.createDefaultTransactionName(`SWAP_${namePrefix}`),
+      name: step.createDefaultTransactionName(`SWAP`),
       fn: () => this.swap({ account, normalizedAmount }),
     });
 

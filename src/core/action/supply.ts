@@ -33,7 +33,7 @@ export class SupplyAction extends Action {
     throw new Error("Method is not implemented");
   }
 
-  getApproveAddress(chain: Chain): string | undefined {
+  getApproveAddress(chain: Chain, token: Token): string | undefined {
     throw new Error("Method is not implemented");
   }
 }

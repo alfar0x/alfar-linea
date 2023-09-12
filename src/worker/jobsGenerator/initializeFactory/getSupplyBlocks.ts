@@ -12,7 +12,7 @@ const getImplementedProviders = (): Partial<
   Record<Provider, [SupplyAction, Tokens]>
 > => {
   return {
-    LINEA_BANK: [new LineaBankSupply(), ["ETH"]],
+    LINEA_BANK: [new LineaBankSupply(), ["ETH", "USDC", "WBTC"]],
   };
 };
 

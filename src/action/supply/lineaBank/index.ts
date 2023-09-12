@@ -5,23 +5,29 @@ import {
   CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR,
 } from "../../../constants/contracts";
 import Account from "../../../core/account";
-import Action from "../../../core/action";
+import { SupplyAction } from "../../../core/action/supply";
 import Chain from "../../../core/chain";
 import Token from "../../../core/token";
 import getContract from "../../../utils/web3/getContract";
 
 import { CHAINS_DATA } from "./constants";
 
-class LineaBankSupply extends Action {
+class LineaBankSupply extends SupplyAction {
   constructor() {
     super({
       provider: "LINEA_BANK",
-      actionType: "SUPPLY",
     });
   }
 
-  public getApproveAddress(chain: Chain) {
-    return chain.getContractAddressByName(CONTRACT_LINEA_BANK_CORE);
+  public getApproveAddress(chain: Chain, token: Token) {
+    const chainData = CHAINS_DATA[chain.chainId] || {};
+    const { marketAddress } = chainData[token.name] || {};
+
+    if (!marketAddress) {
+      throw new Error(`Market address is not defined for ${token}`);
+    }
+
+    return marketAddress;
   }
 
   private getCoreAddress(chain: Chain) {
@@ -106,7 +112,7 @@ class LineaBankSupply extends Action {
     if (!token.isNative) {
       const normalizedAllowance = await token.normalizedAllowance(
         account,
-        coreContractAddress
+        marketAddress
       );
 
       if (Big(normalizedAllowance).lt(normalizedAmount)) {

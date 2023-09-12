@@ -31,7 +31,10 @@ class SupplyBlock extends Block {
 
     if (this.token.isNative) return true;
 
-    const contractAddress = this.action.getApproveAddress(this.chain);
+    const contractAddress = this.action.getApproveAddress(
+      this.chain,
+      this.token
+    );
 
     if (!contractAddress) {
       throw new Error(
@@ -109,13 +112,13 @@ class SupplyBlock extends Block {
     });
 
     const approveTransaction = new Transaction({
-      name: step.createDefaultTransactionName(`APPROVE_${namePrefix}`),
+      name: step.createDefaultTransactionName(`APPROVE`),
       fn: () => this.approve({ account, normalizedAmount }),
     });
     step.push(approveTransaction);
 
     const supplyTransaction = new Transaction({
-      name: step.createDefaultTransactionName(`SUPPLY_${namePrefix}`),
+      name: step.createDefaultTransactionName(`SUPPLY`),
       fn: () => this.supply({ account, normalizedAmount }),
     });
 
