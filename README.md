@@ -1,4 +1,4 @@
-# Alfar linea
+[![Typing SVG](https://readme-typing-svg.demolab.com/?font=Fira+Code&size=50&pause=1000&vCenter=true&width=350&height=80&lines=alfar-linea&color=2a9d8f)](https://git.io/typing-svg)
 
 Project designed to manage linea accounts. It utilizes REALLY RANDOM transactions to simulate user activity on accounts. Each account comprises a `job` consisting of `steps`, which represent a list of `transactions`.
 
