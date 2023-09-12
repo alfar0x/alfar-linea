@@ -167,15 +167,34 @@ class Factory {
       : steps;
   }
 
-  infoString() {
+  infoString(isFull = false) {
+    let swapEthToTokenPath = `Swap eth -> token -> eth: ${this.swapEthToTokenPath.count()}`;
+    let supplyEthPath = `Supply -> redeem eth: ${this.supplyEthPath.count()}`;
+    let swapSupplyTokenPath = `Swap eth -> token -> supply -> redeem -> eth: ${this.swapSupplyTokenPath.count()}`;
+    let randomBlockPath = `Random blocks: ${this.randomBlockPath.count()}`;
+
+    if (isFull) {
+      swapEthToTokenPath +=
+        "\n" + this.swapEthToTokenPath.possibleWaysStrings().join("\n");
+      supplyEthPath +=
+        "\n" + this.supplyEthPath.possibleWaysStrings().join("\n");
+      swapSupplyTokenPath +=
+        "\n" + this.swapSupplyTokenPath.possibleWaysStrings().join("\n");
+      randomBlockPath +=
+        "\n" + this.randomBlockPath.possibleWaysStrings().join("\n");
+    }
+
     const msg = [
       `Possible ways:`,
-      `Swap eth -> token -> eth: ${this.swapEthToTokenPath.count()}`,
-      `Supply -> redeem eth: ${this.supplyEthPath.count()}`,
-      `Swap eth -> token -> supply -> redeem -> eth: ${this.swapSupplyTokenPath.count()}`,
-      `Random blocks: ${this.randomBlockPath.count()}`,
+      swapEthToTokenPath,
+      supplyEthPath,
+      swapSupplyTokenPath,
+      randomBlockPath,
     ];
-    return msg.join("\n");
+
+    const joiner = isFull ? "\n\n" : "\n";
+
+    return msg.join(joiner);
   }
 }
 
