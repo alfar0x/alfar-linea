@@ -2,9 +2,9 @@ import fs from "fs";
 
 import json5 from "json5";
 import { z } from "zod";
-import { generateErrorMessage } from "zod-error";
 
 import logger from "../utils/other/logger";
+import errorPrettify from "../utils/zod/errorPrettify";
 
 class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
   private fileName: string;
@@ -43,10 +43,9 @@ class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
 
     if (result.success) return result.data;
 
-    const errorMessage = generateErrorMessage(result.error.issues, {
-      transform: ({ issue }) => `[${issue.path.join(".")}] ${issue.message}`,
-      delimiter: { error: "\n" },
-    });
+    console.log(JSON.stringify(result.error.issues, null, 2));
+
+    const errorMessage = errorPrettify(result.error.issues);
 
     throw new Error(errorMessage);
   }
@@ -67,7 +66,7 @@ class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
       const { message } = error as Error;
 
       logger.error(
-        `used the previous dynamic value because an error occurred. Details: ${message}`
+        `used the previous dynamic value due to error. Details: ${message}`
       );
     }
 
