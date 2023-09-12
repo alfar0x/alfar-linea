@@ -36,19 +36,20 @@
     "typechain": "^8.3.1",
     "typescript": "^5.0.4"
   },
-  "funding": "0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D",
+  "funding": "https://etherscan.io/address/0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D",
   "homepage": "https://github.com/alfar0x/alfar-linea",
   "keywords": [
     "linea",
     "swap",
+    "web3",
     "dmail",
-    "linea bank",
-    "open ocean",
+    "lineabank",
+    "openocean",
     "pancake",
-    "synkswap",
+    "syncswap",
     "velocore",
     "woofi",
-    "xy finance"
+    "xyfinance"
   ],
   "license": "BSD-3-Clause",
   "main": "src/app.ts",
