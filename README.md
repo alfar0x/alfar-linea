@@ -1,6 +1,6 @@
 # Alfar linea
 
-Project designed to manage linea accounts. It utilizes REALLY RANDOM transactions to simulate user activity on accounts. Each account comprises a `job` consisting of `steps`, which represent a list of `transactions`. You can check all possible jobs in `all-jobs.md`. 
+Project designed to manage linea accounts. It utilizes REALLY RANDOM transactions to simulate user activity on accounts. Each account comprises a `job` consisting of `steps`, which represent a list of `transactions`.
 
 1. A list of transactions (one step) consists of transactions sent to the blockchain by real users within a specific time frame. Approvals and swaps are completed in approximately 30 seconds for example. Step can currently consist of 1-3 transactions 
 2. A list of steps (job) can be executed within hours. Activities may include swapping to USDC, then swapping to ETH, or adding and removing liquidity from a pool. Each job concludes by returning all tokens/liquidity to ETH.
