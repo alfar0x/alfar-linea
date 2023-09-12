@@ -141,6 +141,7 @@ There are several modes available for the account manager (script runner) to use
 
 1. Install `Node.js` from the [official website](https://nodejs.org/en/download)
 1. Install `git` from the [official website](https://git-scm.com/downloads)  
+1. Install `yarn` using `npm install -g yarn` command
 1. Clone the project using the terminal command `git clone https://github.com/alfar0x/alfar-linea.git`
 1. Create a `.env` file in the root folder and provide variables using the example file `.env.example`:
     - `NODE_ENV` - simply set it to `prod` 
@@ -150,7 +151,7 @@ There are several modes available for the account manager (script runner) to use
 1. Create a file for private keys and place them in the `assets` folder
 2. Create a file for proxies and add them to the `assets` folder (`host:port:username:password`)
 3. Copy the required config file in the `config` folder (instructions on how to modify it are provided below)
-4. Run `npm run start`
+4. Run `yarn start`
 5. Select the desired mode and the corresponding config file
 
 ## Job generator
