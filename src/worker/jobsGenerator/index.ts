@@ -196,7 +196,7 @@ class JobGenerator {
   private async runTransaction(
     transaction: Transaction,
     isConnectionChecked = false
-  ): Promise<void> {
+  ): Promise<boolean> {
     try {
       await waitGasPrice(
         this.chain.w3,
@@ -204,7 +204,7 @@ class JobGenerator {
         () => this.config.dynamic().maxLineaGwei
       );
 
-      await transaction.run();
+      return await transaction.run();
     } catch (error) {
       const msg = `[${transaction}] ${(error as Error).message}`;
 
@@ -232,11 +232,11 @@ class JobGenerator {
     logger.info(this.msg([String(job.account), `step start: ${step}`]));
 
     while (transaction) {
-      await this.runTransaction(transaction);
+      const isTransactionSent = await this.runTransaction(transaction);
 
       transaction = step.shift();
 
-      if (transaction) await this.waitAfterTransaction();
+      if (transaction && isTransactionSent) await this.waitAfterTransaction();
     }
 
     logger.info(this.msg([String(job.account), `step finish: ${step}`]));

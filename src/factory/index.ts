@@ -166,6 +166,17 @@ class Factory {
       ? this.addRandomSteps(account, steps)
       : steps;
   }
+
+  infoString() {
+    const msg = [
+      `Possible ways:`,
+      `Swap eth -> token -> eth: ${this.swapEthToTokenPath.count()}`,
+      `Supply -> redeem eth: ${this.supplyEthPath.count()}`,
+      `Swap eth -> token -> supply -> redeem -> eth: ${this.swapSupplyTokenPath.count()}`,
+      `Random blocks: ${this.randomBlockPath.count()}`,
+    ];
+    return msg.join("\n");
+  }
 }
 
 export default Factory;

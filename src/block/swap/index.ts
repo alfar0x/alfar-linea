@@ -39,7 +39,7 @@ class SwapBlock extends Block {
 
     logger.debug("start approve");
 
-    if (this.fromToken.isNative) return true;
+    if (this.fromToken.isNative) return false;
 
     const contractAddress = this.action.getApproveAddress(this.chain);
 

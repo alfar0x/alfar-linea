@@ -200,7 +200,7 @@ class Token {
     );
 
     if (Big(allowanceNormalizedAmount).gte(normalizedAmount)) {
-      return null;
+      return false;
     }
 
     const approveFunctionCall = this.contract.methods.approve(
