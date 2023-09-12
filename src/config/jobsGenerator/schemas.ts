@@ -57,7 +57,10 @@ const rpcSchema = z.object({
 });
 
 const workingAmountPercentSchema = z
-  .object({ min: z.number().positive(), max: z.number().positive().max(50) })
+  .object({
+    min: z.number().positive().min(0.1),
+    max: z.number().positive().max(30),
+  })
   .refine(...minMaxRefine);
 
 export const fixedSchema = z.object({

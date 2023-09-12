@@ -15,14 +15,14 @@
     isAccountsShuffle: true,
     maxParallelAccounts: 3,
     providers: [
+      "DMAIL",
+      "LINEA_BANK",
+      "OPEN_OCEAN",
+      "PANCAKE",
       "SYNCSWAP",
       "VELOCORE",
-      "DMAIL",
-      "OPEN_OCEAN",
-      "XY_FINANCE",
-      "PANCAKE",
       "WOOFI",
-      "LINEA_BANK",
+      "XY_FINANCE",
     ],
     proxy: {
       type: "none",
@@ -32,7 +32,7 @@
     rpc: {
       linea: "https://1rpc.io/linea",
     },
-    transactionsLimit: { min: 3, max: 6 },
-    workingAmountPercent: { min: 2, max: 6 },
+    transactionsLimit: { min: 4, max: 20 },
+    workingAmountPercent: { min: 1, max: 7 },
   },
 }
