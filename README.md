@@ -3,14 +3,13 @@
 Project designed to manage linea accounts. It utilizes REALLY RANDOM transactions to simulate user activity on accounts. Each account comprises a `job` consisting of `steps`, which represent a list of `transactions`.
 
 1. A list of transactions (one step) consists of transactions sent to the blockchain by real users within a specific time frame. Approvals and swaps are completed in approximately 30 seconds for example. Step can currently consist of 1-3 transactions 
-2. A list of steps (job) can be executed within hours. Activities may include swapping to USDC, then swapping to ETH, or adding and removing liquidity from a pool. Each job concludes by returning all tokens/liquidity to ETH.
+2. A list of steps (job) can be executed by real users within hours/days. Activities may include swapping ETH to USDC, then swapping back, or adding liquidity to a pool than removing it. Each job concludes by returning all tokens/liquidity to ETH.
 
 **Use it at your own risk. The script was not tested on large volumes.**
 
 Check for updates here: [alfar](https://t.me/+FozX3VZA0RIyNWY6)
 
 Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
-
 
 ![console screenshot](./img/screenshot.png)
 
@@ -124,12 +123,11 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 </details>
 
 ## Modes 
-There are several modes available for the account manager (script runner) to use:
+There are several modes available:
 - Job generator - the main script responsible for generating/executing transactions. 
-- Checker - check your accounts analytics.
 - Eth returner - this script swaps all tokens used by the main script to ETH and removes all liquidity. It serves as a backup in case errors occur in jobs generator mode.
 - Depositor - this mode facilitates deposits to linea accounts.
-- Config creator - used to create configuration files for different modes.
+- Checker - check your accounts analytics.
 
 ## Suggestions
 - Avoid modifying the **example** files. Instead, make copies of the files you need and customize them. Updates may be released in the future for example files.
@@ -158,7 +156,7 @@ There are several modes available for the account manager (script runner) to use
 The job generator mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them.
 
 ### Config
-There are two main block types: `fixed` and `dynamic`. The dynamic config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. To get started, copy the `config/block.example.json5` file, rename it as needed, and adjust the following values:
+There are two main block types: `fixed` and `dynamic`. The `dynamic` config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. Values can be changed during program run. To get started, copy the `config/block.example.json5` file, rename it as needed, and adjust the following values:
 - `dynamic`:
     - `maxLineaGwei` - the maximum Linea Gwei limit. System will check it before each transaction
     - `minEthBalance` - minimum ETH balance on account to work with (generate job/start new block). To forcefully stop the script and complete all current steps, set value to `100`. It will skip next blocks due to insufficient balance.
@@ -249,8 +247,8 @@ and so on...
 **Disabled** for now until it is implemented
 
 ## Checker
-Check accounts nonce and tokens that are used by script. Use `config/checker.example.json5` to create config: 
-- `dynamic`: just empty block
+Check accounts nonce and tokens that are used by script. Copy `config/checker.example.json5` to create config (rename it if needed): 
+- `dynamic` - just empty block
 - `fixed`:
     - `files`:
         - `addresses` - specify the file name in the `assets` folder containing addresses
@@ -265,9 +263,6 @@ Check accounts nonce and tokens that are used by script. Use `config/checker.exa
         - `serverIsRandom` - when using a server proxy, enable this option by setting it to `true` if you want the system to use a random proxy for each account. Setting it to `false` means that each account has its proxy, so the number of proxies must match the number of accounts.
     - `rpc`: 
         - `linea` - specify the linea RPC
-
-## Config creator
-**Disabled** for now until it is implemented. Please use the `config/*.example.json5` files for the time now.
 
 ## Additional Links:
 
