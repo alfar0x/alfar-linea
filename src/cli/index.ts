@@ -14,6 +14,11 @@ const modeChoices = [
     description: "run random linea transactions",
   },
   {
+    title: "checker",
+    value: "checker",
+    description: "check your wallets analytics",
+  },
+  {
     title: "eth returner",
     value: "reset",
     description: "return all tokens/pools to eth",
@@ -24,11 +29,6 @@ const modeChoices = [
     value: "depositor",
     description: "okx to linea",
     disabled: true,
-  },
-  {
-    title: "checker",
-    value: "checker",
-    description: "check your wallets analytics",
   },
 ];
 

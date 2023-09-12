@@ -122,17 +122,33 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
     DMAIL_SEND_MAIL
 </details>
 
+## Links:
+- [Modes](#modes) 
+- [Suggestions](#suggestions)
+- [Installation](#installation)
+- [Running](#running)
+- [Job generator](#job-generator)
+    - [Create files](#create-files)
+    - [Config](#config)
+    - [Example](#example)
+- [Checker](#checker)
+    - [Create files](#create-files-1)
+    - [Config](#config-1)
+- [Eth returner](#eth-returner)
+- [Deposit](#deposit)
+- [Additional Links](#additional-links)
+
 ## Modes 
 There are several modes available:
 - Job generator - the main script responsible for generating/executing transactions. 
+- Checker - check your accounts analytics (txs and balances).
 - Eth returner - this script swaps all tokens used by the main script to ETH and removes all liquidity. It serves as a backup in case errors occur in jobs generator mode.
 - Depositor - this mode facilitates deposits to linea accounts.
-- Checker - check your accounts analytics.
 
 ## Suggestions
-- Avoid modifying the **example** files. Instead, make copies of the files you need and customize them. Updates may be released in the future for example files.
+- Avoid modifying the **example** files. Instead, make copies of the files you need and change them. Updates may be released in the future for example files.
 - Rather than downloading a zip file of the project, use the `git` command to install it (instructions below). Updates, including new providers and modes, will be available in the near future, so it will be easier to stay up to date using the git command. 
-- You can create multiple configuration/private_keys/proxies files with different settings to run them in separate terminals.
+- You can create multiple configuration/private keys/proxies files with different settings to run them in separate terminals.
 - Linea mainnet still throws some errors. It can suddenly stop. Don't use large volumes. The script was created to increase the number of transactions, not volume
 
 ## Installation
@@ -150,17 +166,21 @@ There are several modes available:
     - `NODE_ENV` - simply set it to `prod` (it is already provided)
 
 ## Running
-1. Open `assets` folder in explorer and create next files (you can name it as you want. You will select Just don't change example files):
-    - create file for private keys (`private_keys.txt` for example) and fill it with private keys each from new line (must start from `0x`)
-    - (optional) create file for proxies (`proxies.txt` for example) and fill it with proxies data in next format: `host:port:username:password`
-1. Open `config` folder in explorer and create next files (you can name it as you want. You will select Just don't change example files):
-    - Copy the required config file (such as `jobs.example.json` or `checker.example.json`). Instructions on how to modify it are provided below
-1. Open command terminal (git bash for windows) in project root
+1. Open command terminal (power shell for windows) in project root
 1. Run `yarn start` command
-1. Select the desired mode and the corresponding config file (use arrow-keys. Return to submit)
+1. Select the desired mode and the corresponding config file (use arrow-keys. Return to submit).
+1. Before first run check below how to configure each mode below. 
 
 ## Job generator
 The job generator mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them.
+
+### Create files
+Before first run next files must be created:
+1. Open `assets` folder in explorer and create next files (you can name it as you want. You will select it in config file. Just don't change example files):
+    - create file for private keys (`private_keys.txt` for example) and fill it with private keys each from new line (must start from `0x`)
+    - (optional only if you will use proxy) create file for proxies (`proxies.txt` for example) and fill it with proxies data in next format: `host:port:username:password`
+1. Open `config` folder in explorer and create next files (you can name it as you want. You will select it in script Just don't change example files):
+    - Copy the required config file (`jobs.example.json` for this mode). Instructions on how to modify it are provided below
 
 ### Config
 There are two main block types: `fixed` and `dynamic`. The `dynamic` config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. Values can be changed during program run. To get started, copy the `config/jobs.example.json5` file, (name it as you want. Just don't change example files), and adjust the following values:
@@ -190,8 +210,10 @@ There are two main block types: `fixed` and `dynamic`. The `dynamic` config bloc
     - `transactionsLimit` - set the minimum and maximum number of transactions generated for **each** account. Script will generate min limit between this values. It is not exact value will be performed. It will end jobs generation for account If in the end of the job limit will be reached. Otherwise new job will be generated  
     - `workingAmountPercent` - set the minimum and maximum working amount in percent
 
+
+### Example
 <details>
-    <summary>Run example</summary>
+    <summary>Click here to see run example</summary>
 
 Let's assume the following values were configured:
 - Proxy type - none
@@ -247,13 +269,18 @@ and so on...
 
 </details>
 
-## Eth returner
-**Disabled** for now until it is implemented
-
-## Deposit
-**Disabled** for now until it is implemented
-
 ## Checker
+Check your accounts analytics (txs and balances)
+### Create files
+Before first run next files must be created:
+1. Open `assets` folder in explorer and create next files (you can name it as you want. You will select it in config file. Just don't change example files):
+    - create file for private keys (`private_keys.txt` for example) and fill it with private keys each from new line (must start from `0x`)
+    - (if you desire to use addresses instead of private keys) create file for addresses (`addresses.txt` for example) and fill it with addresses each from new line (must start from `0x`)
+    - (optional only if you will use proxy) create file for proxies (`proxies.txt` for example) and fill it with proxies data in next format: `host:port:username:password`
+1. Open `config` folder in explorer and create next files (you can name it as you want. You will select it in script Just don't change example files):
+    - Copy the required config file (`jobs.example.json` for this mode). Instructions on how to modify it are provided below
+
+### Config
 Check accounts nonce and tokens that are used by script. Copy `config/checker.example.json5` to create config (rename it if needed): 
 - `dynamic` - just empty block
 - `fixed`:
@@ -270,6 +297,12 @@ Check accounts nonce and tokens that are used by script. Copy `config/checker.ex
         - `serverIsRandom` - when using a server proxy, enable this option by setting it to `true` if you want the system to use a random proxy for each account. Setting it to `false` means that each account has its proxy, so the number of proxies must match the number of accounts.
     - `rpc`: 
         - `linea` - specify the linea RPC
+
+## Eth returner
+**Disabled** for now until it is implemented
+
+## Deposit
+**Disabled** for now until it is implemented
 
 ## Additional Links:
 
