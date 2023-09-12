@@ -43,26 +43,7 @@ There are several modes available for the account manager (script runner) to use
 5. Select the desired mode and the corresponding config file
 
 ## Job generator
-The job generator mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them. Currently next blocks are available (they can cross each other open ocean swap eth -> usdc, send dmail, xy finance swap usdc -> eth for example):
-1. dmail - send random email
-1. syncswap - swap eth -> usdc -> eth
-1. syncswap - swap eth -> cebusd -> eth
-1. syncswap - swap eth -> wbtc -> eth
-1. velocore - swap eth -> usdc -> eth
-1. velocore - swap eth -> cebusd -> eth
-1. open ocean - swap eth -> usdc -> eth
-1. open ocean - swap eth -> iusd -> eth
-1. open ocean - swap eth -> izi -> eth
-1. open ocean - swap eth -> wavax -> eth
-1. open ocean - swap eth -> wmatic -> eth
-1. open ocean - swap eth -> wbnb -> eth
-1. open ocean - swap eth -> cebusd -> eth
-1. xy finance - swap eth -> cebusd -> eth
-1. xy finance - swap eth -> usdc -> eth
-1. xy finance - swap eth -> usdt -> eth
-1. pancake - swap eth -> usdc -> eth
-1. woofi - swap eth -> usdc -> eth
-1. linea bank - supply eth -> redeem eth
+The job generator mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them. You can check all possible jobs in `all-jobs.md`
 
 ![console screenshot](./img/screenshot.png)
 
