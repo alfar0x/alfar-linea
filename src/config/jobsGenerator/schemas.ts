@@ -21,7 +21,7 @@ const transactionsLimitSchema = z
 
 const delaySecSchema = z.object({
   transaction: z
-    .object({ min: z.number().positive().min(10), max: z.number().positive() })
+    .object({ min: z.number().positive().min(20), max: z.number().positive() })
     .refine(...minMaxRefine),
   step: z
     .object({ min: z.number().positive().min(60), max: z.number().positive() })
@@ -57,7 +57,7 @@ const rpcSchema = z.object({
 });
 
 const workingAmountPercentSchema = z
-  .object({ min: z.number().positive(), max: z.number().positive() })
+  .object({ min: z.number().positive(), max: z.number().positive().max(50) })
   .refine(...minMaxRefine);
 
 export const fixedSchema = z.object({
