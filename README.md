@@ -11,6 +11,8 @@ Check for updates here: [alfar](https://t.me/+FozX3VZA0RIyNWY6)
 
 Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 
+![console screenshot](./img/screenshot.png)
+
 ## Modes 
 There are several modes available for the account manager (script runner) to use (some of them are currently disabled but will be implemented in the near future):
 - Job generator - the main script responsible for generating/executing transactions. 
@@ -20,33 +22,29 @@ There are several modes available for the account manager (script runner) to use
 - Config creator - used to create configuration files for different modes.
 
 ## Suggestions
-1. Avoid modifying the **example** files. Instead, make copies of the files you need and customize them. Updates may be released in the future for example files.
-2. Rather than downloading a zip file of the project, use the `git` command to install it (instructions below). Updates, including new providers and modes, will be available in the near future, so it will be easier to stay up to date using the git command. 
-3. You can create multiple configuration/private_keys/proxies files with different settings to run them in separate terminals.
-4. Linea mainnet still throws some errors. It can suddenly stop. Don't use large volumes. The script was created to increase the number of transactions, not volume
+- Avoid modifying the **example** files. Instead, make copies of the files you need and customize them. Updates may be released in the future for example files.
+- Rather than downloading a zip file of the project, use the `git` command to install it (instructions below). Updates, including new providers and modes, will be available in the near future, so it will be easier to stay up to date using the git command. 
+- You can create multiple configuration/private_keys/proxies files with different settings to run them in separate terminals.
+- Linea mainnet still throws some errors. It can suddenly stop. Don't use large volumes. The script was created to increase the number of transactions, not volume
 
 ## Installation
 
 1. Install `Node.js` from the [official website](https://nodejs.org/en/download)
-2. Install `yarn` by running the command `npm install -g yarn`
-3. Install `git` from the [official website](https://git-scm.com/downloads)  
-4. Clone the project using the terminal command `git clone https://github.com/alfar0x/alfar-linea.git`
-5. Create a `.env` file in the root folder and provide variables using the example file `.env.example`:
+1. Install `git` from the [official website](https://git-scm.com/downloads)  
+1. Clone the project using the terminal command `git clone https://github.com/alfar0x/alfar-linea.git`
+1. Create a `.env` file in the root folder and provide variables using the example file `.env.example`:
     - `NODE_ENV` - simply set it to `prod` 
-6. Run the `yarn` command in the project root to install dependencies
+1. Run the `npm install` command in the project root to install dependencies
 
 ## Running
 1. Create a file for private keys and place them in the `assets` folder
 2. Create a file for proxies and add them to the `assets` folder (`host:port:username:password`)
 3. Copy the required config file in the `config` folder (instructions on how to modify it are provided below)
-4. Run `yarn start`
+4. Run `npm run start`
 5. Select the desired mode and the corresponding config file
 
 ## Job generator
 The job generator mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them. You can check all possible jobs in `all-jobs.md`
-
-![console screenshot](./img/screenshot.png)
-
 
 ### Config
 There are two main block types: `fixed` and `dynamic`. The dynamic config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. To get started, copy the `config/block.example.json5` file, rename it as needed, and adjust the following values:
@@ -122,7 +120,7 @@ acc3 (min tx limit = 6) - [step2]; <- working account
 acc4 (min tx limit = 5) - [step1,step2,step3,step4];
 
 --- next iteration acc1 was run
-acc1 (min tx limit = 8) - [step4,step5,step6]; <- working account. Transactions was not reached. New steps were generated
+acc1 (min tx limit = 8) - [step4,step5,step6]; <- working account. Min transactions limit was not reached. New steps were generated
 acc3 (min tx limit = 6) - [step2]; <- working account
 acc4 (min tx limit = 5) - [step1,step2,step3,step4];
 
