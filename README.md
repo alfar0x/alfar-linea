@@ -145,7 +145,7 @@ There are several modes available for the account manager (script runner) to use
 1. Clone the project using the terminal command `git clone https://github.com/alfar0x/alfar-linea.git`
 1. Create a `.env` file in the root folder and provide variables using the example file `.env.example`:
     - `NODE_ENV` - simply set it to `prod` 
-1. Run the `npm install` command in the project root to install dependencies
+1. Run the `yarn install` command in the project root to install dependencies
 
 ## Running
 1. Create a file for private keys and place them in the `assets` folder
