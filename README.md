@@ -124,7 +124,7 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 </details>
 
 ## Modes 
-There are several modes available for the account manager (script runner) to use (some of them are currently disabled but will be implemented in the near future):
+There are several modes available for the account manager (script runner) to use:
 - Job generator - the main script responsible for generating/executing transactions. 
 - Checker - check your accounts analytics.
 - Eth returner - this script swaps all tokens used by the main script to ETH and removes all liquidity. It serves as a backup in case errors occur in jobs generator mode.
@@ -154,7 +154,7 @@ There are several modes available for the account manager (script runner) to use
 5. Select the desired mode and the corresponding config file
 
 ## Job generator
-The job generator mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them. You can check all possible jobs in `all-jobs.md`
+The job generator mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them.
 
 ### Config
 There are two main block types: `fixed` and `dynamic`. The dynamic config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. To get started, copy the `config/block.example.json5` file, rename it as needed, and adjust the following values:
@@ -184,7 +184,9 @@ There are two main block types: `fixed` and `dynamic`. The dynamic config block 
     - `transactionsLimit` - set the minimum and maximum number of transactions generated for **each** account. Script will generate min limit between this values. It is not exact value will be performed. It will end jobs generation for account If in the end of the job limit will be reached. Otherwise new job will be generated  
     - `workingAmountPercent` - set the minimum and maximum working amount in percent
 
-### Run example
+<details>
+    <summary>Run example</summary>
+
 Let's assume the following values were configured:
 - Proxy type - none
 - Maximum parallel accounts - 2
@@ -197,45 +199,47 @@ The system will generate 6 jobs. It will select a random job from the first 5 jo
 ```
 acc1 (min tx limit = 8) - [step1,step2,step3]; <- working account
 acc2 (min tx limit = 2) - [step1,step2]; <- working account
-acc3 (min tx limit = 6) - [step1,step2];
-acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+acc3 (min tx limit = 6) - []; <- steps are not generated yet because of max accounts is 2
+acc4 (min tx limit = 5) - []; <- steps are not generated yet
 
 --- next iteration acc2 was run
 acc1 (min tx limit = 8) - [step1,step2,step3]; <- working account
 acc2 (min tx limit = 2) - [step2]; <- working account
-acc3 (min tx limit = 6) - [step1,step2];
-acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+acc3 (min tx limit = 6) - [];
+acc4 (min tx limit = 5) - [];
 
 --- next iteration acc1 was run
 acc1 (min tx limit = 8) - [step2,step3]; <- working account
 acc2 (min tx limit = 2) - [step2]; <- working account
-acc3 (min tx limit = 6) - [step1,step2];
-acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+acc3 (min tx limit = 6) - [];
+acc4 (min tx limit = 5) - [];
 
 --- next iteration acc1 was run
 acc1 (min tx limit = 8) - [step3]; <- working account
 acc2 (min tx limit = 2) - [step2]; <- working account
-acc3 (min tx limit = 6) - [step1,step2];
-acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+acc3 (min tx limit = 6) - [];
+acc4 (min tx limit = 5) - [];
 
 --- next iteration acc2 was run
 acc1 (min tx limit = 8) - [step3]; <- working account
 acc2 (min tx limit = 2) - []; <- working account. As soon as min transactions limit was reached it will be removed from jobs list.
-acc3 (min tx limit = 6) - [step1,step2];
-acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+acc3 (min tx limit = 6) - [step1,step2]; <- new account steps was generated
+acc4 (min tx limit = 5) - [];
 
 --- next iteration acc3 was run
 acc1 (min tx limit = 8) - [step3]; <- working account
 acc3 (min tx limit = 6) - [step2]; <- working account
-acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+acc4 (min tx limit = 5) - [];
 
 --- next iteration acc1 was run
 acc1 (min tx limit = 8) - [step4,step5,step6]; <- working account. Min transactions limit was not reached. New steps were generated
 acc3 (min tx limit = 6) - [step2]; <- working account
-acc4 (min tx limit = 5) - [step1,step2,step3,step4];
+acc4 (min tx limit = 5) - [];
 
 and so on...
 ```
+
+</details>
 
 ## Eth returner
 **Disabled** for now until it is implemented
