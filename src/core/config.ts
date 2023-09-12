@@ -43,8 +43,6 @@ class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
 
     if (result.success) return result.data;
 
-    console.log(JSON.stringify(result.error.issues, null, 2));
-
     const errorMessage = errorPrettify(result.error.issues);
 
     throw new Error(errorMessage);

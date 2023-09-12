@@ -15,7 +15,8 @@ const initializeAccounts = (params: {
     throw new Error(`private keys file name ${baseFileName} is not valid`);
   }
 
-  const privateKeys = readFileSyncByLine(fileName);
+  const allFileData = readFileSyncByLine(fileName);
+  const privateKeys = allFileData.map((v) => v.trim()).filter(Boolean);
 
   const accounts = privateKeys.map(
     (privateKey, fileIndex) => new Account({ privateKey, fileIndex })

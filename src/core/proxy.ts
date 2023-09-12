@@ -54,7 +54,9 @@ class Proxy {
   private initializeProxy(fileName: string) {
     if (this.type === "none") return [];
 
-    const fileData = readFileSyncByLine(fileName);
+    const allFileData = readFileSyncByLine(fileName);
+    const fileData = allFileData.map((v) => v.trim()).filter(Boolean);
+
     const proxyList = fileData.map((proxyStr) => proxySchema.parse(proxyStr));
 
     switch (this.type) {

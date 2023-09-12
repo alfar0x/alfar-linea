@@ -30,20 +30,9 @@ const modeChoices = [
     value: "checker",
     description: "check your wallets analytics",
   },
-  {
-    title: "config creator",
-    value: "config-creator",
-    description: "create config to any mode",
-    disabled: true,
-  },
 ];
 
-type Mode =
-  | "job-generator"
-  | "reset"
-  | "depositor"
-  | "checker"
-  | "config-creator";
+type Mode = "job-generator" | "reset" | "depositor" | "checker";
 
 class Cli {
   configPath = "config";
@@ -80,7 +69,7 @@ class Cli {
         choices: modeChoices,
       },
       {
-        type: (prev) => (prev === "config-creator" ? null : "autocomplete"),
+        type: "autocomplete",
         name: "config",
         message: "pick a config file",
         choices: this.getConfigChoices(),
