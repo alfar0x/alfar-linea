@@ -3,21 +3,23 @@ import { z } from "zod";
 
 import errorPrettify from "../zod/errorPrettify";
 
-dotenv.config();
+const getEnv = () => {
+  dotenv.config();
 
-const schema = z.object({
-  NODE_ENV: z.union([z.literal("dev"), z.literal("prod")]),
-});
+  const schema = z.object({
+    NODE_ENV: z.union([z.literal("dev"), z.literal("prod")]),
+  });
 
-type EnvConfig = z.infer<typeof schema>;
+  const env = schema.safeParse(process.env);
 
-export { EnvConfig };
+  if (!env.success) {
+    console.error(".env file error: ", errorPrettify(env.error.issues));
+    process.exit();
+  }
 
-const env = schema.safeParse(process.env);
+  return env.data;
+};
 
-if (!env.success) {
-  console.error(".env file error: ", errorPrettify(env.error.issues));
-  process.exit();
-}
+const env = getEnv();
 
-export default env.data;
+export default env;
