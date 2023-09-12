@@ -182,14 +182,12 @@ class Factory {
 
       const possibleWaysStrings = g.possibleWaysStrings().join("\n");
 
-      return `${short}\n\`\`\`\n${possibleWaysStrings}\n\`\`\``;
+      return `${short}\n${possibleWaysStrings}\n`;
     });
 
     const msg = [`Possible ways:`, ...generatorsInfo];
 
-    const joiner = isFull ? "\n\n" : "\n";
-
-    return msg.join(joiner);
+    return msg.join("\n");
   }
 }
 
