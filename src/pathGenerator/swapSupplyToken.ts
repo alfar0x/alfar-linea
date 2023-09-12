@@ -12,6 +12,7 @@ type PossibleWay = {
 
 class SwapSupplyTokenPathGenerator extends PathGenerator {
   private possibleWays: PossibleWay[];
+  description = "Swap eth -> token -> supply -> redeem -> eth";
 
   constructor(params: {
     swapBlocks: SwapBlock[];
@@ -52,10 +53,12 @@ class SwapSupplyTokenPathGenerator extends PathGenerator {
   }
 
   possibleWaysStrings() {
-    return this.possibleWays.map(
-      (possibleWay) =>
-        `${possibleWay.buySwapBlock} -> ${possibleWay.supplyBlock} -> ${possibleWay.sellSwapBlock}`
-    );
+    return this.possibleWays
+      .map(
+        (possibleWay) =>
+          `${possibleWay.buySwapBlock} -> ${possibleWay.supplyBlock} -> ${possibleWay.sellSwapBlock}`
+      )
+      .sort();
   }
 
   count() {

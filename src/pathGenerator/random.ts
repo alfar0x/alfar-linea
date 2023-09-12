@@ -7,6 +7,7 @@ type PossibleWay = RandomBlock;
 
 class RandomPathGenerator extends PathGenerator {
   private possibleWays: PossibleWay[];
+  description = "Random blocks";
 
   constructor(params: { randomBlocks: RandomBlock[] }) {
     const { randomBlocks } = params;
@@ -19,7 +20,7 @@ class RandomPathGenerator extends PathGenerator {
   }
 
   possibleWaysStrings() {
-    return this.possibleWays.map((possibleWay) => `${possibleWay}`);
+    return this.possibleWays.map((possibleWay) => `${possibleWay}`).sort();
   }
 
   count() {

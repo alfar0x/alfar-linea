@@ -168,29 +168,24 @@ class Factory {
   }
 
   infoString(isFull = false) {
-    let swapEthToTokenPath = `Swap eth -> token -> eth: ${this.swapEthToTokenPath.count()}`;
-    let supplyEthPath = `Supply -> redeem eth: ${this.supplyEthPath.count()}`;
-    let swapSupplyTokenPath = `Swap eth -> token -> supply -> redeem -> eth: ${this.swapSupplyTokenPath.count()}`;
-    let randomBlockPath = `Random blocks: ${this.randomBlockPath.count()}`;
-
-    if (isFull) {
-      swapEthToTokenPath +=
-        "\n" + this.swapEthToTokenPath.possibleWaysStrings().join("\n");
-      supplyEthPath +=
-        "\n" + this.supplyEthPath.possibleWaysStrings().join("\n");
-      swapSupplyTokenPath +=
-        "\n" + this.swapSupplyTokenPath.possibleWaysStrings().join("\n");
-      randomBlockPath +=
-        "\n" + this.randomBlockPath.possibleWaysStrings().join("\n");
-    }
-
-    const msg = [
-      `Possible ways:`,
-      swapEthToTokenPath,
-      supplyEthPath,
-      swapSupplyTokenPath,
-      randomBlockPath,
+    const generators = [
+      this.swapEthToTokenPath,
+      this.supplyEthPath,
+      this.swapSupplyTokenPath,
+      this.randomBlockPath,
     ];
+
+    const generatorsInfo = generators.map((g) => {
+      const short = `${g.description}: ${g.count()}`;
+
+      if (!isFull) return short;
+
+      const possibleWaysStrings = g.possibleWaysStrings().join("\n");
+
+      return `${short}\n\`\`\`\n${possibleWaysStrings}\n\`\`\``;
+    });
+
+    const msg = [`Possible ways:`, ...generatorsInfo];
 
     const joiner = isFull ? "\n\n" : "\n";
 

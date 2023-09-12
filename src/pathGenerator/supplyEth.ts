@@ -7,6 +7,7 @@ type PossibleWay = SupplyBlock;
 
 class SupplyEthPathGenerator extends PathGenerator {
   private possibleWays: PossibleWay[];
+  description = "Supply -> redeem eth";
 
   constructor(params: { supplyBlocks: SupplyBlock[] }) {
     const { supplyBlocks } = params;
@@ -21,7 +22,7 @@ class SupplyEthPathGenerator extends PathGenerator {
   }
 
   possibleWaysStrings() {
-    return this.possibleWays.map((possibleWay) => `${possibleWay}`);
+    return this.possibleWays.map((possibleWay) => `${possibleWay}`).sort();
   }
 
   count() {
