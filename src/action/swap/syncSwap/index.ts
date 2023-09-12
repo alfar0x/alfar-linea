@@ -3,8 +3,8 @@ import { ethers } from "ethers";
 
 import { SLIPPAGE_PERCENT } from "../../../constants";
 import {
-  CONTRACT_SYNC_SWAP_CLASSIC_POOL_FACTORY,
-  CONTRACT_SYNC_SWAP_ROUTER,
+  CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY,
+  CONTRACT_SYNCSWAP_ROUTER,
 } from "../../../constants/contracts";
 import Account from "../../../core/account";
 import { SwapAction } from "../../../core/action/swap";
@@ -18,13 +18,13 @@ const withdrawMode = {
   WITHDRAW_WETH: 2,
 };
 
-class SyncSwapSwap extends SwapAction {
+class SyncswapSwap extends SwapAction {
   constructor() {
-    super({ provider: "SYNC_SWAP" });
+    super({ provider: "SYNCSWAP" });
   }
 
   public getApproveAddress(chain: Chain) {
-    return chain.getContractAddressByName(CONTRACT_SYNC_SWAP_ROUTER);
+    return chain.getContractAddressByName(CONTRACT_SYNCSWAP_ROUTER);
   }
 
   async getPool(params: {
@@ -37,7 +37,7 @@ class SyncSwapSwap extends SwapAction {
 
     try {
       const classicPoolFactoryContractAddress = chain.getContractAddressByName(
-        CONTRACT_SYNC_SWAP_CLASSIC_POOL_FACTORY
+        CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY
       );
 
       if (!classicPoolFactoryContractAddress) {
@@ -48,7 +48,7 @@ class SyncSwapSwap extends SwapAction {
 
       const classicPoolFactoryContract = getContract({
         w3: chain.w3,
-        name: CONTRACT_SYNC_SWAP_CLASSIC_POOL_FACTORY,
+        name: CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY,
         address: classicPoolFactoryContractAddress,
       });
 
@@ -82,7 +82,7 @@ class SyncSwapSwap extends SwapAction {
     const { chain } = fromToken;
 
     const routerContractAddress = chain.getContractAddressByName(
-      CONTRACT_SYNC_SWAP_ROUTER
+      CONTRACT_SYNCSWAP_ROUTER
     );
 
     if (!routerContractAddress) {
@@ -172,7 +172,7 @@ class SyncSwapSwap extends SwapAction {
 
     const routerContract = getContract({
       w3,
-      name: CONTRACT_SYNC_SWAP_ROUTER,
+      name: CONTRACT_SYNCSWAP_ROUTER,
       address: routerContractAddress,
     });
 
@@ -258,4 +258,4 @@ class SyncSwapSwap extends SwapAction {
   }
 }
 
-export default SyncSwapSwap;
+export default SyncswapSwap;

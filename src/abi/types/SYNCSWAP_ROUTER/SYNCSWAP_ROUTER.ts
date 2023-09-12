@@ -21,13 +21,13 @@ export interface EventOptions {
   topics?: string[];
 }
 
-export interface SYNC_SWAP_ROUTER extends BaseContract {
+export interface SYNCSWAP_ROUTER extends BaseContract {
   constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions
-  ): SYNC_SWAP_ROUTER;
-  clone(): SYNC_SWAP_ROUTER;
+  ): SYNCSWAP_ROUTER;
+  clone(): SYNCSWAP_ROUTER;
   methods: {
     addLiquidity(
       pool: string,

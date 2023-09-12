@@ -15,7 +15,7 @@
     isAccountsShuffle: true,
     maxParallelAccounts: 3,
     providers: [
-      "SYNC_SWAP",
+      "SYNCSWAP",
       "VELOCORE",
       "DMAIL",
       "OPEN_OCEAN",

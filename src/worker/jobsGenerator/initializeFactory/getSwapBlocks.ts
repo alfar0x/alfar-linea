@@ -1,6 +1,6 @@
 import OpenOceanSwap from "../../../action/swap/openOcean";
 import PancakeSwap from "../../../action/swap/pancake";
-import SyncSwapSwap from "../../../action/swap/syncSwap";
+import SyncswapSwap from "../../../action/swap/syncswap";
 import VelocoreSwap from "../../../action/swap/velocore";
 import WoofiSwap from "../../../action/swap/woofi";
 import XyFinanceSwap from "../../../action/swap/xyFinance";
@@ -56,7 +56,7 @@ const getImplementedProviders = (): Partial<
   Record<Provider, [SwapAction, Pairs]>
 > => {
   return {
-    SYNC_SWAP: [new SyncSwapSwap(), ["ETH_USDC", "ETH_CEBUSD", "ETH_WBTC"]],
+    SYNCSWAP: [new SyncswapSwap(), ["ETH_USDC", "ETH_CEBUSD", "ETH_WBTC"]],
     VELOCORE: [new VelocoreSwap(), ["ETH_USDC", "ETH_CEBUSD"]],
     OPEN_OCEAN: [
       new OpenOceanSwap(),

@@ -30,13 +30,13 @@ export type PoolCreated = ContractEventLog<{
   2: string;
 }>;
 
-export interface SYNC_SWAP_CLASSIC_POOL_FACTORY extends BaseContract {
+export interface SYNCSWAP_CLASSIC_POOL_FACTORY extends BaseContract {
   constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions
-  ): SYNC_SWAP_CLASSIC_POOL_FACTORY;
-  clone(): SYNC_SWAP_CLASSIC_POOL_FACTORY;
+  ): SYNCSWAP_CLASSIC_POOL_FACTORY;
+  clone(): SYNCSWAP_CLASSIC_POOL_FACTORY;
   methods: {
     createPool(data: string | number[]): NonPayableTransactionObject<string>;
 
