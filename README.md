@@ -137,21 +137,21 @@ and so on...
 
 ## Checker
 Check accounts nonce and tokens that are used by script. Use `config/checker.example.json5` to create config: 
-    - `dynamic`: just empty block
-    - `fixed`:
-        - `files`:
-            - `addresses` - specify the file name in the `assets` folder containing addresses
-            - `privateKeys` - specify the file name in the `assets` folder containing private keys. Either privateKeys or addresses must be filled in.
-            - `proxies` - specify the file name in the `assets` folder containing proxies. Can be empty string for `none` proxy type
-        - `maxParallelAccounts` - set the maximum number of parallel accounts (see the run example below). If mobile proxy used it can be only 1 parallel account.
-        - `delayBetweenChunkSec` - set delay between parallel accounts requests
-        - `hideBalanceLessThanUsd` - set usd value of token that can be hidden. Set `-1` to see all tokens. 
-        - `proxy`: 
-            - `type` - specify the type of proxy to be used, choosing from `none`/`mobile`/`server`. Currently only `none` type can be used.
-            - `mobileIpChangeUrl` - if you want the system to use a mobile proxy, add it to your proxies file in one line and specify the rotation URL here
-            - `serverIsRandom` - when using a server proxy, enable this option by setting it to `true` if you want the system to use a random proxy for each account. Setting it to `false` means that each account has its proxy, so the number of proxies must match the number of accounts.
-        - `rpc`: 
-            - `linea` - specify the linea RPC
+- `dynamic`: just empty block
+- `fixed`:
+    - `files`:
+        - `addresses` - specify the file name in the `assets` folder containing addresses
+        - `privateKeys` - specify the file name in the `assets` folder containing private keys. Either privateKeys or addresses must be filled in.
+        - `proxies` - specify the file name in the `assets` folder containing proxies. Can be empty string for `none` proxy type
+    - `maxParallelAccounts` - set the maximum number of parallel accounts (see the run example below). If mobile proxy used it can be only 1 parallel account.
+    - `delayBetweenChunkSec` - set delay between parallel accounts requests
+    - `hideBalanceLessThanUsd` - set usd value of token that can be hidden. Set `-1` to see all tokens. 
+    - `proxy`: 
+        - `type` - specify the type of proxy to be used, choosing from `none`/`mobile`/`server`. Currently only `none` type can be used.
+        - `mobileIpChangeUrl` - if you want the system to use a mobile proxy, add it to your proxies file in one line and specify the rotation URL here
+        - `serverIsRandom` - when using a server proxy, enable this option by setting it to `true` if you want the system to use a random proxy for each account. Setting it to `false` means that each account has its proxy, so the number of proxies must match the number of accounts.
+    - `rpc`: 
+        - `linea` - specify the linea RPC
 
 ## Config creator
 **Disabled** for now until it is implemented. Please use the `config/*.example.json5` files for the time now.
