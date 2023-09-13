@@ -5,7 +5,7 @@ A project designed to manage Linea accounts by simulating user activity through 
 
 ***Please read the instructions carefully to understand how script works before running the it.***
 
-Each Linea account has a `job` consisting of `steps`, which represent a list of `transactions`:
+Main mode creates `job` for each account consisting of `steps`, which represent a list of `transactions`:
 
 1. One step is consists of transactions sent by real users within 1-2 minutes. E.g., [approve -> swap]. Here, 1 step is 2 transactions. Steps can currently consist of 1-3 transactions.
 
@@ -155,7 +155,7 @@ There are several modes available:
 
 - **Job Generator:** The main script responsible for generating/executing transactions.
 - **Checker:** Check your accounts' analytics (transactions and balances).
-- **Encrypter:** Encrypt your assets files (private_keys,addresses,proxies) to use job generator on server
+- **Encrypter:** Encrypt your assets files (private keys, addresses, proxies) to use job generator on server
 - **Eth Returner:** This script swaps all tokens used by the main script to ETH and removes all liquidity as a backup in case errors occur in the job generator mode.
 - **Depositor:** This mode facilitates deposits to Linea accounts.
 
@@ -300,7 +300,6 @@ acc4 (min tx limit = 5) - [];
 
 and so on...
 
-
 </details>
 
 ## Checker
@@ -327,7 +326,6 @@ Check accounts' nonce and tokens that are used by the script. Copy `config/check
     - `files`:
         - `addresses` - Specify the file name in the `assets` folder containing addresses.
         - `privateKeys` - Specify the file name in the `assets` folder containing private keys. Either privateKeys or addresses must be filled in.
-        - `proxies` - Specify the file name in the `assets` folder containing proxies. It can be an empty string for `none` proxy type.
     - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run example below). If a mobile proxy is used, it can be only 1 parallel account.
     - `delayBetweenChunkSec` - Set the delay between parallel accounts' requests.
     - `hideBalanceLessThanUsd` - Set the USD value of tokens that can be hidden. Set `-1` to see all tokens.
@@ -355,8 +353,6 @@ Check accounts' nonce and tokens that are used by the script. Copy `config/check
     - `encryptedFileName` - Specify the file name in the `assets` folder containing decrypted data. It will create new file in assets folder with encrypted data
 
 If config and assets files are ready you can run script as described [below](#running)
-
-
 
 ## Eth Returner
 
