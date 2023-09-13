@@ -3,13 +3,15 @@
 A project designed to manage Linea accounts by simulating user activity through random transactions.
 ## Overview
 
+***Please read the instructions carefully to understand how it works before running the script.***
+
 Each Linea account has a `job` consisting of `steps`, which represent a list of `transactions`:
 
 1. One step is consists of transactions sent by real users within 1-2 minutes. E.g., [approve -> swap]. Here, 1 step is 2 transactions. Steps can currently consist of 1-3 transactions.
 
 2. One job consists of steps that can be executed by real users within hours/days. E.g., [swap ETH to USDC] --> [approve USDC -> add USDC to liquidity pool] --> [remove liquidity] --> [approve USDC -> swap to ETH]. Here, 1 job = 4 steps = 6 transactions. Each job concludes by returning all tokens/liquidity to ETH.
 
-**Please read the instructions carefully to understand how it works before running the script. Use at your own risk. The script has not been tested on large volumes.**
+**Use at your own risk. The script has not been tested on large volumes.**
 
 Check for updates here: [alfar](https://t.me/+FozX3VZA0RIyNWY6)
 
@@ -132,7 +134,6 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 - [Modes](#modes)
 - [Suggestions](#suggestions)
 - [Installation](#installation)
-- [Running](#running)
 - [Job Generator](#job-generator)
     - [Create Files](#create-files)
     - [Config](#config)
@@ -142,6 +143,7 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
     - [Config](#config-1)
 - [Eth Returner](#eth-returner)
 - [Deposit](#deposit)
+- [Running](#running)
 - [Additional Links](#additional-links)
 
 ## Modes
@@ -161,6 +163,8 @@ There are several modes available:
 - Linea mainnet may throw errors or suddenly stop. Avoid using large volumes. The script was created to increase the number of transactions, not volume.
 
 ## Installation
+
+[quick install video](https://www.loom.com/share/fbb6b2c7ca0c40cd87c89d4b90523316)
 
 1. Download and install [Node.js](https://nodejs.org/en/download) from the official website.
 2. Download and install [Git](https://git-scm.com/downloads) (leave all default options checked during installation).
@@ -184,16 +188,9 @@ There are several modes available:
 6. Create a copy of `.env.example` file and name it `.env`. Set the following variable in the `.env` file:
    - `NODE_ENV` - Set it to `prod`.
 
-## Running
-
-1. Before the first run, check how to configure each mode as specified below.
-1. Open a command terminal in project folder (as described above)
-1. Run `yarn start` command:
-1. Select the desired mode and the corresponding config file:
-   - Use the arrow keys to move the selector.
-   - Press Enter to submit your choice.
-
 ## Job Generator
+
+[quick config and run video](https://www.loom.com/share/722b554afdbd44f991d7be15b79d6248)
 
 The job generator mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them.
 
@@ -209,7 +206,7 @@ Before the first run, you must create the following files:
 
 ### Config
 
-There are two main block types in the config: `dynamic` and `fixed`. The `dynamic` config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. Values can be changed during program run. To get started, copy the `config/jobs.example.json5` file (and rename it if needed), and adjust the following values:
+There are two main block types in the config: `dynamic` and `fixed`. The `dynamic` config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. Values can be changed during program run. To get started, copy the `config/jobs.example.json5` file (and rename it as you want), and adjust the following values:
 
 - `dynamic`:
     - `maxLineaGwei` - The maximum Linea Gwei limit. The system will check it before each transaction.
@@ -236,6 +233,8 @@ There are two main block types in the config: `dynamic` and `fixed`. The `dynami
         - `linea` - Specify the Linea RPC.
     - `transactionsLimit` - Set the minimum and maximum number of transactions generated for **each** account. The script will generate the minimum limit between these values. It is not an exact value; it will be performed. It will end job generation for an account if the limit is reached. Otherwise, a new job will be generated.
     - `workingAmountPercent` - Set the minimum and maximum working amount in percent.
+
+If config and assets files are ready you can run script as described [below](#running)
 
 ### Example
 
@@ -331,6 +330,7 @@ Check accounts' nonce and tokens that are used by the script. Copy `config/check
     - `rpc`:
         - `linea` - Specify the Linea RPC.
 
+If config and assets files are ready you can run script as described [below](#running)
 ## Eth Returner
 
 **Disabled for now until it is implemented.**
@@ -338,6 +338,15 @@ Check accounts' nonce and tokens that are used by the script. Copy `config/check
 ## Deposit
 
 **Disabled for now until it is implemented.**
+
+## Running
+
+After you configured your mode you can run script:
+1. Open a command terminal in project folder (as described above)
+1. Run `yarn start` command:
+1. Select the desired mode and the corresponding config file:
+   - Use the arrow keys to move the selector.
+   - Press Enter to submit your choice.
 
 ## Additional Links
 
