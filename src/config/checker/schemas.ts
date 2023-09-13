@@ -10,7 +10,7 @@ const filesSchema = z
     addresses: getFilenameRefine(".txt").optional(),
   })
   .refine(
-    (data) => !data.addresses && !data.privateKeys,
+    (data) => data.addresses || data.privateKeys,
     "Either privateKeys or addresses must be filled in."
   );
 
