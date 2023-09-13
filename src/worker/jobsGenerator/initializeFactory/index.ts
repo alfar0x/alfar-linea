@@ -1,7 +1,6 @@
 import { Provider } from "../../../core/action/types";
 import Chain from "../../../core/chain";
 import Factory from "../../../factory";
-import logger from "../../../utils/other/logger";
 
 import getRandomBlocks from "./getRandomBlocks";
 import getSupplyBlocks from "./getSupplyBlocks";
@@ -23,8 +22,6 @@ const initializeFactory = (params: {
     minWorkAmountPercent,
     maxWorkAmountPercent,
   });
-
-  logger.info(factory.infoString());
 
   return factory;
 };

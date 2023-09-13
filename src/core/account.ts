@@ -41,7 +41,7 @@ class Account {
     const privateShortForm = getShortString(privateKey);
 
     throw new Error(
-      `private key ${privateShortForm} on index ${this.fileIndex} is not valid`
+      `private key ${privateShortForm} on index ${this.fileIndex} is not valid. Check assets folder`
     );
   }
 

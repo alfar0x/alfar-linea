@@ -29,7 +29,7 @@ const WAIT_GAS_SEC = 10 * 60;
 class JobGenerator {
   private config: BlockConfig;
   private chain: Chain;
-  private proxy: Proxy;
+  private proxy: Proxy | null;
   private jobs: Job[];
   private factory: Factory;
   private accountsLeft: Account[];
@@ -37,27 +37,13 @@ class JobGenerator {
   constructor(configFileName: string) {
     this.config = new BlockConfig({ configFileName });
 
-    const {
-      rpc,
-      files,
-      isAccountsShuffle,
-      proxy,
-      providers,
-      workingAmountPercent,
-    } = this.config.fixed;
+    const { rpc, providers, workingAmountPercent } = this.config.fixed;
 
     this.chain = new Linea({ rpc: rpc.linea });
 
-    this.accountsLeft = initializeAccounts({
-      baseFileName: files.privateKeys,
-      isShuffle: isAccountsShuffle,
-    });
+    this.accountsLeft = [];
 
-    this.proxy = initializeProxy({
-      proxyConfig: proxy,
-      baseFileName: files.proxies,
-      accountsLength: this.accountsLeft.length,
-    });
+    this.proxy = null;
 
     this.factory = initializeFactory({
       chain: this.chain,
@@ -144,6 +130,10 @@ class JobGenerator {
   }
 
   private changeChainProvider(account: Account) {
+    if (!this.proxy) {
+      throw new Error("Unexpected error. Proxy was not initialized");
+    }
+
     const proxy = this.proxy.getTunnelOptionsByIndex(account.fileIndex);
 
     if (!proxy) return;
@@ -280,6 +270,10 @@ class JobGenerator {
           ])
         );
 
+        if (!this.proxy) {
+          throw new Error("Unexpected error. Proxy was not initialized");
+        }
+
         await this.proxy.postRequest();
 
         await this.removeJob(job);
@@ -311,6 +305,10 @@ class JobGenerator {
       );
 
       if (job.isMinimumTransactionsLimitReached()) {
+        if (!this.proxy) {
+          throw new Error("Unexpected error. Proxy was not initialized");
+        }
+
         await this.proxy.postRequest();
 
         await this.removeJob(job);
@@ -329,22 +327,32 @@ class JobGenerator {
   }
 
   async run() {
-    try {
-      await this.updateJobs();
+    const { files, isAccountsShuffle, proxy } = this.config.fixed;
 
-      await confirmRun();
+    this.accountsLeft = await initializeAccounts({
+      baseFileName: files.privateKeys,
+      isShuffle: isAccountsShuffle,
+    });
 
-      // should not sleep before first step
-      let isBeforeStepSleep = false;
+    this.proxy = await initializeProxy({
+      proxyConfig: proxy,
+      baseFileName: files.proxies,
+      accountsLength: this.accountsLeft.length,
+    });
 
-      while (this.jobs.length) {
-        const status = await this.runRandomJob(isBeforeStepSleep);
+    logger.info(this.factory.infoString());
 
-        isBeforeStepSleep = status === "JOB_SKIP" ? false : true;
-      }
-    } catch (error) {
-      logger.error((error as Error).message);
-      process.exit();
+    await this.updateJobs();
+
+    await confirmRun();
+
+    // should not sleep before first step
+    let isBeforeStepSleep = false;
+
+    while (this.jobs.length) {
+      const status = await this.runRandomJob(isBeforeStepSleep);
+
+      isBeforeStepSleep = status === "JOB_SKIP" ? false : true;
     }
   }
 }

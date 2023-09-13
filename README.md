@@ -141,6 +141,9 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 - [Checker](#checker)
     - [Create Files](#create-files-1)
     - [Config](#config-1)
+- [Encrypter](#encrypter)
+    - [Create Files](#create-files-2)
+    - [Config](#config-2)
 - [Eth Returner](#eth-returner)
 - [Depositor](#depositor)
 - [Running](#running)
@@ -152,6 +155,7 @@ There are several modes available:
 
 - **Job Generator:** The main script responsible for generating/executing transactions.
 - **Checker:** Check your accounts' analytics (transactions and balances).
+- **Encrypter:** Encrypt your assets files (private_keys,addresses,proxies) to use job generator on server
 - **Eth Returner:** This script swaps all tokens used by the main script to ETH and removes all liquidity as a backup in case errors occur in the job generator mode.
 - **Depositor:** This mode facilitates deposits to Linea accounts.
 
@@ -161,6 +165,7 @@ There are several modes available:
 - Rather than downloading a zip file of the project, use the `git` command to install it (instructions below). Updates, including new providers and modes, will be available in the near future, it will be easier to stay up to date using `git`.
 - You can create multiple configuration/private keys/proxies files with different settings to run them in separate terminals.
 - Linea mainnet may throw errors or suddenly stop. Avoid using large volumes. The script was created to increase the number of transactions, not volume.
+- Assets can use encrypted or decrypted files. All encrypted files must ends with `.encrypted.txt` otherwise system will use it as decoded file. 
 
 ## Installation
 
@@ -186,7 +191,7 @@ There are several modes available:
     - `yarn install` (Installs project dependencies)
         - if power shell throw en error use `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted` command (just paste it in power shell) as described [here](https://stackoverflow.com/a/49112322) and rerun `yarn install`
 5. Open the project folder in your file explorer.
-6. Create a copy of `.env.example` file and name it `.env`. Set the following variable in the `.env` file:
+6. Create a copy of `.env.example` file and name it `.env.prod`. Set the following variable in the `.env.prod` file:
    - `NODE_ENV` - Set it to `prod`.
 
 ## Job Generator
@@ -202,6 +207,7 @@ Before the first run, you must create the following files:
 1. Open the `assets` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the config file; just don't change example files):
    - Create a file for private keys (e.g., `private_keys.txt`) and fill it with private keys, each on a new line (must start with `0x`).
    - (Optional, only if you will use a proxy) Create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
+   - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode
 2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
    - Copy the required config file (e.g., `jobs.example.json`) for this mode. Instructions on how to modify it are provided below.
 
@@ -308,6 +314,7 @@ Before the first run, you must create the following files:
    - Create a file for private keys (e.g., `private_keys.txt`) and fill it with private keys, each on a new line (must start with `0x`).
    - (If you desire to use addresses instead of private keys) create a file for addresses (e.g., `addresses.txt`) and fill it with addresses, each on a new line (must start with `0x`).
    - (Optional, only if you will use a proxy) create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
+   - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode.
 2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
    - Copy the required config file (e.g., `checker.example.json`) for this mode. Instructions on how to modify it are provided below.
 
@@ -324,14 +331,33 @@ Check accounts' nonce and tokens that are used by the script. Copy `config/check
     - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run example below). If a mobile proxy is used, it can be only 1 parallel account.
     - `delayBetweenChunkSec` - Set the delay between parallel accounts' requests.
     - `hideBalanceLessThanUsd` - Set the USD value of tokens that can be hidden. Set `-1` to see all tokens.
-    - `proxy`:
-        - `type` - Specify the type of proxy to be used, choosing from `none`/`mobile`/`server`. Currently, only `none` type can be used.
-        - `mobileIpChangeUrl` - If you want the system to use a mobile proxy, add it to your proxies file in one line and specify the rotation URL here.
-        - `serverIsRandom` - When using a server proxy, enable this option by setting it to `true` if you want the system to use a random proxy for each account. Setting it to `false` means that each account has its proxy, so the number of proxies must match the number of accounts.
     - `rpc`:
         - `linea` - Specify the Linea RPC.
 
 If config and assets files are ready you can run script as described [below](#running)
+
+## Encrypter
+
+Encrypt your assets files (private_keys,addresses,proxies) to use job generator on server
+
+### Create Files
+
+Before the first run, you must create the following files:
+1. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
+   - Copy the required config file (e.g., `encrypter.example.json`) for this mode. Instructions on how to modify it are provided below.
+
+### Config
+
+Check accounts' nonce and tokens that are used by the script. Copy `config/checker.example.json5` to create a config (rename it if needed):
+
+- `dynamic` - Just an empty block.
+- `fixed`:
+    - `encryptedFileName` - Specify the file name in the `assets` folder containing decrypted data. It will create new file in assets folder with encrypted data
+
+If config and assets files are ready you can run script as described [below](#running)
+
+
+
 ## Eth Returner
 
 **Disabled for now until it is implemented.**

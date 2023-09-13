@@ -1,0 +1,6 @@
+{
+  dynamic: {},
+  fixed: {
+    decryptedFileName: "private_keys.txt",
+  },
+}

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import ACTION_PROVIDERS from "../../constants/actionProviders";
 import createUnionSchema from "../../utils/zod/createUnionSchema";
+import getFilenameRefine from "../../utils/zod/getFilenameRefine";
 
 const minMaxRefine = [
   (schema: { min: number; max: number }) => schema.max >= schema.min,
@@ -29,18 +30,8 @@ const delaySecSchema = z.object({
 });
 
 const filesSchema = z.object({
-  privateKeys: z
-    .string()
-    .refine(
-      (filename) => !filename.endsWith(".example.txt"),
-      "Example files cannot be used. Read README.md instructions please"
-    ),
-  proxies: z
-    .string()
-    .refine(
-      (filename) => !filename.endsWith(".example.txt"),
-      "Example files cannot be used. Read README.md instructions please"
-    ),
+  privateKeys: getFilenameRefine(".txt"),
+  proxies: getFilenameRefine(".txt"),
 });
 
 const maxParallelAccountsSchema = z.number().positive().min(1).max(10);

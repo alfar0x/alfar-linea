@@ -4,7 +4,7 @@ import { z } from "zod";
 import errorPrettify from "../zod/errorPrettify";
 
 const getEnv = () => {
-  dotenv.config();
+  dotenv.config({ path: ".env.prod" });
 
   const schema = z.object({
     NODE_ENV: z.union([z.literal("dev"), z.literal("prod")]),

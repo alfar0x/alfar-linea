@@ -4,34 +4,23 @@ import cliProgress from "cli-progress";
 import Linea from "../../chain/linea";
 import CheckerConfig from "../../config/checker";
 import Chain from "../../core/chain";
-import Proxy from "../../core/proxy";
 import sliceIntoChunks from "../../utils/array/sliceIntoChunks";
 import sleep from "../../utils/other/sleep";
 
 import initializeAddresses from "./initializeAddresses";
-import initializeProxy from "./initializeProxy";
 
 class Checker {
   config: CheckerConfig;
   chain: Chain;
   addresses: string[];
-  proxy: Proxy;
 
   constructor(configFileName: string) {
     this.config = new CheckerConfig({ configFileName });
 
-    const { rpc, files, proxy } = this.config.fixed;
+    const { rpc } = this.config.fixed;
 
     this.chain = new Linea({ rpc: rpc.linea });
-    this.addresses = initializeAddresses({
-      addressesFileName: files.addresses,
-      privateKeysFileName: files.privateKeys,
-    });
-    this.proxy = initializeProxy({
-      proxyConfig: proxy,
-      baseFileName: files.proxies,
-      accountsLength: this.addresses.length,
-    });
+    this.addresses = [];
   }
 
   private async checkAccount(address: string) {
@@ -97,6 +86,13 @@ class Checker {
   }
 
   async run() {
+    const { files } = this.config.fixed;
+
+    this.addresses = await initializeAddresses({
+      addressesFileName: files.addresses,
+      privateKeysFileName: files.privateKeys,
+    });
+
     const result = await this.checkAllAccounts();
 
     console.table(result);

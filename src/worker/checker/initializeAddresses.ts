@@ -1,8 +1,7 @@
 import Account from "../../core/account";
-import isFileAvailable from "../../utils/file/isFileAvailable";
-import readFileSyncByLine from "../../utils/file/readFileSyncByLine";
+import readFileAndEncryptByLine from "../../utils/file/readFileAndEncryptByLine";
 
-const initializeAddresses = (params: {
+const initializeAddresses = async (params: {
   privateKeysFileName?: string;
   addressesFileName?: string;
 }) => {
@@ -11,11 +10,7 @@ const initializeAddresses = (params: {
   if (addressesFileName) {
     const fileName = `./assets/${addressesFileName}`;
 
-    if (!isFileAvailable(fileName)) {
-      throw new Error(`addresses file name ${addressesFileName} is not valid`);
-    }
-
-    return readFileSyncByLine(fileName);
+    return await readFileAndEncryptByLine(fileName);
   }
 
   if (!privateKeysFileName) {
@@ -24,13 +19,7 @@ const initializeAddresses = (params: {
 
   const fileName = `./assets/${privateKeysFileName}`;
 
-  if (!isFileAvailable(fileName)) {
-    throw new Error(
-      `private keys file name ${privateKeysFileName} is not valid`
-    );
-  }
-
-  const privateKeys = readFileSyncByLine(fileName);
+  const privateKeys = await readFileAndEncryptByLine(fileName);
 
   return privateKeys.map(
     (privateKey, fileIndex) => new Account({ privateKey, fileIndex }).address

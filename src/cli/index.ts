@@ -19,6 +19,11 @@ const modeChoices = [
     description: "check your wallets analytics",
   },
   {
+    title: "encrypter",
+    value: "encrypter",
+    description: "encrypt your private keys to use job generator on server",
+  },
+  {
     title: "eth returner",
     value: "reset",
     description: "return all tokens/pools to eth",
@@ -32,7 +37,7 @@ const modeChoices = [
   },
 ];
 
-type Mode = "job-generator" | "reset" | "depositor" | "checker";
+type Mode = "job-generator" | "reset" | "depositor" | "checker" | "encrypter";
 
 class Cli {
   configPath = "config";
@@ -49,7 +54,9 @@ class Cli {
         }));
 
       if (!choices.length)
-        throw new Error(`add at least 1 valid config (examples is not valid)`);
+        throw new Error(
+          `add at least 1 valid config (examples is not valid). Check config folder`
+        );
 
       return choices;
     } catch (error) {

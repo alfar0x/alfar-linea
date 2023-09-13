@@ -1,6 +1,7 @@
 import Cli from "./cli";
 import logger from "./utils/other/logger";
 import Checker from "./worker/checker";
+import EncrypterWorker from "./worker/encrypter";
 import JobsGenerator from "./worker/jobsGenerator";
 
 const main = async () => {
@@ -9,12 +10,13 @@ const main = async () => {
 
     switch (mode) {
       case "job-generator": {
-        await new JobsGenerator(config).run();
-        break;
+        return await new JobsGenerator(config).run();
       }
       case "checker": {
-        await new Checker(config).run();
-        break;
+        return await new Checker(config).run();
+      }
+      case "encrypter": {
+        return await new EncrypterWorker(config).run();
       }
       default: {
         throw new Error("this mode is not available");

@@ -2,7 +2,7 @@ import axios from "axios";
 import { z } from "zod";
 
 import formatIntervalSec from "../utils/datetime/formatIntervalSec";
-import readFileSyncByLine from "../utils/file/readFileSyncByLine";
+import readFileAndEncryptByLine from "../utils/file/readFileAndEncryptByLine";
 import getMyIp from "../utils/other/getMyIp";
 import logger from "../utils/other/logger";
 import sleep from "../utils/other/sleep";
@@ -36,11 +36,10 @@ class Proxy {
 
   constructor(params: {
     type: ProxyType;
-    fileName: string;
     isRandom?: boolean;
     ipChangeUrl?: string;
   }) {
-    const { type, fileName, isRandom, ipChangeUrl } = params;
+    const { type, isRandom, ipChangeUrl } = params;
 
     this.type = type;
     this.isRandom = isRandom;
@@ -48,13 +47,14 @@ class Proxy {
     this.onIpChangeUrlSleepSec = 30;
     this.onIpChangeErrorRepeatTimes = 3;
 
-    this.proxyList = this.initializeProxy(fileName);
+    this.proxyList = [];
   }
 
-  private initializeProxy(fileName: string) {
+  async initializeProxy(fileName: string) {
     if (this.type === "none") return [];
 
-    const allFileData = readFileSyncByLine(fileName);
+    const allFileData = await readFileAndEncryptByLine(fileName);
+
     const fileData = allFileData.map((v) => v.trim()).filter(Boolean);
 
     const proxyList = fileData.map((proxyStr) => proxySchema.parse(proxyStr));

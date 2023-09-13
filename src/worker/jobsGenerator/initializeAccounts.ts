@@ -1,9 +1,8 @@
 import Account from "../../core/account";
-import isFileAvailable from "../../utils/file/isFileAvailable";
-import readFileSyncByLine from "../../utils/file/readFileSyncByLine";
+import readFileAndEncryptByLine from "../../utils/file/readFileAndEncryptByLine";
 import randomShuffle from "../../utils/random/randomShuffle";
 
-const initializeAccounts = (params: {
+const initializeAccounts = async (params: {
   baseFileName: string;
   isShuffle: boolean;
 }) => {
@@ -11,11 +10,7 @@ const initializeAccounts = (params: {
 
   const fileName = `./assets/${baseFileName}`;
 
-  if (!isFileAvailable(fileName)) {
-    throw new Error(`private keys file name ${baseFileName} is not valid`);
-  }
-
-  const allFileData = readFileSyncByLine(fileName);
+  const allFileData = await readFileAndEncryptByLine(fileName);
   const privateKeys = allFileData.map((v) => v.trim()).filter(Boolean);
 
   const accounts = privateKeys.map(

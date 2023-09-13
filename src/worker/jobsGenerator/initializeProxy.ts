@@ -4,17 +4,20 @@ import isFileAvailable from "../../utils/file/isFileAvailable";
 
 type BlockConfigProxy = BlockConfig["fixed"]["proxy"];
 
-const initializeProxy = (params: {
+const initializeProxy = async (params: {
   proxyConfig: BlockConfigProxy;
   baseFileName: string;
   accountsLength: number;
 }) => {
   const { proxyConfig, baseFileName } = params;
 
-  const fileName = `./assets/${baseFileName}`;
+  const folder = "./assets";
+  const fileName = `${folder}/${baseFileName}`;
 
   if (proxyConfig.type !== "none" && !isFileAvailable(fileName)) {
-    throw new Error(`proxy file name ${fileName} is not valid`);
+    throw new Error(
+      `proxy file name ${fileName} is not valid. Check ${folder} folder`
+    );
   }
 
   let proxy: Proxy | null = null;
@@ -37,7 +40,7 @@ const initializeProxy = (params: {
     // }
     // break;
     case "none": {
-      proxy = new Proxy({ type: "none", fileName });
+      proxy = new Proxy({ type: "none" });
       break;
     }
     default: {
@@ -55,6 +58,8 @@ const initializeProxy = (params: {
   //     `number of proxies (${proxyCount}) must be equal to the number accounts ${accountsLength} if serverIsRandom === false`
   //   );
   // }
+
+  await proxy.initializeProxy(fileName);
 
   return proxy;
 };
