@@ -3,7 +3,7 @@
 A project designed to manage Linea accounts by simulating user activity through random transactions.
 ## Overview
 
-***Please read the instructions carefully to understand how it works before running the script.***
+***Please read the instructions carefully to understand how script works before running the it.***
 
 Each Linea account has a `job` consisting of `steps`, which represent a list of `transactions`:
 
