@@ -142,7 +142,7 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
     - [Create Files](#create-files-1)
     - [Config](#config-1)
 - [Eth Returner](#eth-returner)
-- [Deposit](#deposit)
+- [Depositor](#depositor)
 - [Running](#running)
 - [Additional Links](#additional-links)
 
@@ -336,7 +336,7 @@ If config and assets files are ready you can run script as described [below](#ru
 
 **Disabled for now until it is implemented.**
 
-## Deposit
+## Depositor
 
 **Disabled for now until it is implemented.**
 
