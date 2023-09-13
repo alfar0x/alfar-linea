@@ -6,11 +6,11 @@ const getFilenameRefine = (ext: string) => {
   return z
     .string()
     .refine(
-      (filename) => !filename || !filename.endsWith(exampleExt),
+      (filename) => filename === "" || !filename.endsWith(exampleExt),
       `Files with ending '${exampleExt}' cannot be used. Create new file`
     )
     .refine(
-      (filename) => !filename || filename.endsWith(ext),
+      (filename) => filename === "" || filename.endsWith(ext),
       `Files must ends with '${ext}'`
     );
 };
