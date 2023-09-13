@@ -41,12 +41,10 @@ class Cli {
     try {
       const fileNames = fs.readdirSync(this.configPath);
 
-      const choices = fileNames
-        .filter((filename) => !filename.endsWith(".example.json5"))
-        .map((filename) => ({
-          title: filename,
-          value: `${this.configPath}/${path.basename(filename)}`,
-        }));
+      const choices = fileNames.map((filename) => ({
+        title: filename,
+        value: `${this.configPath}/${path.basename(filename)}`,
+      }));
 
       if (!choices.length) throw new Error(`add at least 1 valid config`);
 
