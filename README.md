@@ -180,10 +180,11 @@ There are several modes available:
         ```
         - Press Enter to navigate to the project folder.
 4. Run the following commands in the command terminal:
-   - `npm install -g yarn` (Installs Yarn, a required package manager)
-   - `git clone https://github.com/alfar0x/alfar-linea.git` (Downloads the project)
-   - `cd alfar-linea` (Navigates into the project folder)
-   - `yarn install` (Installs project dependencies)
+    - `npm install -g yarn` (Installs Yarn, a required package manager)
+    - `git clone https://github.com/alfar0x/alfar-linea.git` (Downloads the project)
+    - `cd alfar-linea` (Navigates into the project folder)
+    - `yarn install` (Installs project dependencies)
+        - if power shell throw en error use `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted` command (just paste it in power shell) as described [here](https://stackoverflow.com/a/49112322) and rerun `yarn install`
 5. Open the project folder in your file explorer.
 6. Create a copy of `.env.example` file and name it `.env`. Set the following variable in the `.env` file:
    - `NODE_ENV` - Set it to `prod`.
