@@ -19,7 +19,7 @@ type Generator =
 
 class Factory {
   /*
-  otherPaths: OtherPath[]; 
+  otherPath: OtherPathGenerator[]; 
   can request some token (or not) but it is not popular action so it doesn't 
   have own Path class to randomize it. Some game with usdc for example 
   */

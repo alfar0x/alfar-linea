@@ -29,18 +29,8 @@ const delaySecSchema = z.object({
 });
 
 const filesSchema = z.object({
-  privateKeys: z
-    .string()
-    .refine(
-      (filename) => !filename.endsWith(".example.txt"),
-      "Example files cannot be used. Read README.md instructions please"
-    ),
-  proxies: z
-    .string()
-    .refine(
-      (filename) => !filename.endsWith(".example.txt"),
-      "Example files cannot be used. Read README.md instructions please"
-    ),
+  privateKeys: z.string(),
+  proxies: z.string(),
 });
 
 const maxParallelAccountsSchema = z.number().positive().min(1).max(10);

@@ -4,26 +4,9 @@ export const dynamicSchema = z.object({});
 
 const filesSchema = z
   .object({
-    privateKeys: z
-      .string()
-      .refine(
-        (filename) => !filename.endsWith(".example.txt"),
-        "Example files cannot be used. Read README.md instructions please"
-      )
-      .optional(),
-    addresses: z
-      .string()
-      .refine(
-        (filename) => !filename.endsWith(".example.txt"),
-        "Example files cannot be used. Read README.md instructions please"
-      )
-      .optional(),
-    proxies: z
-      .string()
-      .refine(
-        (filename) => !filename.endsWith(".example.txt"),
-        "Example files cannot be used. Read README.md instructions please"
-      ),
+    privateKeys: z.string().optional(),
+    addresses: z.string().optional(),
+    proxies: z.string(),
   })
   .refine(
     (data) => data.addresses || data.privateKeys,
