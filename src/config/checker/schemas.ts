@@ -8,10 +8,9 @@ const filesSchema = z
   .object({
     privateKeys: getFilenameRefine(".txt").optional(),
     addresses: getFilenameRefine(".txt").optional(),
-    proxies: getFilenameRefine(".txt"),
   })
   .refine(
-    (data) => data.addresses || data.privateKeys,
+    (data) => !data.addresses && !data.privateKeys,
     "Either privateKeys or addresses must be filled in."
   );
 
