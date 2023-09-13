@@ -3,15 +3,13 @@
 A project designed to manage Linea accounts by simulating user activity through random transactions.
 ## Overview
 
-### Please read the instructions carefully to understand how it works before running the script.
+Each Linea account has a `job` consisting of `steps`, which represent a list of `transactions`:
 
-Each Linea account consists of a `job` consisting of `steps`, which represent a list of `transactions`:
+1. One step is consists of transactions sent by real users within 1-2 minutes. E.g., [approve -> swap]. Here, 1 step is 2 transactions. Steps can currently consist of 1-3 transactions.
 
-1. A list of transactions (one step) consists of transactions sent to the blockchain by real users within 1-2 minutes. E.g., [approve -> swap]. Here, 1 step is 2 transactions. Steps can currently consist of 1-3 transactions.
+2. One job consists of steps that can be executed by real users within hours/days. E.g., [swap ETH to USDC] --> [approve USDC -> add USDC to liquidity pool] --> [remove liquidity] --> [approve USDC -> swap to ETH]. Here, 1 job = 4 steps = 6 transactions. Each job concludes by returning all tokens/liquidity to ETH.
 
-2. A list of steps (job) can be executed by real users within hours/days. E.g., [swap ETH to USDC] -> [approve USDC -> add USDC to liquidity pool] -> [remove liquidity] -> [approve USDC -> swap to ETH]. Here, 1 job = 4 steps (1-2 transactions each) = 6 transactions. Each job concludes by returning all tokens/liquidity to ETH.
-
-**Use at your own risk. The script has not been tested on large volumes.**
+**Please read the instructions carefully to understand how it works before running the script. Use at your own risk. The script has not been tested on large volumes.**
 
 Check for updates here: [alfar](https://t.me/+FozX3VZA0RIyNWY6)
 
