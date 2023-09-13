@@ -207,7 +207,7 @@ Before the first run, you must create the following files:
 1. Open the `assets` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the config file; just don't change example files):
    - Create a file for private keys (e.g., `private_keys.txt`) and fill it with private keys, each on a new line (must start with `0x`).
    - (Optional, only if you will use a proxy) Create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
-   - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode
+   - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode and specify encrypted filename here
 2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
    - Copy the required config file (e.g., `jobs.example.json`) for this mode. Instructions on how to modify it are provided below.
 
@@ -314,7 +314,7 @@ Before the first run, you must create the following files:
    - Create a file for private keys (e.g., `private_keys.txt`) and fill it with private keys, each on a new line (must start with `0x`).
    - (If you desire to use addresses instead of private keys) create a file for addresses (e.g., `addresses.txt`) and fill it with addresses, each on a new line (must start with `0x`).
    - (Optional, only if you will use a proxy) create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
-   - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode.
+   - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode and specify encrypted filename here
 2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
    - Copy the required config file (e.g., `checker.example.json`) for this mode. Instructions on how to modify it are provided below.
 
