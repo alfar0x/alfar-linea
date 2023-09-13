@@ -164,7 +164,7 @@ There are several modes available:
 
 ## Installation
 
-[quick install video](https://www.loom.com/share/fbb6b2c7ca0c40cd87c89d4b90523316)
+[Quick install video](https://www.loom.com/share/fbb6b2c7ca0c40cd87c89d4b90523316)
 
 1. Download and install [Node.js](https://nodejs.org/en/download) from the official website.
 2. Download and install [Git](https://git-scm.com/downloads) (leave all default options checked during installation).
@@ -190,7 +190,7 @@ There are several modes available:
 
 ## Job Generator
 
-[quick config and run video](https://www.loom.com/share/722b554afdbd44f991d7be15b79d6248)
+[Quick setup video](https://www.loom.com/share/722b554afdbd44f991d7be15b79d6248)
 
 The job generator mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them.
 
