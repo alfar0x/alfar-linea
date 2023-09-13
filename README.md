@@ -348,6 +348,7 @@ After you configured your mode you can run script:
 1. Select the desired mode and the corresponding config file:
    - Use the arrow keys to move the selector.
    - Press Enter to submit your choice.
+1. Confirm run if needed
 
 ## Additional Links
 
