@@ -1,9 +1,9 @@
 [![Typing SVG](https://readme-typing-svg.demolab.com/?font=Fira+Code&size=50&pause=1000&vCenter=true&width=350&height=80&lines=alfar-linea&color=2a9d8f)](https://git.io/typing-svg)
 
-A project designed to manage Linea accounts by simulating user activity through random transactions.
+Soft designed to manage Linea accounts by simulating user activity through random transactions.
 ## Overview
 
-***Please read the instructions carefully to understand how script works before running it.***
+***Please read the instructions carefully to understand how soft works before running it.***
 
 Main features:
 - Simple setup
@@ -12,10 +12,10 @@ Main features:
 - Selection of services for work
 - Ability to run in several terminals with different settings/accounts
 - Collection of information from the blockchain about accounts (token balances and number of transactions)
-- Encryption of private keys, proxies, addresses with a password for using script on the server
+- Encryption of private keys, proxies, addresses with a password for using soft on the server
 - TRUE RANDOMIZATION. One of the examples: swap wbtc for eth on syncswap -> supply wbtc to linea bank -> send a message to dmail -> redeem wbtc from linea bank -> swap wbtc for eth on open ocean. and it's all automatic. now more than 100 different paths are available in 8 services, with more to come
 
-***Important: linea mainnet can sometimes throw errors and stop working suddenly. Please do not make large volumes with the script, it is designed to increase the number of transactions. Adding $20 on an account and setting the working volume of 1-7% is ok***
+***Important: linea mainnet can sometimes throw errors and stop working suddenly. Please do not make large volumes with the soft, it is designed to increase the number of transactions. Adding $20 on an account and setting the working volume of 1-7% is ok***
 
 What will be added next:
 - Possibility of deposit in linea
@@ -176,10 +176,10 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 ## Suggestions
 
 - Avoid modifying the **example** files. Instead, make copies of the files you need and change them. Updates may be released in the future for example files.
-- Rather than downloading a zip file of the project, use the `git` command to install it (instructions below). Updates, including new providers and modes, will be available in the near future, it will be easier to stay up to date using `git`.
+- Rather than downloading a zip file of the soft, use the `git` command to install it (instructions below). Updates, including new providers and modes, will be available in the near future, it will be easier to stay up to date using `git`.
 - You can create multiple configuration/private keys/proxies files with different settings to run them in separate terminals.
-- Linea mainnet may throw errors or suddenly stop. Avoid using large volumes. The script was created to increase the number of transactions, not volume.
-- If you want to use script on server you can encrypt any file in `assets` folder using [Encrypter](#encrypter) mode on your own PC and move encrypted file on server.
+- Linea mainnet may throw errors or suddenly stop. Avoid using large volumes. The soft was created to increase the number of transactions, not volume.
+- If you want to use soft on server you can encrypt any file in `assets` folder using [Encrypter](#encrypter) mode on your own PC and move encrypted file on server.
 
 ## Installation
 
@@ -187,24 +187,24 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 
 1. Download and install [Node.js](https://nodejs.org/en/download) from the official website.
 2. Download and install [Git](https://git-scm.com/downloads) (leave all default options checked during installation).
-3. To open a command terminal in the folder where you want to download the script:
+3. To open a command terminal in the folder where you want to download the soft:
     - On Windows: 
         - Hold down the Shift key and right-click in the folder. Select "Open PowerShell window here."
     - On macOS:
         - Press Command + Space to open Spotlight Search.
         - Type "Terminal" and press Enter to open the Terminal.
-        - Use the `cd` command to navigate to the folder where you want to download the script. For example, if your project folder is on your desktop, you can type:
+        - Use the `cd` command to navigate to the folder where you want to download the soft. For example, if your soft folder is on your desktop, you can type:
         ```
         cd ~/Desktop/alfar-linea
         ```
-        - Press Enter to navigate to the project folder.
+        - Press Enter to navigate to the soft folder.
 4. Run the following commands in the command terminal:
     - `npm install -g yarn` (Installs Yarn, a required package manager)
-    - `git clone https://github.com/alfar0x/alfar-linea.git` (Downloads the project)
-    - `cd alfar-linea` (Navigates into the project folder)
-    - `yarn install` (Installs project dependencies)
+    - `git clone https://github.com/alfar0x/alfar-linea.git` (Downloads the soft)
+    - `cd alfar-linea` (Navigates into the soft folder)
+    - `yarn install` (Installs soft dependencies)
         - if power shell throw en error use `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted` command (just paste it in power shell) as described [here](https://stackoverflow.com/a/49112322) and rerun `yarn install`
-5. Open the project folder in your file explorer.
+5. Open the soft folder in your file explorer.
 6. Create a copy of `.env.example` file and name it `.env.prod`. Set the following variable in the `.env.prod` file:
    - `NODE_ENV` - Set it to `prod`.
 
@@ -321,12 +321,12 @@ Check your accounts' analytics (transactions count and balances).
 ### Create Files
 
 Before the first run, you must create the following files:
-1. Open the `assets` folder in the file explorer and create the following files (you can name them as you want, than you will select them in the script menu; just don't change example files):
+1. Open the `assets` folder in the file explorer and create the following files (you can name them as you want, than you will select them in the soft menu; just don't change example files):
    - Create a file for private keys (e.g., `private_keys.txt`) and fill it with private keys, each on a new line (must start with `0x`).
    - (If you desire to use addresses instead of private keys) create a file for addresses (e.g., `addresses.txt`) and fill it with addresses, each on a new line (must start with `0x`).
    - (Optional, only if you will use a proxy) create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
    - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode. 
-2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
+2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the soft; just don't change example files):
    - Copy the required config file (e.g., `checker.example.json`) for this mode. Instructions on how to modify it are provided below.
 
 ### Config
@@ -352,7 +352,7 @@ Encrypt your assets files (private_keys,addresses,proxies) to use job generator 
 ### Create Files
 
 Before the first run, you must create the following files:
-1. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
+1. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the soft; just don't change example files):
    - Copy the required config file (e.g., `encrypter.example.json`) for this mode. Instructions on how to modify it are provided below.
 
 ### Config
@@ -362,7 +362,7 @@ Config values:
 - `fixed`:
     - `encryptedFileName` - Specify the file name in the `assets` folder containing decrypted data. It will create new file in assets folder with encrypted data
 
-If config and assets files are ready you can run script as described [below](#running)
+If config and assets files are ready you can run soft as described [below](#running)
 
 ## Eth Returner
 
@@ -374,8 +374,8 @@ If config and assets files are ready you can run script as described [below](#ru
 
 ## Running
 
-After you configured your mode you can run script:
-1. Open a command terminal in project folder (as described above)
+After you configured your mode you can run soft:
+1. Open a command terminal in soft folder (as described above)
 1. Run `yarn start` command:
 1. Select the desired mode and the corresponding config file:
    - Use the arrow keys to move the selector.
