@@ -158,7 +158,7 @@ There are several modes available:
 ## Suggestions
 
 - Avoid modifying the **example** files. Instead, make copies of the files you need and change them. Updates may be released in the future for example files.
-- Rather than downloading a zip file of the project, use the `git` command to install it (instructions below). Updates, including new providers and modes, will be available in the near future, making it easier to stay up to date using `git`.
+- Rather than downloading a zip file of the project, use the `git` command to install it (instructions below). Updates, including new providers and modes, will be available in the near future, it will be easier to stay up to date using `git`.
 - You can create multiple configuration/private keys/proxies files with different settings to run them in separate terminals.
 - Linea mainnet may throw errors or suddenly stop. Avoid using large volumes. The script was created to increase the number of transactions, not volume.
 
