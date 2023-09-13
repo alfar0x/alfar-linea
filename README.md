@@ -7,13 +7,13 @@ A project designed to manage Linea accounts by simulating user activity through 
 
 Main features:
 - Simple setup
-- Interaction with various services, such as syncswap, velocore, dmail, open ocean, xy finance, pancake, woofi and linea bank
+- Interaction with various services, such as syncswap, velocore, dmail, open ocean, xy finance, pancake, woofi, linea bank etc.
 - Dynamic gas limit before each transaction (that is, you can change the limit directly during the execution of the program)
 - Selection of services for work
 - Ability to run in several terminals with different settings/accounts
 - Collection of information from the blockchain about accounts (token balances and number of transactions)
 - Encryption of private keys, proxies, addresses with a password for using script on the server
-- TRUE RANDOMIZATION. one of the examples: swap wbtc for eth on syncswap -> supply wbtc to linea bank -> send a message to dmail -> redeem wbtc from linea bank -> swap wbtc for eth on open ocean. and it's all automatic. now more than 100 different paths are available in 8 services, with more to come
+- TRUE RANDOMIZATION. One of the examples: swap wbtc for eth on syncswap -> supply wbtc to linea bank -> send a message to dmail -> redeem wbtc from linea bank -> swap wbtc for eth on open ocean. and it's all automatic. now more than 100 different paths are available in 8 services, with more to come
 
 ***Important: linea mainnet can sometimes throw errors and stop working suddenly. Please do not make large volumes with the script, it is designed to increase the number of transactions. Adding $20 on an account and setting the working volume of 1-7% is ok***
 
@@ -167,8 +167,6 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 
 ## Modes
 
-There are several modes available:
-
 - **Job Generator:** The main script responsible for generating/executing transactions.
 - **Checker:** Check your accounts' analytics (transactions and balances).
 - **Encrypter:** Encrypt your assets files (private keys, addresses, proxies) to use job generator on server
@@ -181,7 +179,7 @@ There are several modes available:
 - Rather than downloading a zip file of the project, use the `git` command to install it (instructions below). Updates, including new providers and modes, will be available in the near future, it will be easier to stay up to date using `git`.
 - You can create multiple configuration/private keys/proxies files with different settings to run them in separate terminals.
 - Linea mainnet may throw errors or suddenly stop. Avoid using large volumes. The script was created to increase the number of transactions, not volume.
-- Assets can use encrypted or decrypted files. All encrypted files must ends with `.encrypted.txt` otherwise system will use it as decoded file. 
+- If you want to use script on server you can encrypt any file in `assets` folder using [Encrypter](#encrypter) mode on your own PC and move encrypted file on server.
 
 ## Installation
 
@@ -219,18 +217,16 @@ The job generator mode uses private keys, proxies (optional), and configurations
 ### Create Files
 
 Before the first run, you must create the following files:
-
 1. Open the `assets` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the config file; just don't change example files):
    - Create a file for private keys (e.g., `private_keys.txt`) and fill it with private keys, each on a new line (must start with `0x`).
    - (Optional, only if you will use a proxy) Create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
-   - Note: if you want to encrypt any file in `assets` folder it use script on server just use [Encrypter](#encrypter) mode on your own PC and add encrypted file on server 
+   - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode.
 2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
    - Copy the required config file (e.g., `jobs.example.json`) for this mode. Instructions on how to modify it are provided below.
 
 ### Config
 
-There are two main block types in the config: `dynamic` and `fixed`. The `dynamic` config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. Values can be changed during program run. To get started, copy the `config/jobs.example.json5` file (and rename it as you want), and adjust the following values:
-
+There are two main block types in the config: `dynamic` and `fixed`. The `dynamic` config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. Dynamic values can be changed during program run. Config values:
 - `dynamic`:
     - `maxLineaGwei` - The maximum Linea Gwei limit. The system will check it before each transaction.
     - `minEthBalance` - The minimum ETH balance on the account required to work with (generate a job/start a new block). To forcefully stop the script and complete all current steps, set the value to `100`. It will skip the next blocks due to insufficient balance.
@@ -242,7 +238,7 @@ There are two main block types in the config: `dynamic` and `fixed`. The `dynami
         - `privateKeys` - Specify the file name in the `assets` folder containing private keys.
         - `proxies` - Specify the file name in the `assets` folder containing proxies. It can be an empty string for `none` proxy type.
     - `isAccountsShuffle` - Determine whether the private keys file should be shuffled (set to `true` or `false`).
-    - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run example below). If a mobile proxy is used, it can be only 1 parallel account.
+    - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run [example](#example) below). If a mobile proxy is used, it can be only 1 parallel account.
     - `providers` - Specify the services to be used in this mode. All possible values are already defined in the example config file. To exclude certain blocks, simply comment them out (add `//` before the block ID). For example, the following lines in the config file mean that OPEN_OCEAN will be used while DMAIL won't be:
         ```json
         "OPEN_OCEAN",
@@ -329,14 +325,13 @@ Before the first run, you must create the following files:
    - Create a file for private keys (e.g., `private_keys.txt`) and fill it with private keys, each on a new line (must start with `0x`).
    - (If you desire to use addresses instead of private keys) create a file for addresses (e.g., `addresses.txt`) and fill it with addresses, each on a new line (must start with `0x`).
    - (Optional, only if you will use a proxy) create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
-   - Note: if you want to encrypt any file in `assets` folder it use script on server just use [Encrypter](#encrypter) mode on your own PC and add encrypted file on server 
+   - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode. 
 2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
    - Copy the required config file (e.g., `checker.example.json`) for this mode. Instructions on how to modify it are provided below.
 
 ### Config
 
-Check accounts' nonce and tokens that are used by the script. Copy `config/checker.example.json5` to create a config (rename it if needed):
-
+Config values:
 - `dynamic` - Just an empty block.
 - `fixed`:
     - `files`:
@@ -362,8 +357,7 @@ Before the first run, you must create the following files:
 
 ### Config
 
-Check accounts' nonce and tokens that are used by the script. Copy `config/checker.example.json5` to create a config (rename it if needed):
-
+Config values:
 - `dynamic` - Just an empty block.
 - `fixed`:
     - `encryptedFileName` - Specify the file name in the `assets` folder containing decrypted data. It will create new file in assets folder with encrypted data
@@ -390,4 +384,4 @@ After you configured your mode you can run script:
 
 ## Additional Links
 
-Explore our scripts on our Telegram channel [alfar](https://t.me/+FozX3VZA0RIyNWY6). Feel free to suggest improvements or engage in discussions in our chat (link in the channel).
+Explore our scripts on our telegram channel [alfar](https://t.me/+FozX3VZA0RIyNWY6). Feel free to suggest improvements or engage in discussions in our chat (link in the channel).
