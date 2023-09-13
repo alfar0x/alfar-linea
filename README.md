@@ -5,13 +5,29 @@ A project designed to manage Linea accounts by simulating user activity through 
 
 ***Please read the instructions carefully to understand how script works before running it.***
 
+Main features:
+- Simple setup
+- Interaction with various services, such as syncswap, velocore, dmail, open ocean, xy finance, pancake, woofi and linea bank
+- Dynamic gas limit before each transaction (that is, you can change the limit directly during the execution of the program)
+- Selection of services for work
+- Ability to run in several terminals with different settings/accounts
+- Collection of information from the blockchain about accounts (token balances and number of transactions)
+- Encryption of private keys, proxies, addresses with a password for using script on the server
+- TRUE RANDOMIZATION. one of the examples: swap wbtc for eth on syncswap -> supply wbtc to linea bank -> send a message to dmail -> redeem wbtc from linea bank -> swap wbtc for eth on open ocean. and it's all automatic. now more than 100 different paths are available in 8 services, with more to come
+
+***Important: linea mainnet can sometimes throw errors and stop working suddenly. Please do not make large volumes with the script, it is designed to increase the number of transactions. Adding $20 on an account and setting the working volume of 1-7% is ok***
+
+What will be added next:
+- Possibility of deposit in linea
+- Proxy connection
+- Separate mode for returning tokens from all services and swapping excess tokens in eth (in case of errors in the main mode)
+- Even more contracts
+
+## How it works
+
 Main mode creates `job` for each account consisting of `steps`, which represent a list of `transactions`:
-
 1. One step is consists of transactions sent by real users within 1-2 minutes. E.g., [approve -> swap]. Here, 1 step is 2 transactions. Steps can currently consist of 1-3 transactions.
-
 2. One job consists of steps that can be executed by real users within hours/days. E.g., [swap ETH to USDC] --> [approve USDC -> add USDC to liquidity pool] --> [remove liquidity] --> [approve USDC -> swap to ETH]. Here, 1 job = 4 steps = 6 transactions. Each job concludes by returning all tokens/liquidity to ETH.
-
-**Use at your own risk. The script has not been tested on large volumes.**
 
 Check for updates here: [alfar](https://t.me/+FozX3VZA0RIyNWY6)
 
