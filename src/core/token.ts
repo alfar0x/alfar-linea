@@ -3,6 +3,7 @@ import Web3 from "web3";
 
 import { ERC_20 } from "../abi/types/ERC_20";
 import { CONTRACT_ERC_20 } from "../constants/contracts";
+import { TokenType } from "../types";
 import getContract from "../utils/web3/getContract";
 
 import Account from "./account";
@@ -14,9 +15,8 @@ class Token {
   public address: string;
   public geskoId: string;
   public chain: Chain;
+  public type: TokenType;
 
-  public isNative: boolean;
-  public isWrappedNative: boolean;
   public contract: ERC_20 | null;
 
   private readableDecimals: number | null;
@@ -30,8 +30,7 @@ class Token {
     geskoId: string;
     chain: Chain;
     readableDecimals?: number;
-    isNative?: boolean;
-    isWrappedNative?: boolean;
+    type?: TokenType;
   }) {
     const {
       name,
@@ -39,17 +38,15 @@ class Token {
       geskoId,
       chain,
       readableDecimals,
-      isNative = false,
-      isWrappedNative = false,
+      type = "ERC20",
     } = params;
 
     this.name = name;
     this.address = Web3.utils.toChecksumAddress(address);
     this.geskoId = geskoId;
     this.chain = chain;
+    this.type = type;
 
-    this.isNative = isNative;
-    this.isWrappedNative = isWrappedNative;
     this.contract = this.initializeContract();
 
     this.readableDecimals =
@@ -57,6 +54,13 @@ class Token {
 
     this._decimals = null;
     this._symbol = null;
+  }
+
+  public get isNative() {
+    return this.type === "NATIVE";
+  }
+  public get isWrappedNative() {
+    return this.type === "WRAPPED_NATIVE";
   }
 
   private initializeContract() {

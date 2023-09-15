@@ -1,6 +1,6 @@
 import { Provider } from "../../../core/action/types";
 import Chain from "../../../core/chain";
-import Factory from "../../../factory";
+import Factory from "../../../factory/jobFactory";
 
 import getRandomBlocks from "./getRandomBlocks";
 import getSupplyBlocks from "./getSupplyBlocks";

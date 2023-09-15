@@ -17,7 +17,7 @@ type Generator =
   | "SWAP_SUPPLY_TOKEN"
   | "RANDOM";
 
-class Factory {
+class JobFactory {
   /*
   otherPath: OtherPathGenerator[]; 
   can request some token (or not) but it is not popular action so it doesn't 
@@ -191,4 +191,4 @@ class Factory {
   }
 }
 
-export default Factory;
+export default JobFactory;

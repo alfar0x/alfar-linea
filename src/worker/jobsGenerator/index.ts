@@ -8,7 +8,7 @@ import Account from "../../core/account";
 import Chain from "../../core/chain";
 import Proxy from "../../core/proxy";
 import Transaction from "../../core/transaction";
-import Factory from "../../factory";
+import Factory from "../../factory/jobFactory";
 import formatIntervalSec from "../../utils/datetime/formatIntervalSec";
 import getMyIp from "../../utils/other/getMyIp";
 import logger from "../../utils/other/logger";

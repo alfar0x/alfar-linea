@@ -7,24 +7,19 @@ import {
   DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
   DEFAULT_SLIPPAGE_PERCENT,
 } from "../../../constants";
-import { CONTRACT_XY_FINANCE_ROUTER } from "../../../constants/contracts";
 import Account from "../../../core/account";
-import { SwapAction } from "../../../core/action/swap";
-import Chain from "../../../core/chain";
+import { BridgeAction } from "../../../core/action/bridge";
 import Token from "../../../core/token";
+import logger from "../../../utils/other/logger";
 import sleep from "../../../utils/other/sleep";
 import getRandomWalletAddress from "../../../utils/web3/getRandomWalletAddress";
 
 import { API_URL } from "./constants";
 import { XyFinanceBuildTx, XyFinanceQuote } from "./types";
 
-class XyFinanceSwap extends SwapAction {
+class XyFinanceBridge extends BridgeAction {
   constructor() {
     super({ provider: "XY_FINANCE" });
-  }
-
-  public getApproveAddress(chain: Chain) {
-    return chain.getContractAddressByName(CONTRACT_XY_FINANCE_ROUTER);
   }
 
   async quoteRequest(params: {
@@ -34,12 +29,11 @@ class XyFinanceSwap extends SwapAction {
   }) {
     const { fromToken, toToken, normalizedAmount } = params;
 
-    const chainId = String(fromToken.chain.chainId);
     const searchParams = {
-      srcChainId: chainId,
+      srcChainId: String(fromToken.chain.chainId),
       srcQuoteTokenAddress: fromToken.address,
       srcQuoteTokenAmount: String(normalizedAmount),
-      dstChainId: chainId,
+      dstChainId: String(toToken.chain.chainId),
       dstQuoteTokenAddress: toToken.address,
       slippage: String(DEFAULT_SLIPPAGE_PERCENT),
     };
@@ -55,8 +49,8 @@ class XyFinanceSwap extends SwapAction {
       throw new Error(`Unexpected error. No routes available`);
     }
 
-    const { srcSwapDescription, contractAddress } = data.routes[0];
-    const { provider } = srcSwapDescription;
+    const { bridgeDescription, contractAddress } = data.routes[0];
+    const { provider } = bridgeDescription;
 
     return { provider, contractAddress };
   }
@@ -76,17 +70,15 @@ class XyFinanceSwap extends SwapAction {
       "0x" + randomWalletAddress
     );
 
-    const chainId = String(fromToken.chain.chainId);
-
     const searchParams = {
-      srcChainId: chainId,
+      srcChainId: String(fromToken.chain.chainId),
       srcQuoteTokenAddress: fromToken.address,
       srcQuoteTokenAmount: String(normalizedAmount),
-      dstChainId: chainId,
+      dstChainId: String(toToken.chain.chainId),
       dstQuoteTokenAddress: toToken.address,
       slippage: String(DEFAULT_SLIPPAGE_PERCENT),
       receiver: fullRandomAddress,
-      srcSwapProvider: provider,
+      srcBridgeProvider: provider,
     };
 
     const urlParams = new URLSearchParams(searchParams).toString();
@@ -94,7 +86,10 @@ class XyFinanceSwap extends SwapAction {
 
     const { data } = await axios.get<XyFinanceBuildTx>(url);
 
-    if (!data.success) throw new Error(data.errorMsg || String(data.errorCode));
+    if (!data.success) {
+      logger.debug(JSON.stringify(data, null, 2));
+      throw new Error(data.errorMsg || String(data.errorCode));
+    }
 
     const { minReceiveAmount, estimatedGas } = data.route;
     const { to, value } = data.tx;
@@ -151,31 +146,25 @@ class XyFinanceSwap extends SwapAction {
       }
     }
 
-    if (!fromToken.chain.isEquals(toToken.chain)) {
-      throw new Error(
-        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`
-      );
-    }
+    // const normalizedBalance = await fromToken.normalizedBalanceOf(
+    //   account.address
+    // );
 
-    const normalizedBalance = await fromToken.normalizedBalanceOf(
-      account.address
-    );
+    // if (Big(normalizedBalance).lt(normalizedAmount)) {
+    //   const readableBalance = await fromToken.toReadableAmount(
+    //     normalizedBalance
+    //   );
+    //   const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
 
-    if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance = await fromToken.toReadableAmount(
-        normalizedBalance
-      );
-      const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
-
-      throw new Error(
-        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`
-      );
-    }
+    //   throw new Error(
+    //     `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`
+    //   );
+    // }
 
     return { routerContractAddress };
   }
 
-  async swap(params: {
+  async bridge(params: {
     account: Account;
     fromToken: Token;
     toToken: Token;
@@ -251,4 +240,4 @@ class XyFinanceSwap extends SwapAction {
   }
 }
 
-export default XyFinanceSwap;
+export default XyFinanceBridge;

@@ -8,6 +8,7 @@ import Account from "../../../core/account";
 import { SwapAction } from "../../../core/action/swap";
 import Chain from "../../../core/chain";
 import Token from "../../../core/token";
+import getRandomWalletAddress from "../../../utils/web3/getRandomWalletAddress";
 
 import { API_URL, CHAINS_DATA } from "./constants";
 import { OpenOceanSwapQuote } from "./types";
@@ -77,19 +78,6 @@ class OpenOceanSwap extends SwapAction {
     return chain.getContractAddressByName(CONTRACT_OPEN_OCEAN_EXCHANGE);
   }
 
-  private getRandomWalletAddress() {
-    const addressLength = 40;
-
-    const symbols = "abcdef0123456789";
-
-    const randomWalletAddress = Array.from({ length: addressLength }, () => {
-      const randomIndex = Math.floor(Math.random() * symbols.length);
-      return symbols.charAt(randomIndex);
-    });
-
-    return randomWalletAddress.join("");
-  }
-
   private async swapQuoteRequest(params: {
     account: Account;
     fromToken: Token;
@@ -99,7 +87,7 @@ class OpenOceanSwap extends SwapAction {
   }) {
     const { account, fromToken, toToken, normalizedAmount, chainPath } = params;
 
-    const randomWalletAddress = this.getRandomWalletAddress();
+    const randomWalletAddress = getRandomWalletAddress();
 
     const fullRandomAddress = Web3.utils.toChecksumAddress(
       "0x" + randomWalletAddress

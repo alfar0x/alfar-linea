@@ -6,14 +6,14 @@ const rawTokens: RawToken[] = [
     address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     geskoId: "ethereum",
     readableDecimals: 5,
-    isNative: true,
+    type: "NATIVE",
   },
   {
     name: "WETH",
     address: "0xe5d7c2a44ffddf6b295a15c148167daaaf5cf34f",
     geskoId: "wrapped-ether-linea",
     readableDecimals: 5,
-    isWrappedNative: true,
+    type: "WRAPPED_NATIVE",
   },
   {
     name: "USDT",

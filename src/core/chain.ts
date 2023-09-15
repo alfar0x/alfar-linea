@@ -50,8 +50,7 @@ class Chain {
         geskoId: rawToken.geskoId,
         chain: this,
         readableDecimals: rawToken.readableDecimals,
-        isNative: rawToken.isNative,
-        isWrappedNative: rawToken.isWrappedNative,
+        type: rawToken.type,
       });
     });
   }
