@@ -1,6 +1,6 @@
 import Big from "big.js";
 
-import { SLIPPAGE_PERCENT } from "../../../constants";
+import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import { CONTRACT_WOOFI_ROUTER } from "../../../constants/contracts";
 import Account from "../../../core/account";
 import { SwapAction } from "../../../core/action/swap";
@@ -135,7 +135,7 @@ class WoofiSwap extends SwapAction {
     const minOutNormalizedAmount = await toToken.getMinOutNormalizedAmount(
       fromToken,
       normalizedAmount,
-      SLIPPAGE_PERCENT
+      DEFAULT_SLIPPAGE_PERCENT
     );
 
     const swapFunctionCall = await this.getSwapCall({

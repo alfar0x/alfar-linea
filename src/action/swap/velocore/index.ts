@@ -1,7 +1,7 @@
 import Big from "big.js";
 import { ethers } from "ethers";
 
-import { SLIPPAGE_PERCENT } from "../../../constants";
+import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import {
   CONTRACT_VELOCORE_FACTORY,
   CONTRACT_VELOCORE_VAULT,
@@ -255,7 +255,7 @@ class VelocoreSwap extends SwapAction {
     const minOutNormalizedAmount = await toToken.getMinOutNormalizedAmount(
       fromToken,
       normalizedAmount,
-      SLIPPAGE_PERCENT
+      DEFAULT_SLIPPAGE_PERCENT
     );
 
     const swapFunctionCall = await this.getSwapCall({

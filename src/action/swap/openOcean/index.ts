@@ -2,7 +2,7 @@ import axios from "axios";
 import Big from "big.js";
 import Web3 from "web3";
 
-import { SLIPPAGE_PERCENT } from "../../../constants";
+import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import { CONTRACT_OPEN_OCEAN_EXCHANGE } from "../../../constants/contracts";
 import Account from "../../../core/account";
 import { SwapAction } from "../../../core/action/swap";
@@ -116,7 +116,7 @@ class OpenOceanSwap extends SwapAction {
       outTokenAddress: toToken.address,
       amount: readableAmount,
       gasPrice: gasPrice.toString(),
-      slippage: String(SLIPPAGE_PERCENT),
+      slippage: String(DEFAULT_SLIPPAGE_PERCENT),
       account: fullRandomAddress,
     };
 

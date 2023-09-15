@@ -1,7 +1,7 @@
 import Big from "big.js";
 import { ethers } from "ethers";
 
-import { SLIPPAGE_PERCENT } from "../../../constants";
+import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import {
   CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY,
   CONTRACT_SYNCSWAP_ROUTER,
@@ -214,7 +214,7 @@ class SyncswapSwap extends SwapAction {
     const minOutNormalizedAmount = await toToken.getMinOutNormalizedAmount(
       fromToken,
       normalizedAmount,
-      SLIPPAGE_PERCENT
+      DEFAULT_SLIPPAGE_PERCENT
     );
 
     const swapFunctionCall = await this.getSwapCall({

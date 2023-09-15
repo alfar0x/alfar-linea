@@ -2,7 +2,11 @@ import axios from "axios";
 import Big from "big.js";
 import Web3 from "web3";
 
-import { SLIPPAGE_PERCENT } from "../../../constants";
+import {
+  DEFAULT_GAS_MULTIPLIER,
+  DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
+  DEFAULT_SLIPPAGE_PERCENT,
+} from "../../../constants";
 import { CONTRACT_XY_FINANCE_ROUTER } from "../../../constants/contracts";
 import Account from "../../../core/account";
 import { SwapAction } from "../../../core/action/swap";
@@ -10,7 +14,7 @@ import Chain from "../../../core/chain";
 import Token from "../../../core/token";
 import sleep from "../../../utils/other/sleep";
 
-import { API_URL, GAS_MULTIPLIER } from "./constants";
+import { API_URL } from "./constants";
 import { XyFinanceBuildTx, XyFinanceQuote } from "./types";
 
 class XyFinanceSwap extends SwapAction {
@@ -49,7 +53,7 @@ class XyFinanceSwap extends SwapAction {
       srcQuoteTokenAmount: String(normalizedAmount),
       dstChainId: chainId,
       dstQuoteTokenAddress: toToken.address,
-      slippage: String(SLIPPAGE_PERCENT),
+      slippage: String(DEFAULT_SLIPPAGE_PERCENT),
     };
 
     const urlParams = new URLSearchParams(searchParams).toString();
@@ -94,7 +98,7 @@ class XyFinanceSwap extends SwapAction {
       srcQuoteTokenAmount: String(normalizedAmount),
       dstChainId: chainId,
       dstQuoteTokenAddress: toToken.address,
-      slippage: String(SLIPPAGE_PERCENT),
+      slippage: String(DEFAULT_SLIPPAGE_PERCENT),
       receiver: fullRandomAddress,
       srcSwapProvider: provider,
     };
@@ -238,14 +242,19 @@ class XyFinanceSwap extends SwapAction {
     const tx = {
       data,
       from: account.address,
-      gas: Big(estimatedGas).times(GAS_MULTIPLIER).round().toString(),
+      gas: estimatedGas,
       gasPrice,
       nonce,
       to: routerContractAddress,
       value: normalizedAmount,
     };
 
-    const hash = await account.signAndSendTransaction(chain, tx);
+    const hash = await account.signAndSendTransaction(chain, tx, {
+      retry: {
+        gasMultiplier: DEFAULT_GAS_MULTIPLIER,
+        times: DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
+      },
+    });
 
     const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
     const outReadableAmount = await toToken.toReadableAmount(

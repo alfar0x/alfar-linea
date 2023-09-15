@@ -1,6 +1,10 @@
 import Big from "big.js";
 
-import { SLIPPAGE_PERCENT } from "../../../constants";
+import {
+  DEFAULT_GAS_MULTIPLIER,
+  DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
+  DEFAULT_SLIPPAGE_PERCENT,
+} from "../../../constants";
 import {
   CONTRACT_PANCAKE_SWAP_ROUTER,
   CONTRACT_PANCAKE_FACTORY,
@@ -13,7 +17,7 @@ import Token from "../../../core/token";
 
 import {
   FEE,
-  GAS_MULTIPLIER,
+  INITIAL_GAS_MULTIPLIER,
   SQRT_PRICE_LIMIT_X96,
   UNWRAP_ETH_ADDRESS,
 } from "./constants";
@@ -103,14 +107,14 @@ class PancakeSwap extends SwapAction {
     const gasEstimate = quote[3];
 
     const amount = amountOut.toString();
-    const slippageAmount = Big(amount).times(SLIPPAGE_PERCENT).div(100);
+    const slippageAmount = Big(amount).times(DEFAULT_SLIPPAGE_PERCENT).div(100);
     const minOutNormalizedAmount = Big(amount)
       .minus(slippageAmount)
       .round()
       .toString();
 
     const estimatedGas = Big(gasEstimate.toString())
-      .times(GAS_MULTIPLIER)
+      .times(INITIAL_GAS_MULTIPLIER)
       .round()
       .toString();
 
@@ -291,7 +295,12 @@ class PancakeSwap extends SwapAction {
       value,
     };
 
-    const hash = await account.signAndSendTransaction(chain, tx);
+    const hash = await account.signAndSendTransaction(chain, tx, {
+      retry: {
+        gasMultiplier: DEFAULT_GAS_MULTIPLIER,
+        times: DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
+      },
+    });
 
     const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
     const outReadableAmount = await toToken.toReadableAmount(
