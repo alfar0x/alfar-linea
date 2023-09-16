@@ -5,19 +5,24 @@ import { runTypeChain, glob } from "typechain";
 async function main() {
   const cwd = process.cwd();
 
-  const allFiles = glob(cwd, [`src/abi/sources/*.json`]);
-  console.debug(allFiles);
+  const files = glob(cwd, [`src/abi/sources/*.json`]);
 
-  for (const file of allFiles) {
-    const { name } = path.parse(file);
+  const targets = ["web3-v1", "ethers-v6"];
 
-    await runTypeChain({
-      cwd,
-      filesToProcess: [file],
-      allFiles: [file],
-      outDir: `./src/abi/types/${name}/`,
-      target: "web3-v1",
-    });
+  console.debug({ targets, files });
+
+  for (const target of targets) {
+    for (const file of files) {
+      const { name } = path.parse(file);
+
+      await runTypeChain({
+        cwd,
+        filesToProcess: [file],
+        allFiles: [file],
+        outDir: `./src/abi/types/${target}/${name}/`,
+        target,
+      });
+    }
   }
 }
 

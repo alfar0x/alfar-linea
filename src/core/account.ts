@@ -119,8 +119,11 @@ class Account {
       return hash;
     } catch (error) {
       const isTxReverted = (error as Error)?.message?.includes("reverted");
+      const isNullableError = (error as Error)?.message?.includes(
+        "Cannot use 'in' operator to search for 'originalError' in null"
+      );
 
-      if (isTxReverted && times) {
+      if ((isTxReverted || isNullableError) && times) {
         logger.debug(`Retrying to send tx: ${times} times | ${_tx.gas} gas`);
         return this.signAndSendTransaction(chain, _tx, {
           retry: { gasMultiplier, times: times - 1 },

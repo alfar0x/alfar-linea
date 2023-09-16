@@ -73,6 +73,7 @@ const getImplementedProviders = (): Partial<
     PANCAKE: [new PancakeSwap(), ["ETH_USDC"]],
     XY_FINANCE: [new XyFinanceSwap(), ["ETH_USDC", "ETH_CEBUSD", "ETH_USDT"]],
     WOOFI: [new WoofiSwap(), ["ETH_USDC"]],
+    // ECHO_DEX: [new EchoDexSwap(), ["ETH_USDC", "ETH_CEBUSD"]], // @TODO estimate gas errors fix
   };
 };
 

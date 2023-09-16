@@ -14,6 +14,7 @@ import Account from "../../../core/account";
 import { SwapAction } from "../../../core/action/swap";
 import Chain from "../../../core/chain";
 import Token from "../../../core/token";
+import getInterface from "../../../utils/ethers/getInterface";
 
 import {
   FEE,
@@ -21,12 +22,6 @@ import {
   SQRT_PRICE_LIMIT_X96,
   UNWRAP_ETH_ADDRESS,
 } from "./constants";
-import {
-  QuoteExactInputSingleResult,
-  pancakeFactoryPartialInterface,
-  pancakeQuotePartialInterface,
-  pancakeRouterPartialInterface,
-} from "./interfaces";
 
 class PancakeSwap extends SwapAction {
   constructor() {
@@ -49,14 +44,13 @@ class PancakeSwap extends SwapAction {
       throw new Error(`${this.name} action is not available in ${chain.name}`);
     }
 
-    const getPoolData = pancakeFactoryPartialInterface.encodeFunctionData(
-      "getPool",
-      [
-        fromToken.getAddressOrWrappedForNative(),
-        toToken.getAddressOrWrappedForNative(),
-        FEE,
-      ]
-    );
+    const pancakeFactoryInterface = getInterface({ name: "PancakeFactory" });
+
+    const getPoolData = pancakeFactoryInterface.encodeFunctionData("getPool", [
+      fromToken.getAddressOrWrappedForNative(),
+      toToken.getAddressOrWrappedForNative(),
+      FEE,
+    ]);
 
     const poolAddress = await chain.w3.eth.call({
       data: getPoolData,
@@ -82,26 +76,30 @@ class PancakeSwap extends SwapAction {
       throw new Error(`${this.name} action is not available in ${chain.name}`);
     }
 
-    const quoteExactInputSingleData =
-      pancakeQuotePartialInterface.encodeFunctionData("quoteExactInputSingle", [
-        [
-          fromToken.getAddressOrWrappedForNative(),
-          toToken.getAddressOrWrappedForNative(),
-          normalizedAmount,
-          FEE,
-          SQRT_PRICE_LIMIT_X96,
-        ],
-      ]);
+    const pancakeQuoteInterface = getInterface({ name: "PancakeQuote" });
+
+    const quoteExactInputSingleData = pancakeQuoteInterface.encodeFunctionData(
+      "quoteExactInputSingle",
+      [
+        {
+          tokenIn: fromToken.getAddressOrWrappedForNative(),
+          tokenOut: toToken.getAddressOrWrappedForNative(),
+          amountIn: normalizedAmount,
+          fee: FEE,
+          sqrtPriceLimitX96: SQRT_PRICE_LIMIT_X96,
+        },
+      ]
+    );
 
     const quoteExactInputSingleResult = await chain.w3.eth.call({
       data: quoteExactInputSingleData,
       to: poolQuoteContractAddress,
     });
 
-    const quote = pancakeQuotePartialInterface.decodeFunctionResult(
+    const quote = pancakeQuoteInterface.decodeFunctionResult(
       "quoteExactInputSingle",
       quoteExactInputSingleResult
-    ) as unknown as QuoteExactInputSingleResult;
+    );
 
     const amountOut = quote[0];
     const gasEstimate = quote[3];
@@ -144,34 +142,38 @@ class PancakeSwap extends SwapAction {
 
     const { chain } = fromToken;
 
-    const deadline = await chain.getSwapDeadline();
+    const pancakeRouterInterface = getInterface({ name: "PancakeSwapRouter" });
 
     const address = toToken.isNative ? UNWRAP_ETH_ADDRESS : account.address;
 
-    const exactInputSingleData =
-      pancakeRouterPartialInterface.encodeFunctionData("exactInputSingle", [
-        [
-          fromToken.getAddressOrWrappedForNative(),
-          toToken.getAddressOrWrappedForNative(),
-          FEE,
-          address,
-          normalizedAmount,
-          minOutNormalizedAmount,
-          SQRT_PRICE_LIMIT_X96,
-        ],
-      ]);
+    const exactInputSingleData = pancakeRouterInterface.encodeFunctionData(
+      "exactInputSingle",
+      [
+        {
+          tokenIn: fromToken.getAddressOrWrappedForNative(),
+          tokenOut: toToken.getAddressOrWrappedForNative(),
+          fee: FEE,
+          recipient: address,
+          amountIn: normalizedAmount,
+          amountOutMinimum: minOutNormalizedAmount,
+          sqrtPriceLimitX96: SQRT_PRICE_LIMIT_X96,
+        },
+      ]
+    );
 
     const multicallBytesArray = [exactInputSingleData];
 
     if (toToken.isNative) {
-      const unwrapEthData = pancakeRouterPartialInterface.encodeFunctionData(
+      const unwrapEthData = pancakeRouterInterface.encodeFunctionData(
         "unwrapWETH9",
         [minOutNormalizedAmount, account.address]
       );
       multicallBytesArray.push(unwrapEthData);
     }
 
-    const data = pancakeRouterPartialInterface.encodeFunctionData("multicall", [
+    const deadline = await chain.getSwapDeadline();
+
+    const data = pancakeRouterInterface.encodeFunctionData("multicall", [
       deadline,
       multicallBytesArray,
     ]);

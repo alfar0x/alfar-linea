@@ -77,7 +77,7 @@ class LineaBankSupply extends SupplyAction {
 
     const distributorContract = getContract({
       w3,
-      name: "LINEA_BANK_LAB_DISTRIBUTOR",
+      name: CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR,
       address: distributorContractAddress,
     });
 
@@ -192,7 +192,7 @@ class LineaBankSupply extends SupplyAction {
 
     const coreContract = getContract({
       w3,
-      name: "LINEA_BANK_CORE",
+      name: CONTRACT_LINEA_BANK_CORE,
       address: coreContractAddress,
     });
 
@@ -242,7 +242,7 @@ class LineaBankSupply extends SupplyAction {
 
     const coreContract = getContract({
       w3,
-      name: "LINEA_BANK_CORE",
+      name: CONTRACT_LINEA_BANK_CORE,
       address: coreContractAddress,
     });
 

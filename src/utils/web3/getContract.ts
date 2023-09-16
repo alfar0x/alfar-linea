@@ -3,37 +3,49 @@ import path from "path";
 
 import Web3, { Contract, ContractAbi } from "web3";
 
-import { DMAIL } from "../../abi/types/DMAIL";
-import { ERC_20 } from "../../abi/types/ERC_20";
-import { LINEA_BANK_CORE } from "../../abi/types/LINEA_BANK_CORE";
-import { LINEA_BANK_LAB_DISTRIBUTOR } from "../../abi/types/LINEA_BANK_LAB_DISTRIBUTOR";
-import { SYNCSWAP_CLASSIC_POOL_FACTORY } from "../../abi/types/SYNCSWAP_CLASSIC_POOL_FACTORY";
-import { SYNCSWAP_ROUTER } from "../../abi/types/SYNCSWAP_ROUTER";
-import { VELOCORE_FACTORY } from "../../abi/types/VELOCORE_FACTORY";
-import { VELOCORE_VAULT } from "../../abi/types/VELOCORE_VAULT";
-import { WOOFI_ROUTER } from "../../abi/types/WOOFI_ROUTER";
+import { Dmail } from "../../abi/types/web3-v1/Dmail";
+import { EchoDexRouter } from "../../abi/types/web3-v1/EchoDexRouter";
+import { Erc20 } from "../../abi/types/web3-v1/Erc20";
+import { LineaBankCore } from "../../abi/types/web3-v1/LineaBankCore";
+import { LineaBankLabDistributor } from "../../abi/types/web3-v1/LineaBankLabDistributor";
+import { PancakeFactory } from "../../abi/types/web3-v1/PancakeFactory";
+import { PancakeQuote } from "../../abi/types/web3-v1/PancakeQuote";
+import { PancakeSwapRouter } from "../../abi/types/web3-v1/PancakeSwapRouter";
+import { SyncswapClassicPoolFactory } from "../../abi/types/web3-v1/SyncswapClassicPoolFactory";
+import { SyncswapRouter } from "../../abi/types/web3-v1/SyncswapRouter";
+import { VelocoreFactory } from "../../abi/types/web3-v1/VelocoreFactory";
+import { VelocoreVault } from "../../abi/types/web3-v1/VelocoreVault";
+import { WoofiRouter } from "../../abi/types/web3-v1/WoofiRouter";
 import {
-  CONTRACT_ERC_20,
-  CONTRACT_SYNCSWAP_ROUTER,
-  CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY,
-  CONTRACT_VELOCORE_VAULT,
-  CONTRACT_VELOCORE_FACTORY,
   CONTRACT_DMAIL,
-  CONTRACT_WOOFI_ROUTER,
+  CONTRACT_ECHO_DEX_ROUTER,
+  CONTRACT_ERC_20,
   CONTRACT_LINEA_BANK_CORE,
   CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR,
+  CONTRACT_PANCAKE_FACTORY,
+  CONTRACT_PANCAKE_QUOTE,
+  CONTRACT_PANCAKE_SWAP_ROUTER,
+  CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY,
+  CONTRACT_SYNCSWAP_ROUTER,
+  CONTRACT_VELOCORE_FACTORY,
+  CONTRACT_VELOCORE_VAULT,
+  CONTRACT_WOOFI_ROUTER,
 } from "../../constants/contracts";
 
 export type ContractRec = {
-  [CONTRACT_ERC_20]: ERC_20;
-  [CONTRACT_SYNCSWAP_ROUTER]: SYNCSWAP_ROUTER;
-  [CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY]: SYNCSWAP_CLASSIC_POOL_FACTORY;
-  [CONTRACT_VELOCORE_VAULT]: VELOCORE_VAULT;
-  [CONTRACT_VELOCORE_FACTORY]: VELOCORE_FACTORY;
-  [CONTRACT_DMAIL]: DMAIL;
-  [CONTRACT_WOOFI_ROUTER]: WOOFI_ROUTER;
-  [CONTRACT_LINEA_BANK_CORE]: LINEA_BANK_CORE;
-  [CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR]: LINEA_BANK_LAB_DISTRIBUTOR;
+  [CONTRACT_DMAIL]: Dmail;
+  [CONTRACT_ECHO_DEX_ROUTER]: EchoDexRouter;
+  [CONTRACT_ERC_20]: Erc20;
+  [CONTRACT_LINEA_BANK_CORE]: LineaBankCore;
+  [CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR]: LineaBankLabDistributor;
+  [CONTRACT_PANCAKE_FACTORY]: PancakeFactory;
+  [CONTRACT_PANCAKE_QUOTE]: PancakeQuote;
+  [CONTRACT_PANCAKE_SWAP_ROUTER]: PancakeSwapRouter;
+  [CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY]: SyncswapClassicPoolFactory;
+  [CONTRACT_SYNCSWAP_ROUTER]: SyncswapRouter;
+  [CONTRACT_VELOCORE_FACTORY]: VelocoreFactory;
+  [CONTRACT_VELOCORE_VAULT]: VelocoreVault;
+  [CONTRACT_WOOFI_ROUTER]: WoofiRouter;
 };
 
 const getContract = <C extends keyof ContractRec>(args: {

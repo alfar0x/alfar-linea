@@ -1,7 +1,7 @@
 import Big from "big.js";
 import Web3 from "web3";
 
-import { ERC_20 } from "../abi/types/ERC_20";
+import { Erc20 } from "../abi/types/web3-v1/Erc20";
 import { CONTRACT_ERC_20 } from "../constants/contracts";
 import { TokenType } from "../types";
 import getContract from "../utils/web3/getContract";
@@ -17,7 +17,7 @@ class Token {
   public chain: Chain;
   public type: TokenType;
 
-  public contract: ERC_20 | null;
+  public contract: Erc20 | null;
 
   private readableDecimals: number | null;
 
