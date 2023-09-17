@@ -10,10 +10,6 @@
     "plugin:prettier/recommended",
     "prettier"
   ],
-  "ignorePatterns": [
-    "node_modules",
-    "src/test.ts"
-  ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 6,
@@ -79,7 +75,6 @@
     "prefer-template": "error",
     "prettier/prettier": "error",
     "require-await": "error",
-    // "sort-keys":"error"
     "spaced-comment": "error"
   },
   "settings": {
