@@ -1,20 +1,20 @@
 import Big from "big.js";
 
 import {
+  CONTRACT_PANCAKE_SWAP_ROUTER,
+  CONTRACT_PANCAKE_FACTORY,
+  CONTRACT_PANCAKE_QUOTE,
+} from "../../../abi/constants/contracts";
+import getEthersInterface from "../../../abi/methods/getEthersInterface";
+import {
   DEFAULT_GAS_MULTIPLIER,
   DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
   DEFAULT_SLIPPAGE_PERCENT,
 } from "../../../constants";
-import {
-  CONTRACT_PANCAKE_SWAP_ROUTER,
-  CONTRACT_PANCAKE_FACTORY,
-  CONTRACT_PANCAKE_QUOTE,
-} from "../../../constants/contracts";
 import Account from "../../../core/account";
 import { SwapAction } from "../../../core/action/swap";
 import Chain from "../../../core/chain";
 import Token from "../../../core/token";
-import getInterface from "../../../utils/ethers/getInterface";
 
 import {
   FEE,
@@ -37,14 +37,16 @@ class PancakeSwap extends SwapAction {
     const { chain } = fromToken;
 
     const poolFactoryContractAddress = chain.getContractAddressByName(
-      CONTRACT_PANCAKE_FACTORY
+      CONTRACT_PANCAKE_FACTORY,
     );
 
     if (!poolFactoryContractAddress) {
       throw new Error(`${this.name} action is not available in ${chain.name}`);
     }
 
-    const pancakeFactoryInterface = getInterface({ name: "PancakeFactory" });
+    const pancakeFactoryInterface = getEthersInterface({
+      name: "PancakeFactory",
+    });
 
     const getPoolData = pancakeFactoryInterface.encodeFunctionData("getPool", [
       fromToken.getAddressOrWrappedForNative(),
@@ -69,14 +71,14 @@ class PancakeSwap extends SwapAction {
     const { chain, fromToken, toToken, normalizedAmount } = params;
 
     const poolQuoteContractAddress = chain.getContractAddressByName(
-      CONTRACT_PANCAKE_QUOTE
+      CONTRACT_PANCAKE_QUOTE,
     );
 
     if (!poolQuoteContractAddress) {
       throw new Error(`${this.name} action is not available in ${chain.name}`);
     }
 
-    const pancakeQuoteInterface = getInterface({ name: "PancakeQuote" });
+    const pancakeQuoteInterface = getEthersInterface({ name: "PancakeQuote" });
 
     const quoteExactInputSingleData = pancakeQuoteInterface.encodeFunctionData(
       "quoteExactInputSingle",
@@ -88,7 +90,7 @@ class PancakeSwap extends SwapAction {
           fee: FEE,
           sqrtPriceLimitX96: SQRT_PRICE_LIMIT_X96,
         },
-      ]
+      ],
     );
 
     const quoteExactInputSingleResult = await chain.w3.eth.call({
@@ -98,7 +100,7 @@ class PancakeSwap extends SwapAction {
 
     const quote = pancakeQuoteInterface.decodeFunctionResult(
       "quoteExactInputSingle",
-      quoteExactInputSingleResult
+      quoteExactInputSingleResult,
     );
 
     const amountOut = quote[0];
@@ -136,13 +138,15 @@ class PancakeSwap extends SwapAction {
 
     if (!fromToken.isNative && !toToken.isNative) {
       throw new Error(
-        `swap token -> token (not native) is not implemented yet: ${fromToken} -> ${toToken}`
+        `swap token -> token (not native) is not implemented yet: ${fromToken} -> ${toToken}`,
       );
     }
 
     const { chain } = fromToken;
 
-    const pancakeRouterInterface = getInterface({ name: "PancakeSwapRouter" });
+    const pancakeRouterInterface = getEthersInterface({
+      name: "PancakeSwapRouter",
+    });
 
     const address = toToken.isNative ? UNWRAP_ETH_ADDRESS : account.address;
 
@@ -158,7 +162,7 @@ class PancakeSwap extends SwapAction {
           amountOutMinimum: minOutNormalizedAmount,
           sqrtPriceLimitX96: SQRT_PRICE_LIMIT_X96,
         },
-      ]
+      ],
     );
 
     const multicallBytesArray = [exactInputSingleData];
@@ -166,7 +170,7 @@ class PancakeSwap extends SwapAction {
     if (toToken.isNative) {
       const unwrapEthData = pancakeRouterInterface.encodeFunctionData(
         "unwrapWETH9",
-        [minOutNormalizedAmount, account.address]
+        [minOutNormalizedAmount, account.address],
       );
       multicallBytesArray.push(unwrapEthData);
     }
@@ -192,7 +196,7 @@ class PancakeSwap extends SwapAction {
     const { chain } = fromToken;
 
     const routerContractAddress = chain.getContractAddressByName(
-      CONTRACT_PANCAKE_SWAP_ROUTER
+      CONTRACT_PANCAKE_SWAP_ROUTER,
     );
 
     if (!routerContractAddress) {
@@ -201,7 +205,7 @@ class PancakeSwap extends SwapAction {
 
     if (!fromToken.chain.isEquals(toToken.chain)) {
       throw new Error(
-        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`
+        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`,
       );
     }
 
@@ -214,35 +218,32 @@ class PancakeSwap extends SwapAction {
     if (!fromToken.isNative) {
       const normalizedAllowance = await fromToken.normalizedAllowance(
         account,
-        routerContractAddress
+        routerContractAddress,
       );
 
       if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance = await fromToken.toReadableAmount(
-          normalizedAllowance
-        );
-        const readableAmount = await fromToken.toReadableAmount(
-          normalizedAmount
-        );
+        const readableAllowance =
+          await fromToken.toReadableAmount(normalizedAllowance);
+        const readableAmount =
+          await fromToken.toReadableAmount(normalizedAmount);
 
         throw new Error(
-          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`
+          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
         );
       }
     }
 
     const normalizedBalance = await fromToken.normalizedBalanceOf(
-      account.address
+      account.address,
     );
 
     if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance = await fromToken.toReadableAmount(
-        normalizedBalance
-      );
+      const readableBalance =
+        await fromToken.toReadableAmount(normalizedBalance);
       const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
 
       throw new Error(
-        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`
+        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`,
       );
     }
 
@@ -306,7 +307,7 @@ class PancakeSwap extends SwapAction {
 
     const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
     const outReadableAmount = await toToken.toReadableAmount(
-      minOutNormalizedAmount
+      minOutNormalizedAmount,
     );
 
     return { hash, inReadableAmount, outReadableAmount };

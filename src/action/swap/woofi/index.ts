@@ -1,12 +1,12 @@
 import Big from "big.js";
 
+import { CONTRACT_WOOFI_ROUTER } from "../../../abi/constants/contracts";
+import getWeb3Contract from "../../../abi/methods/getWeb3Contract";
 import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
-import { CONTRACT_WOOFI_ROUTER } from "../../../constants/contracts";
 import Account from "../../../core/account";
 import { SwapAction } from "../../../core/action/swap";
 import Chain from "../../../core/chain";
 import Token from "../../../core/token";
-import getContract from "../../../utils/web3/getContract";
 
 class WoofiSwap extends SwapAction {
   constructor() {
@@ -28,7 +28,7 @@ class WoofiSwap extends SwapAction {
     const { chain } = fromToken;
 
     const routerContractAddress = chain.getContractAddressByName(
-      CONTRACT_WOOFI_ROUTER
+      CONTRACT_WOOFI_ROUTER,
     );
 
     if (!routerContractAddress) {
@@ -37,42 +37,39 @@ class WoofiSwap extends SwapAction {
 
     if (!fromToken.chain.isEquals(toToken.chain)) {
       throw new Error(
-        `woofi is not available for tokens in different chains: ${fromToken} -> ${toToken}`
+        `woofi is not available for tokens in different chains: ${fromToken} -> ${toToken}`,
       );
     }
 
     if (!fromToken.isNative) {
       const normalizedAllowance = await fromToken.normalizedAllowance(
         account,
-        routerContractAddress
+        routerContractAddress,
       );
 
       if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance = await fromToken.toReadableAmount(
-          normalizedAllowance
-        );
-        const readableAmount = await fromToken.toReadableAmount(
-          normalizedAmount
-        );
+        const readableAllowance =
+          await fromToken.toReadableAmount(normalizedAllowance);
+        const readableAmount =
+          await fromToken.toReadableAmount(normalizedAmount);
 
         throw new Error(
-          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`
+          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
         );
       }
     }
 
     const normalizedBalance = await fromToken.normalizedBalanceOf(
-      account.address
+      account.address,
     );
 
     if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance = await fromToken.toReadableAmount(
-        normalizedBalance
-      );
+      const readableBalance =
+        await fromToken.toReadableAmount(normalizedBalance);
       const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
 
       throw new Error(
-        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`
+        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`,
       );
     }
 
@@ -99,7 +96,7 @@ class WoofiSwap extends SwapAction {
     const { chain } = fromToken;
     const { w3 } = chain;
 
-    const routerContract = getContract({
+    const routerContract = getWeb3Contract({
       w3,
       name: CONTRACT_WOOFI_ROUTER,
       address: routerContractAddress,
@@ -111,7 +108,7 @@ class WoofiSwap extends SwapAction {
       normalizedAmount,
       minOutNormalizedAmount,
       account.address,
-      account.address
+      account.address,
     );
   }
 
@@ -135,7 +132,7 @@ class WoofiSwap extends SwapAction {
     const minOutNormalizedAmount = await toToken.getMinOutNormalizedAmount(
       fromToken,
       normalizedAmount,
-      DEFAULT_SLIPPAGE_PERCENT
+      DEFAULT_SLIPPAGE_PERCENT,
     );
 
     const swapFunctionCall = await this.getSwapCall({
@@ -171,7 +168,7 @@ class WoofiSwap extends SwapAction {
 
     const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
     const outReadableAmount = await toToken.toReadableAmount(
-      minOutNormalizedAmount
+      minOutNormalizedAmount,
     );
 
     return { hash, inReadableAmount, outReadableAmount };

@@ -64,7 +64,7 @@ class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
       const { message } = error as Error;
 
       logger.error(
-        `used the previous dynamic value due to error. Details: ${message}`
+        `used the previous dynamic value due to error. Details: ${message}`,
       );
     }
 

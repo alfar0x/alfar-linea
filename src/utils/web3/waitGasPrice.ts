@@ -8,7 +8,7 @@ import sleep from "../other/sleep";
 const waitGasLimit = async (
   w3: Web3,
   sleepSec: number,
-  getMaxGwei: () => number
+  getMaxGwei: () => number,
 ) => {
   while (true) {
     const maxGwei = getMaxGwei();
@@ -16,7 +16,7 @@ const waitGasLimit = async (
     const gasPriceWei = await w3.eth.getGasPrice();
 
     const currentFeePerGasGweiBig = Big(
-      Web3.utils.fromWei(gasPriceWei, "Gwei")
+      Web3.utils.fromWei(gasPriceWei, "Gwei"),
     ).round(2);
 
     const isGasLimitValid = currentFeePerGasGweiBig.lte(maxGwei);

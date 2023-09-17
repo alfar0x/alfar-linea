@@ -17,7 +17,7 @@ const testLineaSwapFromEth = async (params: {
 
   const normalizedAmount = linea.w3.utils.toWei(
     randomFloat(0.0001, 0.0002, 9),
-    "ether"
+    "ether",
   );
 
   return await action.swap({ account, fromToken, toToken, normalizedAmount });

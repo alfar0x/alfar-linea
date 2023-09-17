@@ -1,10 +1,10 @@
 import Big from "big.js";
 import Web3 from "web3";
 
+import { CONTRACT_ERC20 } from "../abi/constants/contracts";
+import getWeb3Contract from "../abi/methods/getWeb3Contract";
 import { Erc20 } from "../abi/types/web3-v1/Erc20";
-import { CONTRACT_ERC_20 } from "../constants/contracts";
 import { TokenType } from "../types";
-import getContract from "../utils/web3/getContract";
 
 import Account from "./account";
 import Chain from "./chain";
@@ -66,9 +66,9 @@ class Token {
   private initializeContract() {
     if (this.isNative) return null;
 
-    return getContract({
+    return getWeb3Contract({
       w3: this.chain.w3,
-      name: CONTRACT_ERC_20,
+      name: CONTRACT_ERC20,
       address: this.address,
     });
   }
@@ -134,7 +134,7 @@ class Token {
 
   async toReadableAmount(
     normalizedAmount: number | string,
-    isOriginal = false
+    isOriginal = false,
   ) {
     const decimals = await this.decimals();
     const readableAmountBig = Big(normalizedAmount).div(Big(10).pow(decimals));
@@ -190,7 +190,7 @@ class Token {
   async approve(
     account: Account,
     spenderAddress: string,
-    normalizedAmount: string | number
+    normalizedAmount: string | number,
   ) {
     if (this.isNative) return null;
 
@@ -200,7 +200,7 @@ class Token {
 
     const allowanceNormalizedAmount = await this.normalizedAllowance(
       account,
-      spenderAddress
+      spenderAddress,
     );
 
     if (Big(allowanceNormalizedAmount).gte(normalizedAmount)) {
@@ -209,7 +209,7 @@ class Token {
 
     const approveFunctionCall = this.contract.methods.approve(
       spenderAddress,
-      normalizedAmount
+      normalizedAmount,
     );
 
     const nonce = await this.chain.w3.eth.getTransactionCount(account.address);
@@ -238,7 +238,7 @@ class Token {
   async getMinOutReadableAmount(
     fromToken: Token,
     fromReadableAmount: string | number,
-    slippagePercent: number
+    slippagePercent: number,
   ) {
     const fromTokenPrice = await fromToken.usdPrice();
     const toTokenPrice = await this.usdPrice();
@@ -255,16 +255,15 @@ class Token {
   async getMinOutNormalizedAmount(
     fromToken: Token,
     fromNormalizedAmount: string | number,
-    slippagePercent: number
+    slippagePercent: number,
   ) {
-    const fromReadableAmount = await fromToken.toReadableAmount(
-      fromNormalizedAmount
-    );
+    const fromReadableAmount =
+      await fromToken.toReadableAmount(fromNormalizedAmount);
 
     const minOutReadable = await this.getMinOutReadableAmount(
       fromToken,
       fromReadableAmount,
-      slippagePercent
+      slippagePercent,
     );
 
     return await this.toNormalizedAmount(minOutReadable);

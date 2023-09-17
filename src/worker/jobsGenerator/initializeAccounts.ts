@@ -14,7 +14,7 @@ const initializeAccounts = async (params: {
   const privateKeys = allFileData.map((v) => v.trim()).filter(Boolean);
 
   const accounts = privateKeys.map(
-    (privateKey, fileIndex) => new Account({ privateKey, fileIndex })
+    (privateKey, fileIndex) => new Account({ privateKey, fileIndex }),
   );
 
   return isShuffle ? randomShuffle(accounts) : accounts;

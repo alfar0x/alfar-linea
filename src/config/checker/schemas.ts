@@ -11,7 +11,7 @@ const filesSchema = z
   })
   .refine(
     (data) => data.addresses || data.privateKeys,
-    "Either privateKeys or addresses must be filled in."
+    "Either privateKeys or addresses must be filled in.",
   );
 
 const maxParallelAccountsSchema = z.number().positive().min(1).max(10);

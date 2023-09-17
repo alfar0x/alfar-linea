@@ -55,7 +55,7 @@ class Cli {
 
       if (!choices.length)
         throw new Error(
-          `add at least 1 valid config (examples is not valid). Check config folder`
+          `add at least 1 valid config (examples is not valid). Check config folder`,
         );
 
       return choices;

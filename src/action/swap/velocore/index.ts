@@ -1,17 +1,17 @@
 import Big from "big.js";
 import { ethers } from "ethers";
 
-import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import {
   CONTRACT_VELOCORE_FACTORY,
   CONTRACT_VELOCORE_VAULT,
-} from "../../../constants/contracts";
+} from "../../../abi/constants/contracts";
+import getWeb3Contract from "../../../abi/methods/getWeb3Contract";
+import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import Account from "../../../core/account";
 import { SwapAction } from "../../../core/action/swap";
 import Chain from "../../../core/chain";
 import Token from "../../../core/token";
 import logger from "../../../utils/other/logger";
-import getContract from "../../../utils/web3/getContract";
 
 import {
   AMOUNT_TYPES,
@@ -36,7 +36,7 @@ class VelocoreSwap extends SwapAction {
 
     return ethers.solidityPacked(
       ["uint8", "uint88", "address"],
-      [OPERATION_TYPES.swap, unusedBytes, address]
+      [OPERATION_TYPES.swap, unusedBytes, address],
     );
   }
 
@@ -48,7 +48,7 @@ class VelocoreSwap extends SwapAction {
 
     return ethers.solidityPacked(
       ["uint8", "uint88", "address"],
-      [TOKEN_TYPES.erc20, id, token.getAddressOrWrappedForNative()]
+      [TOKEN_TYPES.erc20, id, token.getAddressOrWrappedForNative()],
     );
   }
 
@@ -61,7 +61,7 @@ class VelocoreSwap extends SwapAction {
     const unusedBytes = 0;
     return ethers.solidityPacked(
       ["uint8", "uint8", "uint112", "int128"],
-      [index, amountType, unusedBytes, normalizedAmount]
+      [index, amountType, unusedBytes, normalizedAmount],
     );
   }
 
@@ -75,16 +75,16 @@ class VelocoreSwap extends SwapAction {
 
     try {
       const factoryContractAddress = chain.getContractAddressByName(
-        CONTRACT_VELOCORE_FACTORY
+        CONTRACT_VELOCORE_FACTORY,
       );
 
       if (!factoryContractAddress) {
         throw new Error(
-          `${this.name} action is not available in ${chain.name}`
+          `${this.name} action is not available in ${chain.name}`,
         );
       }
 
-      const factoryContract = getContract({
+      const factoryContract = getWeb3Contract({
         w3: chain.w3,
         name: CONTRACT_VELOCORE_FACTORY,
         address: factoryContractAddress,
@@ -120,7 +120,7 @@ class VelocoreSwap extends SwapAction {
     const { chain } = fromToken;
 
     const vaultContractAddress = chain.getContractAddressByName(
-      CONTRACT_VELOCORE_VAULT
+      CONTRACT_VELOCORE_VAULT,
     );
 
     if (!vaultContractAddress) {
@@ -129,7 +129,7 @@ class VelocoreSwap extends SwapAction {
 
     if (!fromToken.chain.isEquals(toToken.chain)) {
       throw new Error(
-        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`
+        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`,
       );
     }
 
@@ -142,35 +142,32 @@ class VelocoreSwap extends SwapAction {
     if (!fromToken.isNative) {
       const normalizedAllowance = await fromToken.normalizedAllowance(
         account,
-        vaultContractAddress
+        vaultContractAddress,
       );
 
       if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance = await fromToken.toReadableAmount(
-          normalizedAllowance
-        );
-        const readableAmount = await fromToken.toReadableAmount(
-          normalizedAmount
-        );
+        const readableAllowance =
+          await fromToken.toReadableAmount(normalizedAllowance);
+        const readableAmount =
+          await fromToken.toReadableAmount(normalizedAmount);
 
         throw new Error(
-          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`
+          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
         );
       }
     }
 
     const normalizedBalance = await fromToken.normalizedBalanceOf(
-      account.address
+      account.address,
     );
 
     if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance = await fromToken.toReadableAmount(
-        normalizedBalance
-      );
+      const readableBalance =
+        await fromToken.toReadableAmount(normalizedBalance);
       const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
 
       throw new Error(
-        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`
+        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`,
       );
     }
 
@@ -205,7 +202,7 @@ class VelocoreSwap extends SwapAction {
 
     const deposit = new Array(tokenRef.length).fill(0);
 
-    const vaultContract = getContract({
+    const vaultContract = getWeb3Contract({
       w3: fromToken.chain.w3,
       name: CONTRACT_VELOCORE_VAULT,
       address: vaultContractAddress,
@@ -255,7 +252,7 @@ class VelocoreSwap extends SwapAction {
     const minOutNormalizedAmount = await toToken.getMinOutNormalizedAmount(
       fromToken,
       normalizedAmount,
-      DEFAULT_SLIPPAGE_PERCENT
+      DEFAULT_SLIPPAGE_PERCENT,
     );
 
     const swapFunctionCall = await this.getSwapCall({
@@ -292,7 +289,7 @@ class VelocoreSwap extends SwapAction {
 
     const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
     const outReadableAmount = await toToken.toReadableAmount(
-      minOutNormalizedAmount
+      minOutNormalizedAmount,
     );
 
     return { hash, inReadableAmount, outReadableAmount };

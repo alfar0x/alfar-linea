@@ -45,19 +45,18 @@ class SwapBlock extends Block {
 
     if (!contractAddress) {
       throw new Error(
-        `Contract address of ${this.action} for ${this.chain} is not found`
+        `Contract address of ${this.action} for ${this.chain} is not found`,
       );
     }
 
     const hash = await this.fromToken.approve(
       account,
       contractAddress,
-      normalizedAmount
+      normalizedAmount,
     );
 
-    const readableAmount = await this.fromToken.toReadableAmount(
-      normalizedAmount
-    );
+    const readableAmount =
+      await this.fromToken.toReadableAmount(normalizedAmount);
 
     if (!hash) {
       logger.info(`already approved ${readableAmount} ${this.fromToken}`);
@@ -67,7 +66,7 @@ class SwapBlock extends Block {
     const hashLink = this.chain.getHashLink(hash);
 
     logger.info(
-      `approve ${readableAmount} ${this.fromToken} success: ${hashLink}`
+      `approve ${readableAmount} ${this.fromToken} success: ${hashLink}`,
     );
 
     return true;
@@ -89,7 +88,7 @@ class SwapBlock extends Block {
     const hashLink = this.chain.getHashLink(hash);
 
     logger.info(
-      `swap ${inReadableAmount} ${this.fromToken} -> ${outReadableAmount} ${this.toToken} success: ${hashLink}`
+      `swap ${inReadableAmount} ${this.fromToken} -> ${outReadableAmount} ${this.toToken} success: ${hashLink}`,
     );
 
     return true;
@@ -129,7 +128,7 @@ class SwapBlock extends Block {
     const { account } = params;
 
     const normalizedAmount = await this.fromToken.normalizedBalanceOf(
-      account.address
+      account.address,
     );
 
     return this.swapSteps({ namePrefix: "BALANCE", account, normalizedAmount });
@@ -145,7 +144,7 @@ class SwapBlock extends Block {
     const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
       this.fromToken,
       minWorkAmountPercent,
-      maxWorkAmountPercent
+      maxWorkAmountPercent,
     );
 
     return this.swapSteps({ namePrefix: "PERCENT", account, normalizedAmount });

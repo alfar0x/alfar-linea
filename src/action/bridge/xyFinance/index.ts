@@ -67,7 +67,7 @@ class XyFinanceBridge extends BridgeAction {
     const randomWalletAddress = getRandomWalletAddress();
 
     const fullRandomAddress = Web3.utils.toChecksumAddress(
-      "0x" + randomWalletAddress
+      "0x" + randomWalletAddress,
     );
 
     const searchParams = {
@@ -98,7 +98,7 @@ class XyFinanceBridge extends BridgeAction {
 
     const contractData = data.tx.data.replaceAll(
       randomWalletAddress,
-      addressToChangeTo
+      addressToChangeTo,
     );
 
     return {
@@ -129,37 +129,38 @@ class XyFinanceBridge extends BridgeAction {
     if (!fromToken.isNative) {
       const normalizedAllowance = await fromToken.normalizedAllowance(
         account,
-        routerContractAddress
+        routerContractAddress,
       );
 
       if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance = await fromToken.toReadableAmount(
-          normalizedAllowance
-        );
-        const readableAmount = await fromToken.toReadableAmount(
-          normalizedAmount
-        );
+        const readableAllowance =
+          await fromToken.toReadableAmount(normalizedAllowance);
+        const readableAmount =
+          await fromToken.toReadableAmount(normalizedAmount);
 
         throw new Error(
-          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`
+          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
         );
       }
     }
 
-    // const normalizedBalance = await fromToken.normalizedBalanceOf(
-    //   account.address
-    // );
+    if (!toToken.isNative) {
+      throw new Error("Only to native is allowed");
+    }
 
-    // if (Big(normalizedBalance).lt(normalizedAmount)) {
-    //   const readableBalance = await fromToken.toReadableAmount(
-    //     normalizedBalance
-    //   );
-    //   const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
+    const normalizedBalance = await fromToken.normalizedBalanceOf(
+      account.address,
+    );
 
-    //   throw new Error(
-    //     `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`
-    //   );
-    // }
+    if (Big(normalizedBalance).lt(normalizedAmount)) {
+      const readableBalance =
+        await fromToken.toReadableAmount(normalizedBalance);
+      const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
+
+      throw new Error(
+        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`,
+      );
+    }
 
     return { routerContractAddress };
   }
@@ -189,7 +190,7 @@ class XyFinanceBridge extends BridgeAction {
 
     if (contractAddress !== routerContractAddress) {
       throw new Error(
-        `Unexpected error: contractAddress !== routerContractAddress: ${contractAddress} !== ${routerContractAddress}. Please contact developer`
+        `Unexpected error: contractAddress !== routerContractAddress: ${contractAddress} !== ${routerContractAddress}. Please contact developer`,
       );
     }
 
@@ -206,7 +207,7 @@ class XyFinanceBridge extends BridgeAction {
 
     if (to !== routerContractAddress) {
       throw new Error(
-        `Unexpected error: to !== routerContractAddress: ${to} !== ${routerContractAddress}. Please contact developer`
+        `Unexpected error: to !== routerContractAddress: ${to} !== ${routerContractAddress}. Please contact developer`,
       );
     }
 
@@ -233,7 +234,7 @@ class XyFinanceBridge extends BridgeAction {
 
     const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
     const outReadableAmount = await toToken.toReadableAmount(
-      minOutNormalizedAmount
+      minOutNormalizedAmount,
     );
 
     return { hash, inReadableAmount, outReadableAmount };

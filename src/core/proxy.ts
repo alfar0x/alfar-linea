@@ -63,7 +63,7 @@ class Proxy {
       case "mobile": {
         if (proxyList.length !== 1) {
           throw new Error(
-            `only 1 proxy must be in ${fileName} for ${this.type} proxy type`
+            `only 1 proxy must be in ${fileName} for ${this.type} proxy type`,
           );
         }
         return proxyList;
@@ -71,7 +71,7 @@ class Proxy {
       case "server": {
         if (!proxyList.length) {
           throw new Error(
-            `at least 1 proxy must be in ${fileName} for ${this.type} proxy type`
+            `at least 1 proxy must be in ${fileName} for ${this.type} proxy type`,
           );
         }
         return proxyList;
@@ -151,7 +151,7 @@ class Proxy {
         throw new Error(`ip change response status is ${status}`);
       } catch (error) {
         logger.error(
-          `Attempt ${retry + 1} failed: ${(error as Error).message}`
+          `Attempt ${retry + 1} failed: ${(error as Error).message}`,
         );
 
         await sleep(this.onIpChangeUrlSleepSec);
@@ -159,7 +159,7 @@ class Proxy {
     }
 
     throw new Error(
-      `all ${this.onIpChangeErrorRepeatTimes} attempts to change ip failed. Please check ip change url`
+      `all ${this.onIpChangeErrorRepeatTimes} attempts to change ip failed. Please check ip change url`,
     );
   }
 

@@ -21,13 +21,13 @@ export interface EventOptions {
   topics?: string[];
 }
 
-export interface EchoDexRouter extends BaseContract {
+export interface EchoDexSmartRouter extends BaseContract {
   constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions
-  ): EchoDexRouter;
-  clone(): EchoDexRouter;
+  ): EchoDexSmartRouter;
+  clone(): EchoDexSmartRouter;
   methods: {
     WETH9(): NonPayableTransactionObject<string>;
 

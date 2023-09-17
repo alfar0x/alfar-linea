@@ -172,7 +172,7 @@ export declare namespace IApproveAndCall {
   };
 }
 
-export interface EchoDexRouterInterface extends Interface {
+export interface EchoDexSmartRouterInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "WETH9"
@@ -520,11 +520,11 @@ export interface EchoDexRouterInterface extends Interface {
   decodeFunctionResult(functionFragment: "wrapETH", data: BytesLike): Result;
 }
 
-export interface EchoDexRouter extends BaseContract {
-  connect(runner?: ContractRunner | null): EchoDexRouter;
+export interface EchoDexSmartRouter extends BaseContract {
+  connect(runner?: ContractRunner | null): EchoDexSmartRouter;
   waitForDeployment(): Promise<this>;
 
-  interface: EchoDexRouterInterface;
+  interface: EchoDexSmartRouterInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,

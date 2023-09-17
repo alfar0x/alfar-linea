@@ -3,7 +3,10 @@
 /* eslint-disable */
 
 import { Contract, Interface, type ContractRunner } from "ethers";
-import type { EchoDexRouter, EchoDexRouterInterface } from "../EchoDexRouter";
+import type {
+  EchoDexSmartRouter,
+  EchoDexSmartRouterInterface,
+} from "../EchoDexSmartRouter";
 
 const _abi = [
   {
@@ -1092,15 +1095,15 @@ const _abi = [
   },
 ] as const;
 
-export class EchoDexRouter__factory {
+export class EchoDexSmartRouter__factory {
   static readonly abi = _abi;
-  static createInterface(): EchoDexRouterInterface {
-    return new Interface(_abi) as EchoDexRouterInterface;
+  static createInterface(): EchoDexSmartRouterInterface {
+    return new Interface(_abi) as EchoDexSmartRouterInterface;
   }
   static connect(
     address: string,
     runner?: ContractRunner | null
-  ): EchoDexRouter {
-    return new Contract(address, _abi, runner) as unknown as EchoDexRouter;
+  ): EchoDexSmartRouter {
+    return new Contract(address, _abi, runner) as unknown as EchoDexSmartRouter;
   }
 }

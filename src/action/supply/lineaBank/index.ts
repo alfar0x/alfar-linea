@@ -3,12 +3,12 @@ import Big from "big.js";
 import {
   CONTRACT_LINEA_BANK_CORE,
   CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR,
-} from "../../../constants/contracts";
+} from "../../../abi/constants/contracts";
+import getWeb3Contract from "../../../abi/methods/getWeb3Contract";
 import Account from "../../../core/account";
 import { SupplyAction } from "../../../core/action/supply";
 import Chain from "../../../core/chain";
 import Token from "../../../core/token";
-import getContract from "../../../utils/web3/getContract";
 
 import { CHAINS_DATA } from "./constants";
 
@@ -32,7 +32,7 @@ class LineaBankSupply extends SupplyAction {
 
   private getCoreAddress(chain: Chain) {
     const coreContractAddress = chain.getContractAddressByName(
-      CONTRACT_LINEA_BANK_CORE
+      CONTRACT_LINEA_BANK_CORE,
     );
 
     if (!coreContractAddress) {
@@ -44,7 +44,7 @@ class LineaBankSupply extends SupplyAction {
 
   private getDistributorAddress(chain: Chain) {
     const distributorContractAddress = chain.getContractAddressByName(
-      CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR
+      CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR,
     );
 
     if (!distributorContractAddress) {
@@ -75,7 +75,7 @@ class LineaBankSupply extends SupplyAction {
 
     const distributorContractAddress = this.getDistributorAddress(chain);
 
-    const distributorContract = getContract({
+    const distributorContract = getWeb3Contract({
       w3,
       name: CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR,
       address: distributorContractAddress,
@@ -112,17 +112,16 @@ class LineaBankSupply extends SupplyAction {
     if (!token.isNative) {
       const normalizedAllowance = await token.normalizedAllowance(
         account,
-        marketAddress
+        marketAddress,
       );
 
       if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance = await token.toReadableAmount(
-          normalizedAllowance
-        );
+        const readableAllowance =
+          await token.toReadableAmount(normalizedAllowance);
         const readableAmount = await token.toReadableAmount(normalizedAmount);
 
         throw new Error(
-          `account ${token} allowance is less than amount: ${readableAllowance} < ${readableAmount}`
+          `account ${token} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
         );
       }
     }
@@ -134,7 +133,7 @@ class LineaBankSupply extends SupplyAction {
       const readableAmount = await token.toReadableAmount(normalizedAmount);
 
       throw new Error(
-        `account ${token} balance is less than amount: ${readableBalance} < ${readableAmount}`
+        `account ${token} balance is less than amount: ${readableBalance} < ${readableAmount}`,
       );
     }
 
@@ -150,7 +149,7 @@ class LineaBankSupply extends SupplyAction {
     const { chain } = token;
 
     const coreContractAddress = chain.getContractAddressByName(
-      CONTRACT_LINEA_BANK_CORE
+      CONTRACT_LINEA_BANK_CORE,
     );
 
     const distributorContractAddress = this.getDistributorAddress(chain);
@@ -190,7 +189,7 @@ class LineaBankSupply extends SupplyAction {
         normalizedAmount,
       });
 
-    const coreContract = getContract({
+    const coreContract = getWeb3Contract({
       w3,
       name: CONTRACT_LINEA_BANK_CORE,
       address: coreContractAddress,
@@ -198,7 +197,7 @@ class LineaBankSupply extends SupplyAction {
 
     const supplyCall = coreContract.methods.supply(
       marketAddress,
-      normalizedAmount
+      normalizedAmount,
     );
 
     const value = token.isNative ? normalizedAmount : 0;
@@ -240,7 +239,7 @@ class LineaBankSupply extends SupplyAction {
         token,
       });
 
-    const coreContract = getContract({
+    const coreContract = getWeb3Contract({
       w3,
       name: CONTRACT_LINEA_BANK_CORE,
       address: coreContractAddress,
@@ -248,7 +247,7 @@ class LineaBankSupply extends SupplyAction {
 
     const redeemTokenCall = coreContract.methods.redeemToken(
       marketAddress,
-      normalizedSupply
+      normalizedSupply,
     );
 
     const estimatedGas = await redeemTokenCall.estimateGas({

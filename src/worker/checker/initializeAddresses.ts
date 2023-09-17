@@ -22,7 +22,7 @@ const initializeAddresses = async (params: {
   const privateKeys = await readFileAndEncryptByLine(fileName);
 
   return privateKeys.map(
-    (privateKey, fileIndex) => new Account({ privateKey, fileIndex }).address
+    (privateKey, fileIndex) => new Account({ privateKey, fileIndex }).address,
   );
 };
 

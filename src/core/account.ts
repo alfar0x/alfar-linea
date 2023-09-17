@@ -43,7 +43,7 @@ class Account {
     const privateShortForm = getShortString(privateKey);
 
     throw new Error(
-      `private key ${privateShortForm} on index ${this.fileIndex} is not valid. Check assets folder`
+      `private key ${privateShortForm} on index ${this.fileIndex} is not valid. Check assets folder`,
     );
   }
 
@@ -76,14 +76,14 @@ class Account {
     tx: Web3Transaction,
     opts: {
       retry?: { gasMultiplier: number; times: number };
-    } = {}
+    } = {},
   ): Promise<string> {
     const { retry } = opts;
     const { gasMultiplier = DEFAULT_GAS_MULTIPLIER, times = 0 } = retry || {};
 
     if (times > maxSendTransactionTimes) {
       throw new Error(
-        `Unexpected error. times > maxSendTransactionTimes. ${times} > ${maxSendTransactionTimes}`
+        `Unexpected error. times > maxSendTransactionTimes. ${times} > ${maxSendTransactionTimes}`,
       );
     }
 
@@ -105,7 +105,7 @@ class Account {
 
       const sendResult = await this.sendSignedTransaction(
         chain.w3,
-        signResult.rawTransaction
+        signResult.rawTransaction,
       );
 
       const hash = sendResult.transactionHash.toString();
@@ -120,7 +120,7 @@ class Account {
     } catch (error) {
       const isTxReverted = (error as Error)?.message?.includes("reverted");
       const isNullableError = (error as Error)?.message?.includes(
-        "Cannot use 'in' operator to search for 'originalError' in null"
+        "Cannot use 'in' operator to search for 'originalError' in null",
       );
 
       if ((isTxReverted || isNullableError) && times) {
@@ -149,7 +149,7 @@ class Account {
   async getRandomNormalizedAmountOfBalance(
     token: Token,
     minPercent: number,
-    maxPercent: number
+    maxPercent: number,
   ) {
     const accountBalance = await token.normalizedBalanceOf(this.address);
 
@@ -168,7 +168,7 @@ class Account {
 
     const randomNormalizedAmount = randomInteger(
       minNormalizedAmount,
-      maxNormalizedAmount
+      maxNormalizedAmount,
     ).toString();
 
     return randomNormalizedAmount;

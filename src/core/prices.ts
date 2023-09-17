@@ -33,7 +33,7 @@ class Prices {
   }
 
   private async getGeskoPrices(
-    isConnectionChecked = false
+    isConnectionChecked = false,
   ): Promise<GeskoResponse> {
     try {
       const params = { ids: this.geskoIds.join(","), vs_currencies: "usd" };
@@ -64,7 +64,7 @@ class Prices {
       .map((key) => ({ key, value: geskoPrices[key].usd }))
       .reduce(
         (acc, item) => ({ ...acc, [item.key]: item.value }),
-        {} as TokenPricesData
+        {} as TokenPricesData,
       );
 
     this.prices = prices;
@@ -76,7 +76,7 @@ class Prices {
 
   private isPricesOutdated() {
     const isOutdated = Big(this.lastUpdateTimestamp).lte(
-      this.getOutdatedTimestamp()
+      this.getOutdatedTimestamp(),
     );
     return isOutdated;
   }

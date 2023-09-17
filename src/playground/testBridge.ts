@@ -12,7 +12,7 @@ const testBridge = async (params: {
   const { account, action, fromChain, toChain } = params;
   const nativeNormalizedAmount = fromChain.w3.utils.toWei(
     randomFloat(0.0001, 0.0002, 9),
-    "ether"
+    "ether",
   );
 
   return await action.bridge({

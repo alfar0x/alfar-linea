@@ -2,28 +2,33 @@ import path from "path";
 
 import { runTypeChain, glob } from "typechain";
 
-async function main() {
+const fillTypes = async (params: {
+  sourcesFolder: string;
+  outputFolder: string;
+}) => {
+  const { sourcesFolder, outputFolder } = params;
+
   const cwd = process.cwd();
 
-  const files = glob(cwd, [`src/abi/sources/*.json`]);
+  const abis = glob(cwd, [`${sourcesFolder}/*.json`]);
 
   const targets = ["web3-v1", "ethers-v6"];
 
-  console.debug({ targets, files });
+  console.debug({ targets, abis });
 
   for (const target of targets) {
-    for (const file of files) {
+    for (const file of abis) {
       const { name } = path.parse(file);
 
       await runTypeChain({
         cwd,
         filesToProcess: [file],
         allFiles: [file],
-        outDir: `./src/abi/types/${target}/${name}/`,
+        outDir: `${outputFolder}/${target}/${name}/`,
         target,
       });
     }
   }
-}
+};
 
-main().catch(console.error);
+export default fillTypes;

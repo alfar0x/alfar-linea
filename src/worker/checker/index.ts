@@ -35,17 +35,20 @@ class Checker {
         const symbol = await token.symbol();
 
         return { symbol, tokenBalance, usdBalance };
-      })
+      }),
     );
 
-    const balancesObj = balances.reduce((acc, item) => {
-      if (Big(item.usdBalance).lt(hideBalanceLessThanUsd)) return acc;
+    const balancesObj = balances.reduce(
+      (acc, item) => {
+        if (Big(item.usdBalance).lt(hideBalanceLessThanUsd)) return acc;
 
-      return {
-        ...acc,
-        [item.symbol]: `${item.tokenBalance} ($${item.usdBalance})`,
-      };
-    }, {} as Record<string, string>);
+        return {
+          ...acc,
+          [item.symbol]: `${item.tokenBalance} ($${item.usdBalance})`,
+        };
+      },
+      {} as Record<string, string>,
+    );
 
     return {
       address,
@@ -70,7 +73,7 @@ class Checker {
       if (!chunk) return accountsData;
 
       const chunkResult = await Promise.all(
-        chunk.map((addr) => this.checkAccount(addr))
+        chunk.map((addr) => this.checkAccount(addr)),
       );
 
       accountsData.push(...chunkResult);

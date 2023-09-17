@@ -8,7 +8,7 @@ const readFile = (filePath: string) => {
     const fileName = path.basename(filePath);
     const folderName = path.dirname(filePath);
     throw new Error(
-      `file name ${fileName} is not valid. Check ${folderName} folder`
+      `file name ${fileName} is not valid. Check ${folderName} folder`,
     );
   }
 

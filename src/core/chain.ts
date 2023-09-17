@@ -1,13 +1,16 @@
 import Big from "big.js";
 import Web3, { HttpProvider } from "web3";
 
-import { CONTRACTS } from "../constants/contracts";
+import CONTRACTS from "../abi/constants/contracts";
+import CONTRACTS_WITHOUT_ABI from "../constants/contractsWithoutAbi";
 import { RawToken } from "../types";
 import sleep from "../utils/other/sleep";
 
 import Token from "./token";
 
-type ContractName = (typeof CONTRACTS)[number];
+type ContractName =
+  | (typeof CONTRACTS)[number]
+  | (typeof CONTRACTS_WITHOUT_ABI)[number];
 type Contracts = Partial<Record<ContractName, string>>;
 
 class Chain {
@@ -60,10 +63,10 @@ class Chain {
       (acc, key) => ({
         ...acc,
         [key]: Web3.utils.toChecksumAddress(
-          contacts[key as keyof Contracts] as string
+          contacts[key as keyof Contracts] as string,
         ),
       }),
-      {} as Contracts
+      {} as Contracts,
     );
   }
 

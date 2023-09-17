@@ -19,7 +19,7 @@ const initLogger = () => {
           format.colorize(),
           format.splat(),
           formatTimestamp,
-          customFormat
+          customFormat,
         ),
       }),
       new transports.File({

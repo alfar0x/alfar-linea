@@ -25,7 +25,7 @@ class SwapSupplyTokenPathGenerator extends PathGenerator {
 
   private initializePossibleWays(
     swapBlocks: SwapBlock[],
-    supplyBlocks: SupplyBlock[]
+    supplyBlocks: SupplyBlock[],
   ) {
     const possibleWays = supplyBlocks.reduce((acc, supplyBlock) => {
       if (supplyBlock.token.isNative) return acc;
@@ -56,7 +56,7 @@ class SwapSupplyTokenPathGenerator extends PathGenerator {
     return this.possibleWays
       .map(
         (possibleWay) =>
-          `${possibleWay.buySwapBlock} -> ${possibleWay.supplyBlock} -> ${possibleWay.sellSwapBlock}`
+          `${possibleWay.buySwapBlock} -> ${possibleWay.supplyBlock} -> ${possibleWay.sellSwapBlock}`,
       )
       .sort();
   }
@@ -73,7 +73,7 @@ class SwapSupplyTokenPathGenerator extends PathGenerator {
     const { account, minWorkAmountPercent, maxWorkAmountPercent } = params;
 
     const { buySwapBlock, supplyBlock, sellSwapBlock } = randomChoice(
-      this.possibleWays
+      this.possibleWays,
     );
 
     const buySteps = await buySwapBlock.swapPercentSteps({

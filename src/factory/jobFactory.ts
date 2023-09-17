@@ -77,7 +77,7 @@ class JobFactory {
   private getRandomWeightedItem() {
     const totalWeight = Object.values(this.generatorsWithWeights).reduce(
       (sum, weight) => sum + weight,
-      0
+      0,
     );
 
     let randomValue = Math.random() * totalWeight;
@@ -124,7 +124,7 @@ class JobFactory {
       }
       default: {
         throw new Error(
-          `Unexpected error. Random generator is not available: ${generator}`
+          `Unexpected error. Random generator is not available: ${generator}`,
         );
       }
     }
@@ -132,12 +132,12 @@ class JobFactory {
 
   private shouldRandomStepsBeAdded() {
     const generatorKeys = Object.keys(
-      this.generatorsWithWeights
+      this.generatorsWithWeights,
     ) as Generator[];
 
     const totalWeight = generatorKeys.reduce(
       (acc, key) => acc + this.generatorsWithWeights[key],
-      0
+      0,
     );
 
     return Big(this.generatorsWithWeights.RANDOM)

@@ -1,11 +1,11 @@
 import { randomInt } from "crypto";
 
-import { CONTRACT_DMAIL } from "../../../constants/contracts";
+import { CONTRACT_DMAIL } from "../../../abi/constants/contracts";
+import getWeb3Contract from "../../../abi/methods/getWeb3Contract";
 import Account from "../../../core/account";
 import Action from "../../../core/action";
 import Chain from "../../../core/chain";
 import randomChoice from "../../../utils/random/randomChoice";
-import getContract from "../../../utils/web3/getContract";
 
 class DmailSendMail extends Action {
   constructor() {
@@ -43,7 +43,7 @@ class DmailSendMail extends Action {
 
     const { w3 } = chain;
 
-    const dmailContract = getContract({
+    const dmailContract = getWeb3Contract({
       w3,
       name: CONTRACT_DMAIL,
       address: dmailContractAddress,

@@ -1,16 +1,15 @@
 import Big from "big.js";
 
+import { CONTRACT_ECHO_DEX_SMART_ROUTER } from "../../../abi/constants/contracts";
 import {
   DEFAULT_GAS_MULTIPLIER,
   DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
   DEFAULT_SLIPPAGE_PERCENT,
 } from "../../../constants";
-import { CONTRACT_ECHO_DEX_ROUTER } from "../../../constants/contracts";
 import Account from "../../../core/account";
 import { SwapAction } from "../../../core/action/swap";
 import Chain from "../../../core/chain";
 import Token from "../../../core/token";
-import getInterface from "../../../utils/ethers/getInterface";
 
 import { UNWRAP_ETH_ADDRESS } from "./constants";
 
@@ -20,7 +19,7 @@ class EchoDexSwap extends SwapAction {
   }
 
   public getApproveAddress(chain: Chain) {
-    return chain.getContractAddressByName(CONTRACT_ECHO_DEX_ROUTER);
+    return chain.getContractAddressByName(CONTRACT_ECHO_DEX_SMART_ROUTER);
   }
 
   private async checkIsAllowed(params: {
@@ -34,7 +33,7 @@ class EchoDexSwap extends SwapAction {
     const { chain } = fromToken;
 
     const routerContractAddress = chain.getContractAddressByName(
-      CONTRACT_ECHO_DEX_ROUTER
+      CONTRACT_ECHO_DEX_SMART_ROUTER,
     );
 
     if (!routerContractAddress) {
@@ -43,42 +42,39 @@ class EchoDexSwap extends SwapAction {
 
     if (!fromToken.chain.isEquals(toToken.chain)) {
       throw new Error(
-        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`
+        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`,
       );
     }
 
     if (!fromToken.isNative) {
       const normalizedAllowance = await fromToken.normalizedAllowance(
         account,
-        routerContractAddress
+        routerContractAddress,
       );
 
       if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance = await fromToken.toReadableAmount(
-          normalizedAllowance
-        );
-        const readableAmount = await fromToken.toReadableAmount(
-          normalizedAmount
-        );
+        const readableAllowance =
+          await fromToken.toReadableAmount(normalizedAllowance);
+        const readableAmount =
+          await fromToken.toReadableAmount(normalizedAmount);
 
         throw new Error(
-          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`
+          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
         );
       }
     }
 
     const normalizedBalance = await fromToken.normalizedBalanceOf(
-      account.address
+      account.address,
     );
 
     if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance = await fromToken.toReadableAmount(
-        normalizedBalance
-      );
+      const readableBalance =
+        await fromToken.toReadableAmount(normalizedBalance);
       const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
 
       throw new Error(
-        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`
+        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`,
       );
     }
 
@@ -104,11 +100,13 @@ class EchoDexSwap extends SwapAction {
 
     if (!fromToken.isNative && !toToken.isNative) {
       throw new Error(
-        `swap token -> token (not native) is not implemented yet: ${fromToken} -> ${toToken}`
+        `swap token -> token (not native) is not implemented yet: ${fromToken} -> ${toToken}`,
       );
     }
 
-    const echoDexRouterInterface = getInterface({ name: "EchoDexRouter" });
+    const echoDexRouterInterface = getEthersInterface({
+      name: "EchoDexRouter",
+    });
 
     const address = toToken.isNative ? UNWRAP_ETH_ADDRESS : account.address;
 
@@ -128,7 +126,7 @@ class EchoDexSwap extends SwapAction {
     if (toToken.isNative) {
       const unwrapEthData = echoDexRouterInterface.encodeFunctionData(
         "unwrapWETH9",
-        [minOutNormalizedAmount, account.address]
+        [minOutNormalizedAmount, account.address],
       );
       multicallBytesArray.push(unwrapEthData);
     }
@@ -137,7 +135,7 @@ class EchoDexSwap extends SwapAction {
 
     const data = echoDexRouterInterface.encodeFunctionData(
       "multicall(uint256,bytes[])",
-      [deadline, multicallBytesArray]
+      [deadline, multicallBytesArray],
     );
 
     return { data };
@@ -163,7 +161,7 @@ class EchoDexSwap extends SwapAction {
     const minOutNormalizedAmount = await toToken.getMinOutNormalizedAmount(
       fromToken,
       normalizedAmount,
-      DEFAULT_SLIPPAGE_PERCENT
+      DEFAULT_SLIPPAGE_PERCENT,
     );
 
     const { data } = await this.getSwapData({
@@ -192,21 +190,19 @@ class EchoDexSwap extends SwapAction {
       to: routerContractAddress,
     };
 
-    console.log(tx);
-
-    // const hash = await account.signAndSendTransaction(chain, tx, {
-    //   retry: {
-    //     gasMultiplier: DEFAULT_GAS_MULTIPLIER,
-    //     times: DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
-    //   },
-    // });
+    const hash = await account.signAndSendTransaction(chain, tx, {
+      retry: {
+        gasMultiplier: DEFAULT_GAS_MULTIPLIER,
+        times: DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
+      },
+    });
 
     const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
     const outReadableAmount = await toToken.toReadableAmount(
-      minOutNormalizedAmount
+      minOutNormalizedAmount,
     );
 
-    return { hash: "", inReadableAmount, outReadableAmount };
+    return { hash, inReadableAmount, outReadableAmount };
   }
 }
 

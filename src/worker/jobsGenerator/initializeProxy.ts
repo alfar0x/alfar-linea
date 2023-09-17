@@ -16,7 +16,7 @@ const initializeProxy = async (params: {
 
   if (proxyConfig.type !== "none" && !isFileAvailable(fileName)) {
     throw new Error(
-      `proxy file name ${fileName} is not valid. Check ${folder} folder`
+      `proxy file name ${fileName} is not valid. Check ${folder} folder`,
     );
   }
 
@@ -45,7 +45,7 @@ const initializeProxy = async (params: {
     }
     default: {
       throw new Error(
-        `${proxyConfig.type} proxy type not supported in block mode`
+        `${proxyConfig.type} proxy type not supported in block mode`,
       );
     }
   }

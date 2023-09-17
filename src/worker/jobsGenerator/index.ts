@@ -76,7 +76,7 @@ class JobGenerator {
       this.msg([
         `current jobs ${this.jobs.length}`,
         `accounts left: ${this.accountsLeft.length}`,
-      ])
+      ]),
     );
   }
 
@@ -84,7 +84,7 @@ class JobGenerator {
     const native = this.chain.getNative();
 
     const nativeReadableBalance = await native.readableBalanceOf(
-      account.address
+      account.address,
     );
 
     const minEthBalance = this.config.dynamic().minEthBalance;
@@ -106,14 +106,14 @@ class JobGenerator {
           String(account),
           `account was filtered due to insufficient ETH balance`,
           `${nativeReadableBalance} < ${minEthBalance}`,
-        ])
+        ]),
       );
       return null;
     }
 
     const minimumTransactionsLimit = randomInteger(
       transactionsLimit.min,
-      transactionsLimit.max
+      transactionsLimit.max,
     ).toNumber();
 
     const steps = await this.factory.getRandomSteps({
@@ -123,7 +123,7 @@ class JobGenerator {
     const job = new Job({ account, minimumTransactionsLimit, steps });
 
     logger.info(
-      this.msg([String(account), `job was generated: ${job.toString()}`])
+      this.msg([String(account), `job was generated: ${job.toString()}`]),
     );
 
     return job;
@@ -177,7 +177,7 @@ class JobGenerator {
     const nextTransactionRunTimeStr = formatIntervalSec(nextTransactionRunSec);
 
     logger.info(
-      this.msg([`next transaction run ${nextTransactionRunTimeStr}`])
+      this.msg([`next transaction run ${nextTransactionRunTimeStr}`]),
     );
 
     await sleep(nextTransactionRunSec);
@@ -185,13 +185,13 @@ class JobGenerator {
 
   private async runTransaction(
     transaction: Transaction,
-    isConnectionChecked = false
+    isConnectionChecked = false,
   ): Promise<boolean> {
     try {
       await waitGasPrice(
         this.chain.w3,
         WAIT_GAS_SEC,
-        () => this.config.dynamic().maxLineaGwei
+        () => this.config.dynamic().maxLineaGwei,
       );
 
       return await transaction.run();
@@ -244,7 +244,7 @@ class JobGenerator {
           String(job.account),
           `account was filtered due to insufficient ETH balance`,
           `${nativeReadableBalance} < ${minEthBalance}`,
-        ])
+        ]),
       );
 
       await this.removeJob(job);
@@ -267,7 +267,7 @@ class JobGenerator {
             String(job.account),
             `account job success`,
             `transactions performed: ${transactionsPerformed}`,
-          ])
+          ]),
         );
 
         if (!this.proxy) {
@@ -292,7 +292,7 @@ class JobGenerator {
           String(job.account),
           `job success`,
           `new steps generated: ${job.toString()}`,
-        ])
+        ]),
       );
 
       return "STEP_SUCCESS_STEPS_ADDED";
@@ -301,7 +301,7 @@ class JobGenerator {
         this.msg([
           String(job.account),
           `step error: ${(error as Error).message}`,
-        ])
+        ]),
       );
 
       if (job.isMinimumTransactionsLimitReached()) {

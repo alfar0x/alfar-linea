@@ -30,9 +30,13 @@
     "@types/tunnel": "^0.0.3",
     "@typescript-eslint/eslint-plugin": "^5.59.5",
     "@typescript-eslint/parser": "^5.59.5",
+    "change-case": "^4.1.2",
     "eslint": "^8.35.0",
+    "eslint-config-prettier": "^9.0.0",
     "eslint-import-resolver-typescript": "^3.5.5",
     "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.3",
     "ts-node": "^10.9.1",
     "typechain": "^8.3.1",
     "typescript": "^5.0.4"
@@ -60,8 +64,8 @@
     "url": "https://github.com/alfar0x/alfar-linea.git"
   },
   "scripts": {
-    "gent": "ts-node src/scripts/generateContractTypes.ts",
-    "lint": "eslint . --ext .ts",
+    "gent": "ts-node src/scripts/generateContractTypes/index.ts && eslint src/abi --fix --ext .ts",
+    "lint": "eslint src/ --ext .ts",
     "start": "ts-node src/app.ts",
     "update": "git reset --hard HEAD && git pull",
     "test": "ts-node src/test.ts"

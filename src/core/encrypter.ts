@@ -57,7 +57,7 @@ export class Encrypter {
     const decipher = crypto.createDecipheriv(
       this.algorithm,
       key,
-      Buffer.from(iv, "hex")
+      Buffer.from(iv, "hex"),
     );
     return decipher.update(encrypted, "hex", "utf8") + decipher.final("utf8");
   }

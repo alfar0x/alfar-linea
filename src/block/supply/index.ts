@@ -33,19 +33,19 @@ class SupplyBlock extends Block {
 
     const contractAddress = this.action.getApproveAddress(
       this.chain,
-      this.token
+      this.token,
     );
 
     if (!contractAddress) {
       throw new Error(
-        `Contract address of ${this.action} for ${this.chain} is not found`
+        `Contract address of ${this.action} for ${this.chain} is not found`,
       );
     }
 
     const hash = await this.token.approve(
       account,
       contractAddress,
-      normalizedAmount
+      normalizedAmount,
     );
 
     const readableAmount = await this.token.toReadableAmount(normalizedAmount);
@@ -75,7 +75,7 @@ class SupplyBlock extends Block {
     const hashLink = this.chain.getHashLink(hash);
 
     logger.info(
-      `supply ${inReadableAmount} ${this.token} success: ${hashLink}`
+      `supply ${inReadableAmount} ${this.token} success: ${hashLink}`,
     );
 
     return true;
@@ -93,7 +93,7 @@ class SupplyBlock extends Block {
     const hashLink = this.chain.getHashLink(hash);
 
     logger.info(
-      `redeem ${outReadableAmount} ${this.token} success: ${hashLink}`
+      `redeem ${outReadableAmount} ${this.token} success: ${hashLink}`,
     );
 
     return true;
@@ -131,7 +131,7 @@ class SupplyBlock extends Block {
     const { account } = params;
 
     const normalizedAmount = await this.token.normalizedBalanceOf(
-      account.address
+      account.address,
     );
 
     return this.supplySteps({
@@ -151,7 +151,7 @@ class SupplyBlock extends Block {
     const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
       this.token,
       minWorkAmountPercent,
-      maxWorkAmountPercent
+      maxWorkAmountPercent,
     );
 
     return this.supplySteps({

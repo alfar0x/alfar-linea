@@ -7,11 +7,11 @@ const getFilenameRefine = (ext: string) => {
     .string()
     .refine(
       (filename) => filename === "" || !filename.endsWith(exampleExt),
-      `Files with ending '${exampleExt}' cannot be used. Create new file`
+      `Files with ending '${exampleExt}' cannot be used. Create new file`,
     )
     .refine(
       (filename) => filename === "" || filename.endsWith(ext),
-      `Files must ends with '${ext}'`
+      `Files must ends with '${ext}'`,
     );
 };
 

@@ -1,16 +1,16 @@
 import Big from "big.js";
 import { ethers } from "ethers";
 
-import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import {
   CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY,
   CONTRACT_SYNCSWAP_ROUTER,
-} from "../../../constants/contracts";
+} from "../../../abi/constants/contracts";
+import getWeb3Contract from "../../../abi/methods/getWeb3Contract";
+import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import Account from "../../../core/account";
 import { SwapAction } from "../../../core/action/swap";
 import Chain from "../../../core/chain";
 import Token from "../../../core/token";
-import getContract from "../../../utils/web3/getContract";
 
 const withdrawMode = {
   VAULT_INTERNAL_TRANSFER: 0,
@@ -37,16 +37,16 @@ class SyncswapSwap extends SwapAction {
 
     try {
       const classicPoolFactoryContractAddress = chain.getContractAddressByName(
-        CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY
+        CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY,
       );
 
       if (!classicPoolFactoryContractAddress) {
         throw new Error(
-          `${this.name} action is not available in ${chain.name}`
+          `${this.name} action is not available in ${chain.name}`,
         );
       }
 
-      const classicPoolFactoryContract = getContract({
+      const classicPoolFactoryContract = getWeb3Contract({
         w3: chain.w3,
         name: CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY,
         address: classicPoolFactoryContractAddress,
@@ -55,7 +55,7 @@ class SyncswapSwap extends SwapAction {
       const poolAddress = await classicPoolFactoryContract.methods
         .getPool(
           fromToken.getAddressOrWrappedForNative(),
-          toToken.getAddressOrWrappedForNative()
+          toToken.getAddressOrWrappedForNative(),
         )
         .call();
 
@@ -82,7 +82,7 @@ class SyncswapSwap extends SwapAction {
     const { chain } = fromToken;
 
     const routerContractAddress = chain.getContractAddressByName(
-      CONTRACT_SYNCSWAP_ROUTER
+      CONTRACT_SYNCSWAP_ROUTER,
     );
 
     if (!routerContractAddress) {
@@ -91,7 +91,7 @@ class SyncswapSwap extends SwapAction {
 
     if (!fromToken.chain.isEquals(toToken.chain)) {
       throw new Error(
-        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`
+        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`,
       );
     }
 
@@ -104,35 +104,32 @@ class SyncswapSwap extends SwapAction {
     if (!fromToken.isNative) {
       const normalizedAllowance = await fromToken.normalizedAllowance(
         account,
-        routerContractAddress
+        routerContractAddress,
       );
 
       if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance = await fromToken.toReadableAmount(
-          normalizedAllowance
-        );
-        const readableAmount = await fromToken.toReadableAmount(
-          normalizedAmount
-        );
+        const readableAllowance =
+          await fromToken.toReadableAmount(normalizedAllowance);
+        const readableAmount =
+          await fromToken.toReadableAmount(normalizedAmount);
 
         throw new Error(
-          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`
+          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
         );
       }
     }
 
     const normalizedBalance = await fromToken.normalizedBalanceOf(
-      account.address
+      account.address,
     );
 
     if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance = await fromToken.toReadableAmount(
-        normalizedBalance
-      );
+      const readableBalance =
+        await fromToken.toReadableAmount(normalizedBalance);
       const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
 
       throw new Error(
-        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`
+        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`,
       );
     }
 
@@ -167,10 +164,10 @@ class SyncswapSwap extends SwapAction {
         fromToken.getAddressOrWrappedForNative(),
         account.address,
         withdrawMode.WITHDRAW_ETH,
-      ]
+      ],
     );
 
-    const routerContract = getContract({
+    const routerContract = getWeb3Contract({
       w3,
       name: CONTRACT_SYNCSWAP_ROUTER,
       address: routerContractAddress,
@@ -190,7 +187,7 @@ class SyncswapSwap extends SwapAction {
     return routerContract.methods.swap(
       [path],
       minOutNormalizedAmount,
-      deadline
+      deadline,
     );
   }
 
@@ -214,7 +211,7 @@ class SyncswapSwap extends SwapAction {
     const minOutNormalizedAmount = await toToken.getMinOutNormalizedAmount(
       fromToken,
       normalizedAmount,
-      DEFAULT_SLIPPAGE_PERCENT
+      DEFAULT_SLIPPAGE_PERCENT,
     );
 
     const swapFunctionCall = await this.getSwapCall({
@@ -251,7 +248,7 @@ class SyncswapSwap extends SwapAction {
 
     const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
     const outReadableAmount = await toToken.toReadableAmount(
-      minOutNormalizedAmount
+      minOutNormalizedAmount,
     );
 
     return { hash, inReadableAmount, outReadableAmount };

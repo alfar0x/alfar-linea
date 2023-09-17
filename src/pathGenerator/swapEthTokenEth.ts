@@ -39,7 +39,7 @@ class SwapEthTokenEthPathGenerator extends PathGenerator {
     return this.possibleWays
       .map(
         (possibleWay) =>
-          `${possibleWay.buySwapBlock} -> ${possibleWay.sellSwapBlock}`
+          `${possibleWay.buySwapBlock} -> ${possibleWay.sellSwapBlock}`,
       )
       .sort();
   }
