@@ -54,28 +54,26 @@ type Pairs = (keyof typeof availablePairs)[];
 
 const getImplementedProviders = (): Partial<
   Record<Provider, [SwapAction, Pairs]>
-> => {
-  return {
-    SYNCSWAP: [new SyncswapSwap(), ["ETH_USDC", "ETH_CEBUSD", "ETH_WBTC"]],
-    VELOCORE: [new VelocoreSwap(), ["ETH_USDC", "ETH_CEBUSD"]],
-    OPEN_OCEAN: [
-      new OpenOceanSwap(),
-      [
-        "ETH_USDC",
-        "ETH_WBTC",
-        "ETH_IUSD",
-        "ETH_IZI",
-        "ETH_WAVAX",
-        "ETH_WBNB",
-        "ETH_WMATIC",
-      ],
+> => ({
+  SYNCSWAP: [new SyncswapSwap(), ["ETH_USDC", "ETH_CEBUSD", "ETH_WBTC"]],
+  VELOCORE: [new VelocoreSwap(), ["ETH_USDC", "ETH_CEBUSD"]],
+  OPEN_OCEAN: [
+    new OpenOceanSwap(),
+    [
+      "ETH_USDC",
+      "ETH_WBTC",
+      "ETH_IUSD",
+      "ETH_IZI",
+      "ETH_WAVAX",
+      "ETH_WBNB",
+      "ETH_WMATIC",
     ],
-    PANCAKE: [new PancakeSwap(), ["ETH_USDC"]],
-    XY_FINANCE: [new XyFinanceSwap(), ["ETH_USDC", "ETH_CEBUSD", "ETH_USDT"]],
-    WOOFI: [new WoofiSwap(), ["ETH_USDC"]],
-    // ECHO_DEX: [new EchoDexSwap(), ["ETH_USDC", "ETH_CEBUSD"]], // @TODO estimate gas errors fix
-  };
-};
+  ],
+  PANCAKE: [new PancakeSwap(), ["ETH_USDC"]],
+  XY_FINANCE: [new XyFinanceSwap(), ["ETH_USDC", "ETH_CEBUSD", "ETH_USDT"]],
+  WOOFI: [new WoofiSwap(), ["ETH_USDC"]],
+  // ECHO_DEX: [new EchoDexSwap(), ["ETH_USDC", "ETH_CEBUSD"]], // @TODO estimate gas errors fix
+});
 
 const getSwapBlocks = (params: {
   activeProviders: Provider[];

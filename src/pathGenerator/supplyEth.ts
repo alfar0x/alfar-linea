@@ -16,9 +16,7 @@ class SupplyEthPathGenerator extends PathGenerator {
   }
 
   initializePossibleWays(supplyBlocks: SupplyBlock[]) {
-    return supplyBlocks.filter((supplyBlock) => {
-      return supplyBlock.token.isNative;
-    });
+    return supplyBlocks.filter((supplyBlock) => supplyBlock.token.isNative);
   }
 
   possibleWaysStrings() {

@@ -37,7 +37,9 @@
       }
     ],
     "no-constant-condition": "off",
-    "no-unused-vars": "error"
+    "no-unused-vars": "error",
+    "arrow-body-style": ["error", "as-needed"],
+    "camelcase": "error"
   },
   "settings": {
     "import/parsers": {

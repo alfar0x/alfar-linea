@@ -36,6 +36,7 @@ class Prices {
     isConnectionChecked = false,
   ): Promise<GeskoResponse> {
     try {
+      // eslint-disable-next-line camelcase
       const params = { ids: this.geskoIds.join(","), vs_currencies: "usd" };
 
       const urlParams = new URLSearchParams(params).toString();

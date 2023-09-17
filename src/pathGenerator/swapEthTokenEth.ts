@@ -22,13 +22,14 @@ class SwapEthTokenEthPathGenerator extends PathGenerator {
     const possibleWays = swapBlocks.reduce((acc, buySwapBlock) => {
       if (!buySwapBlock.fromToken.isNative) return acc;
 
-      const sellPossibleWays = swapBlocks.filter((sellSwapBlock) => {
-        return buySwapBlock.toToken.isEquals(sellSwapBlock.fromToken);
-      });
+      const sellPossibleWays = swapBlocks.filter((sellSwapBlock) =>
+        buySwapBlock.toToken.isEquals(sellSwapBlock.fromToken),
+      );
 
-      const directions = sellPossibleWays.map((sellSwapBlock) => {
-        return { buySwapBlock, sellSwapBlock };
-      });
+      const directions = sellPossibleWays.map((sellSwapBlock) => ({
+        buySwapBlock,
+        sellSwapBlock,
+      }));
 
       return [...acc, ...directions];
     }, [] as PossibleWay[]);

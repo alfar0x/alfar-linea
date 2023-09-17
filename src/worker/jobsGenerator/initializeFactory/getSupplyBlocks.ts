@@ -10,11 +10,9 @@ type Tokens = (keyof typeof tokens)[];
 
 const getImplementedProviders = (): Partial<
   Record<Provider, [SupplyAction, Tokens]>
-> => {
-  return {
-    LINEA_BANK: [new LineaBankSupply(), ["ETH", "USDC", "WBTC"]],
-  };
-};
+> => ({
+  LINEA_BANK: [new LineaBankSupply(), ["ETH", "USDC", "WBTC"]],
+});
 
 const getSupplyBlocks = (params: {
   activeProviders: Provider[];

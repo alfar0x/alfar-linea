@@ -46,16 +46,17 @@ class Chain {
   }
 
   private initializeTokens(rawTokens: RawToken[]) {
-    return rawTokens.map((rawToken) => {
-      return new Token({
-        name: rawToken.name,
-        address: rawToken.address,
-        geskoId: rawToken.geskoId,
-        chain: this,
-        readableDecimals: rawToken.readableDecimals,
-        type: rawToken.type,
-      });
-    });
+    return rawTokens.map(
+      (rawToken) =>
+        new Token({
+          name: rawToken.name,
+          address: rawToken.address,
+          geskoId: rawToken.geskoId,
+          chain: this,
+          readableDecimals: rawToken.readableDecimals,
+          type: rawToken.type,
+        }),
+    );
   }
 
   private initializeContracts(contacts: Contracts) {

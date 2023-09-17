@@ -216,7 +216,7 @@ class VelocoreSwap extends SwapAction {
 
     const toTokenInformation = this.getPackedTokenInformation({
       index: tokenRef.indexOf(toTokenPacked),
-      amountType: AMOUNT_TYPES.at_most,
+      amountType: AMOUNT_TYPES.atMost,
       normalizedAmount: minOutNormalizedAmount,
     });
 

@@ -5,9 +5,9 @@ import env from "./env";
 
 const time = dateFormat(Date.now(), "yyMMddHHmmss");
 
-const customFormat = format.printf(({ level, message, timestamp }) => {
-  return `${timestamp} | ${level} | ${message}`;
-});
+const customFormat = format.printf(
+  ({ level, message, timestamp }) => `${timestamp} | ${level} | ${message}`,
+);
 
 const initLogger = () => {
   const formatTimestamp = format.timestamp({ format: "HH:mm:ss" });

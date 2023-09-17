@@ -6,7 +6,7 @@ export const TOKEN_TYPES = {
 
 export const AMOUNT_TYPES = {
   exactly: 0,
-  at_most: 1,
+  atMost: 1,
   all: 2,
 };
 

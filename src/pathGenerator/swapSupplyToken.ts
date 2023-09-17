@@ -35,13 +35,15 @@ class SwapSupplyTokenPathGenerator extends PathGenerator {
 
         if (!buySwapBlock.toToken.isEquals(supplyBlock.token)) return acc;
 
-        const sellPossibleWays = swapBlocks.filter((sellSwapBlock) => {
-          return buySwapBlock.toToken.isEquals(sellSwapBlock.fromToken);
-        });
+        const sellPossibleWays = swapBlocks.filter((sellSwapBlock) =>
+          buySwapBlock.toToken.isEquals(sellSwapBlock.fromToken),
+        );
 
-        const directions = sellPossibleWays.map((sellSwapBlock) => {
-          return { buySwapBlock, supplyBlock, sellSwapBlock };
-        });
+        const directions = sellPossibleWays.map((sellSwapBlock) => ({
+          buySwapBlock,
+          supplyBlock,
+          sellSwapBlock,
+        }));
 
         return [...acc, ...directions];
       }, [] as PossibleWay[]);
