@@ -3,6 +3,7 @@ import Big from "big.js";
 import Web3 from "web3";
 
 import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
+import { CONTRACT_OPEN_OCEAN_EXCHANGE } from "../../../constants/contractsWithoutAbi";
 import Account from "../../../core/account";
 import { SwapAction } from "../../../core/action/swap";
 import Chain from "../../../core/chain";
@@ -11,7 +12,6 @@ import getRandomWalletAddress from "../../../utils/web3/getRandomWalletAddress";
 
 import { API_URL, CHAINS_DATA } from "./constants";
 import { OpenOceanSwapQuote } from "./types";
-import { CONTRACT_OPEN_OCEAN_EXCHANGE } from "../../../constants/contractsWithoutAbi";
 
 class OpenOceanSwap extends SwapAction {
   constructor() {

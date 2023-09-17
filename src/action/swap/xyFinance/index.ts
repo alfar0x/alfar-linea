@@ -7,6 +7,7 @@ import {
   DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
   DEFAULT_SLIPPAGE_PERCENT,
 } from "../../../constants";
+import { CONTRACT_XY_FINANCE_ROUTER } from "../../../constants/contractsWithoutAbi";
 import Account from "../../../core/account";
 import { SwapAction } from "../../../core/action/swap";
 import Chain from "../../../core/chain";
@@ -16,7 +17,6 @@ import getRandomWalletAddress from "../../../utils/web3/getRandomWalletAddress";
 
 import { API_URL } from "./constants";
 import { XyFinanceBuildTx, XyFinanceQuote } from "./types";
-import { CONTRACT_XY_FINANCE_ROUTER } from "../../../constants/contractsWithoutAbi";
 
 class XyFinanceSwap extends SwapAction {
   constructor() {
