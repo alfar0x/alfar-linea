@@ -98,6 +98,7 @@ class Checker {
 
     const result = await this.checkAllAccounts();
 
+    // eslint-disable-next-line no-console
     console.table(result);
 
     process.exit();

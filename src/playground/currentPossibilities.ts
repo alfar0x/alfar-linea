@@ -11,6 +11,7 @@ const currentPossibilities = async () => {
     maxWorkAmountPercent: 5,
   });
 
+  // eslint-disable-next-line no-console
   console.info(factory.infoString(true));
 };
 

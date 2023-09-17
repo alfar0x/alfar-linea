@@ -67,6 +67,7 @@ class Cli {
   }
 
   async run() {
+    // eslint-disable-next-line no-console
     console.info(greetingsStr);
     await sleep(2);
     const response = await prompts([

@@ -13,6 +13,7 @@ const getEnv = () => {
   const env = schema.safeParse(process.env);
 
   if (!env.success) {
+    // eslint-disable-next-line no-console
     console.error(".env file error: ", errorPrettify(env.error.issues));
     process.exit();
   }

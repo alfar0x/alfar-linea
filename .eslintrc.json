@@ -9,7 +9,7 @@
     "plugin:import/typescript",
     "plugin:prettier/recommended",
     "prettier"
-    ],
+  ],
   "ignorePatterns": [
     "node_modules",
     "src/test.ts"
@@ -21,10 +21,16 @@
   },
   "plugins": [
     "@typescript-eslint",
-    "import", "prettier"
+    "import",
+    "prettier"
   ],
   "rules": {
-    "prettier/prettier": "error",
+    "arrow-body-style": [
+      "error",
+      "as-needed"
+    ],
+    "camelcase": "error",
+    "func-style": "error",
     "import/no-unresolved": "error",
     "import/order": [
       "error",
@@ -36,10 +42,17 @@
         "newlines-between": "always"
       }
     ],
+    "max-depth": "error",
+    "max-lines": [
+      "error",
+      400
+    ],
+    "no-case-declarations": "error",
+    "no-console": "warn",
     "no-constant-condition": "off",
+    "no-else-return": "error",
     "no-unused-vars": "error",
-    "arrow-body-style": ["error", "as-needed"],
-    "camelcase": "error"
+    "prettier/prettier": "error"
   },
   "settings": {
     "import/parsers": {

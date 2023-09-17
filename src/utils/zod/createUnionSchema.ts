@@ -1,3 +1,4 @@
+/* eslint-disable func-style */
 import { Primitive, z, ZodLiteral, ZodNever } from "zod";
 
 type MappedZodLiterals<T extends readonly Primitive[]> = {

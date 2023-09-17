@@ -1,41 +1,42 @@
 import Step from "../core/step";
+import logger from "../utils/other/logger";
 import sleep from "../utils/other/sleep";
 
 const testSteps = async (steps: Step[], txSleepSec = 30) => {
-  console.info(steps.map(String));
+  logger.info(steps.map(String));
 
   while (steps.length) {
     const step = steps.shift();
 
     if (!step) {
-      console.info("steps finish");
+      logger.info("steps finish");
       return;
     }
 
-    console.info(`step start: ${step}`);
+    logger.info(`step start: ${step}`);
 
     while (!step.isEmpty()) {
       const tx = step.shift();
 
       if (!tx) {
-        console.info("step finish");
+        logger.info("step finish");
         break;
       }
 
-      console.info(`tx start: ${tx}`);
+      logger.info(`tx start: ${tx}`);
 
       const isSent = await tx.run();
 
-      console.info(`${tx}: ${isSent}`);
+      logger.info(`${tx}: ${isSent}`);
 
       if (isSent) await sleep(txSleepSec);
 
-      console.info(`tx end: ${tx}`);
+      logger.info(`tx end: ${tx}`);
     }
-    console.info(`step end: ${step}`);
+    logger.info(`step end: ${step}`);
   }
 
-  console.info("steps finish");
+  logger.info("steps finish");
   return;
 };
 
