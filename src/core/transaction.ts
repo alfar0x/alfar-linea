@@ -17,9 +17,8 @@ class Transaction {
 
     if (result instanceof Promise) {
       return await result;
-    } else {
-      return result;
     }
+    return result;
   }
 
   toString() {

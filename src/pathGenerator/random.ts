@@ -27,7 +27,7 @@ class RandomPathGenerator extends PathGenerator {
     return this.possibleWays.length;
   }
 
-  async generateSteps(params: { account: Account }) {
+  generateSteps(params: { account: Account }) {
     const { account } = params;
 
     const randomBlock = randomChoice(this.possibleWays);

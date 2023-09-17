@@ -17,6 +17,9 @@
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 6,
+    "project": [
+      "./tsconfig.json"
+    ],
     "sourceType": "module"
   },
   "plugins": [
@@ -25,6 +28,7 @@
     "prettier"
   ],
   "rules": {
+    "@typescript-eslint/await-thenable": "error",
     "arrow-body-style": [
       "error",
       "as-needed"
@@ -51,8 +55,32 @@
     "no-console": "warn",
     "no-constant-condition": "off",
     "no-else-return": "error",
+    "no-empty": "warn",
+    "no-empty-function": "warn",
+    "no-implicit-coercion": "error",
+    "no-lone-blocks": "error",
+    "no-lonely-if": "error",
+    "no-mixed-operators": "error",
+    "no-nested-ternary": "error",
+    "no-param-reassign": "error",
+    "no-plusplus": "error",
+    "no-sequences": "error",
+    "no-unneeded-ternary": "error",
     "no-unused-vars": "error",
-    "prettier/prettier": "error"
+    "no-useless-catch": "error",
+    "no-useless-computed-key": "error",
+    "no-useless-concat": "error",
+    "prefer-destructuring": [
+      "error",
+      {
+        "object": true
+      }
+    ],
+    "prefer-template": "error",
+    "prettier/prettier": "error",
+    "require-await": "error",
+    // "sort-keys":"error"
+    "spaced-comment": "error"
   },
   "settings": {
     "import/parsers": {

@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 /* eslint-disable func-style */
 import { Primitive, z, ZodLiteral, ZodNever } from "zod";
 

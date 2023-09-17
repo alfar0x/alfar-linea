@@ -67,7 +67,7 @@ class XyFinanceBridge extends BridgeAction {
     const randomWalletAddress = getRandomWalletAddress();
 
     const fullRandomAddress = Web3.utils.toChecksumAddress(
-      "0x" + randomWalletAddress,
+      `0x${randomWalletAddress}`,
     );
 
     const searchParams = {

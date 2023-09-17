@@ -174,7 +174,7 @@ class VelocoreSwap extends SwapAction {
     return { vaultContractAddress, poolAddress };
   }
 
-  private async getSwapCall(params: {
+  private getSwapCall(params: {
     fromToken: Token;
     toToken: Token;
     normalizedAmount: number | string;
@@ -255,7 +255,7 @@ class VelocoreSwap extends SwapAction {
       DEFAULT_SLIPPAGE_PERCENT,
     );
 
-    const swapFunctionCall = await this.getSwapCall({
+    const swapFunctionCall = this.getSwapCall({
       fromToken,
       toToken,
       normalizedAmount,

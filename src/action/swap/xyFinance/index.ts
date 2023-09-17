@@ -73,7 +73,7 @@ class XyFinanceSwap extends SwapAction {
     const randomWalletAddress = getRandomWalletAddress();
 
     const fullRandomAddress = Web3.utils.toChecksumAddress(
-      "0x" + randomWalletAddress,
+      `0x${randomWalletAddress}`,
     );
 
     const chainId = String(fromToken.chain.chainId);

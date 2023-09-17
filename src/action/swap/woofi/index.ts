@@ -76,7 +76,7 @@ class WoofiSwap extends SwapAction {
     return { routerContractAddress };
   }
 
-  private async getSwapCall(params: {
+  private getSwapCall(params: {
     account: Account;
     fromToken: Token;
     toToken: Token;
@@ -135,7 +135,7 @@ class WoofiSwap extends SwapAction {
       DEFAULT_SLIPPAGE_PERCENT,
     );
 
-    const swapFunctionCall = await this.getSwapCall({
+    const swapFunctionCall = this.getSwapCall({
       account,
       fromToken,
       toToken,

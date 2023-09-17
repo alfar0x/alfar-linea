@@ -118,7 +118,7 @@ class JobFactory {
         });
       }
       case "RANDOM": {
-        return await this.randomBlockPath.generateSteps({
+        return this.randomBlockPath.generateSteps({
           account,
         });
       }

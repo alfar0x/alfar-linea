@@ -138,7 +138,7 @@ class Chain {
 
     const successStatus = 1n;
 
-    while (retry--) {
+    while ((retry -= 1)) {
       const transactionReceipt = await this.w3.eth.getTransactionReceipt(hash);
 
       if (transactionReceipt) {

@@ -86,7 +86,7 @@ class SwapSupplyTokenPathGenerator extends PathGenerator {
 
     const supplySteps = await supplyBlock.supplyBalanceSteps({ account });
 
-    const redeemAllSteps = await supplyBlock.redeemAllSteps({ account });
+    const redeemAllSteps = supplyBlock.redeemAllSteps({ account });
 
     const sellSteps = await sellSwapBlock.swapBalanceSteps({ account });
 

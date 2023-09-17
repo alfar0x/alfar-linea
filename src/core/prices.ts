@@ -29,7 +29,9 @@ class Prices {
   }
 
   private getOutdatedTimestamp() {
-    return Date.now() - this.updatePricesIntervalMinutes * 60 * 1000;
+    const updatePricesIntervalMillis =
+      this.updatePricesIntervalMinutes * 60 * 1000;
+    return Date.now() - updatePricesIntervalMillis;
   }
 
   private async getGeskoPrices(
@@ -41,7 +43,7 @@ class Prices {
 
       const urlParams = new URLSearchParams(params).toString();
 
-      const result = await axios.get(this.url + "?" + urlParams);
+      const result = await axios.get(`${this.url}?${urlParams}`);
 
       return result.data as GeskoResponse;
     } catch (error) {

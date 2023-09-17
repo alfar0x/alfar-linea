@@ -35,10 +35,7 @@ class DmailSendMail extends Action {
     return `${address}@${domain}`;
   }
 
-  private async getSendCall(params: {
-    chain: Chain;
-    dmailContractAddress: string;
-  }) {
+  private getSendCall(params: { chain: Chain; dmailContractAddress: string }) {
     const { chain, dmailContractAddress } = params;
 
     const { w3 } = chain;
@@ -54,7 +51,7 @@ class DmailSendMail extends Action {
     return dmailContract.methods.send_mail(emailAddress, emailAddress);
   }
 
-  private async checkIsAllowed(chain: Chain) {
+  private checkIsAllowed(chain: Chain) {
     const dmailContractAddress = chain.getContractAddressByName(CONTRACT_DMAIL);
 
     if (!dmailContractAddress) {
@@ -67,9 +64,9 @@ class DmailSendMail extends Action {
   async sendMail(account: Account, chain: Chain) {
     const { w3 } = chain;
 
-    const { dmailContractAddress } = await this.checkIsAllowed(chain);
+    const { dmailContractAddress } = this.checkIsAllowed(chain);
 
-    const sendFunctionCall = await this.getSendCall({
+    const sendFunctionCall = this.getSendCall({
       chain,
       dmailContractAddress,
     });

@@ -56,7 +56,7 @@ const getWeb3Contract = <C extends keyof ContractRec>(args: {
 }) => {
   const { w3, name, address } = args;
 
-  const abiPath = path.join("./src/abi/sources/", name + ".json");
+  const abiPath = path.join("./src/abi/sources/", `${name}.json`);
 
   const abiStr = fs.readFileSync(abiPath, { encoding: "utf-8" });
 

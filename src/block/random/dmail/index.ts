@@ -13,7 +13,7 @@ class DmailSendMail extends RandomBlock {
 
     const action = new DmailSendMailAction();
 
-    const name = action.name;
+    const { name } = action;
 
     super({ name, chain });
 

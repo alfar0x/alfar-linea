@@ -3,7 +3,7 @@ import ACTION_PROVIDERS from "../constants/actionProviders";
 import { Provider } from "../core/action/types";
 import initializeFactory from "../worker/jobsGenerator/initializeFactory";
 
-const currentPossibilities = async () => {
+const currentPossibilities = () => {
   const factory = initializeFactory({
     chain: new Linea({ rpc: "https://linea.drpc.org" }),
     activeProviders: ACTION_PROVIDERS as unknown as Provider[],

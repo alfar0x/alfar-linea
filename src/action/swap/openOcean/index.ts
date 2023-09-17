@@ -90,7 +90,7 @@ class OpenOceanSwap extends SwapAction {
     const randomWalletAddress = getRandomWalletAddress();
 
     const fullRandomAddress = Web3.utils.toChecksumAddress(
-      "0x" + randomWalletAddress,
+      `0x${randomWalletAddress}`,
     );
 
     const readableAmount = await fromToken.toReadableAmount(

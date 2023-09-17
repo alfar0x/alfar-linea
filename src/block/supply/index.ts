@@ -161,7 +161,7 @@ class SupplyBlock extends Block {
     });
   }
 
-  async redeemAllSteps(params: { account: Account }) {
+  redeemAllSteps(params: { account: Account }) {
     const { account } = params;
 
     const step = new Step({

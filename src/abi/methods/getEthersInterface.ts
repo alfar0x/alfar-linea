@@ -52,7 +52,7 @@ export type ContractRec = {
 const getEthersInterface = <C extends keyof ContractRec>(args: { name: C }) => {
   const { name } = args;
 
-  const abiPath = path.join("./src/abi/sources/", name + ".json");
+  const abiPath = path.join("./src/abi/sources/", `${name}.json`);
 
   const abiStr = fs.readFileSync(abiPath, { encoding: "utf-8" });
 

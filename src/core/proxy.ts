@@ -130,7 +130,7 @@ class Proxy {
       throw new Error(`ip change url is required for ${this.type} proxy type`);
     }
 
-    for (let retry = 0; retry < this.onIpChangeErrorRepeatTimes; retry++) {
+    for (let retry = 0; retry < this.onIpChangeErrorRepeatTimes; retry += 1) {
       try {
         const { status } = await axios.get(this.ipChangeUrl);
 

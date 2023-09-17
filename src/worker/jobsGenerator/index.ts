@@ -87,7 +87,7 @@ class JobGenerator {
       account.address,
     );
 
-    const minEthBalance = this.config.dynamic().minEthBalance;
+    const { minEthBalance } = this.config.dynamic();
 
     const isAllowed = Big(nativeReadableBalance).gte(minEthBalance);
 
@@ -314,15 +314,14 @@ class JobGenerator {
         await this.removeJob(job);
 
         return "JOB_ERROR";
-      } else {
-        const newSteps = await this.factory.getRandomSteps({
-          account: job.account,
-        });
-
-        job.setNextSteps(newSteps);
-
-        return "JOB_ERROR_STEPS_ADDED";
       }
+      const newSteps = await this.factory.getRandomSteps({
+        account: job.account,
+      });
+
+      job.setNextSteps(newSteps);
+
+      return "JOB_ERROR_STEPS_ADDED";
     }
   }
 
@@ -352,7 +351,7 @@ class JobGenerator {
     while (this.jobs.length) {
       const status = await this.runRandomJob(isBeforeStepSleep);
 
-      isBeforeStepSleep = status === "JOB_SKIP" ? false : true;
+      isBeforeStepSleep = status !== "JOB_SKIP";
     }
   }
 }

@@ -42,7 +42,7 @@ class SupplyEthPathGenerator extends PathGenerator {
       maxWorkAmountPercent,
     });
 
-    const redeemSteps = await supplyBlock.redeemAllSteps({ account });
+    const redeemSteps = supplyBlock.redeemAllSteps({ account });
 
     return [...supplySteps, ...redeemSteps];
   }
