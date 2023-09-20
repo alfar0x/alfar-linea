@@ -1,7 +1,7 @@
-import RandomBlock from "../../../block/random/base";
-import DmailSendMail from "../../../block/random/dmail";
 import { Provider } from "../../../core/action/types";
 import Chain from "../../../core/chain";
+import RandomBlock from "../../../step/random";
+import DmailSendMail from "../../../step/random/dmail";
 
 const getImplementedProviders = (params: {
   chain: Chain;

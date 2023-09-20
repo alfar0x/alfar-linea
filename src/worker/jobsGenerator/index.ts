@@ -67,9 +67,22 @@ class JobGenerator {
 
       if (!account) return;
 
-      const job = await this.createJob(account);
+      try {
+        const job = await this.createJob(account);
 
-      if (job) this.jobs.push(job);
+        if (job) this.jobs.push(job);
+      } catch (error) {
+        logger.error(
+          this.msg([
+            String(account),
+            "create job error",
+            (error as Error).message,
+          ]),
+        );
+      }
+      if (this.jobs.length < maxParallelAccounts) {
+        logger.info("sleep");
+      }
     }
 
     logger.info(

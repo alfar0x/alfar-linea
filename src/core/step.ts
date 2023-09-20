@@ -1,35 +1,34 @@
-import Transaction from "./transaction";
-
 class Step {
   public name: string;
-  private transactions: Transaction[];
 
-  constructor(params: { name: string; transactions: Transaction[] }) {
-    const { name, transactions } = params;
-
+  constructor(params: { name: string }) {
+    const { name } = params;
     this.name = name;
-    this.transactions = transactions;
   }
 
-  push(transaction: Transaction) {
-    this.transactions.push(transaction);
-  }
+  // public equals(step: Step) {
+  //   return this.name === step.name;
+  // }
 
-  shift() {
-    return this.transactions.shift();
-  }
-
-  isEmpty() {
-    return !this.transactions.length;
-  }
-
-  createDefaultTransactionName(name: string) {
-    return `${this.name}-${name}`;
-  }
-
-  toString() {
+  public toString() {
     return this.name;
   }
+
+  // private getFullMsg(account: Account, msg: string) {
+  //   return [account, this.name, msg].join(" | ");
+  // }
+
+  // protected getLogger(account: Account) {
+  //   return {
+  //     info: (msg: string) => logger.info(this.getFullMsg(account, msg)),
+  //     error: (msg: string) => logger.error(this.getFullMsg(account, msg)),
+  //     debug: (msg: string) => logger.debug(this.getFullMsg(account, msg)),
+  //   };
+  // }
+
+  // protected createDefaultStepName(name: string) {
+  //   return `${this.name}-${name}`;
+  // }
 }
 
 export default Step;

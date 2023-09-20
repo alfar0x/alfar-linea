@@ -1,5 +1,3 @@
-import Big from "big.js";
-
 import { CONTRACT_ECHO_DEX_SMART_ROUTER } from "../../../abi/constants/contracts";
 import {
   DEFAULT_GAS_MULTIPLIER,
@@ -7,78 +5,16 @@ import {
   DEFAULT_SLIPPAGE_PERCENT,
 } from "../../../constants";
 import Account from "../../../core/account";
-import { SwapAction } from "../../../core/action/swap";
-import Chain from "../../../core/chain";
+import SwapAction from "../../../core/action/swap";
 import Token from "../../../core/token";
 
 import { UNWRAP_ETH_ADDRESS } from "./constants";
+import RunnableTransaction from "../../../core/transaction";
+import getEthersInterface from "../../../abi/methods/getEthersInterface";
 
-class EchoDexSwap extends SwapAction {
+class EchoDexSwapAction extends SwapAction {
   constructor() {
     super({ provider: "ECHO_DEX" });
-  }
-
-  public getApproveAddress(chain: Chain) {
-    return chain.getContractAddressByName(CONTRACT_ECHO_DEX_SMART_ROUTER);
-  }
-
-  private async checkIsAllowed(params: {
-    account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
-  }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
-
-    const { chain } = fromToken;
-
-    const routerContractAddress = chain.getContractAddressByName(
-      CONTRACT_ECHO_DEX_SMART_ROUTER,
-    );
-
-    if (!routerContractAddress) {
-      throw new Error(`${this.name} action is not available in ${chain.name}`);
-    }
-
-    if (!fromToken.chain.isEquals(toToken.chain)) {
-      throw new Error(
-        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`,
-      );
-    }
-
-    if (!fromToken.isNative) {
-      const normalizedAllowance = await fromToken.normalizedAllowance(
-        account,
-        routerContractAddress,
-      );
-
-      if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance =
-          await fromToken.toReadableAmount(normalizedAllowance);
-        const readableAmount =
-          await fromToken.toReadableAmount(normalizedAmount);
-
-        throw new Error(
-          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
-        );
-      }
-    }
-
-    const normalizedBalance = await fromToken.normalizedBalanceOf(
-      account.address,
-    );
-
-    if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance =
-        await fromToken.toReadableAmount(normalizedBalance);
-      const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
-
-      throw new Error(
-        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`,
-      );
-    }
-
-    return { routerContractAddress };
   }
 
   private async getSwapData(params: {
@@ -105,7 +41,7 @@ class EchoDexSwap extends SwapAction {
     }
 
     const echoDexRouterInterface = getEthersInterface({
-      name: "EchoDexRouter",
+      name: "EchoDexSmartRouter",
     });
 
     const address = toToken.isNative ? UNWRAP_ETH_ADDRESS : account.address;
@@ -141,22 +77,18 @@ class EchoDexSwap extends SwapAction {
     return { data };
   }
 
-  async swap(params: {
+  private async getSwapTransaction(params: {
     account: Account;
     fromToken: Token;
     toToken: Token;
     normalizedAmount: number | string;
+    contractAddress: string;
   }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
+    const { account, fromToken, toToken, normalizedAmount, contractAddress } =
+      params;
 
     const { chain } = fromToken;
     const { w3 } = chain;
-    const { routerContractAddress } = await this.checkIsAllowed({
-      account,
-      fromToken,
-      toToken,
-      normalizedAmount,
-    });
 
     const minOutNormalizedAmount = await toToken.getMinOutNormalizedAmount(
       fromToken,
@@ -187,23 +119,79 @@ class EchoDexSwap extends SwapAction {
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: routerContractAddress,
+      to: contractAddress,
     };
-
-    const hash = await account.signAndSendTransaction(chain, tx, {
-      retry: {
-        gasMultiplier: DEFAULT_GAS_MULTIPLIER,
-        times: DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
-      },
-    });
 
     const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
     const outReadableAmount = await toToken.toReadableAmount(
       minOutNormalizedAmount,
     );
 
-    return { hash, inReadableAmount, outReadableAmount };
+    return { tx, inReadableAmount, outReadableAmount };
+  }
+
+  async getTransactions(params: {
+    account: Account;
+    fromToken: Token;
+    toToken: Token;
+    normalizedAmount: number | string;
+  }) {
+    const { account, fromToken, toToken, normalizedAmount } = params;
+
+    const { contractAddress } = await this.basicCheckIsAllowed({
+      account,
+      fromToken,
+      toToken,
+      normalizedAmount,
+      contractName: CONTRACT_ECHO_DEX_SMART_ROUTER,
+    });
+
+    const txs: RunnableTransaction[] = [];
+
+    const createApproveTransaction = await this.getApproveCreateTransaction({
+      account,
+      contractAddress,
+      token: fromToken,
+      normalizedAmount,
+    });
+
+    txs.push(
+      new RunnableTransaction({
+        name: this.getTxName("approve"),
+        chain: fromToken.chain,
+        account,
+        createTransaction: createApproveTransaction,
+      }),
+    );
+
+    const createSwapTransaction = async () => {
+      const { tx, inReadableAmount, outReadableAmount } =
+        await this.getSwapTransaction({
+          account,
+          fromToken,
+          toToken,
+          normalizedAmount,
+          contractAddress,
+        });
+
+      const resultMsg = `${inReadableAmount} ${fromToken} -> ${outReadableAmount} ${toToken}`;
+
+      return { tx, resultMsg };
+    };
+
+    txs.push(
+      new RunnableTransaction({
+        name: "swap",
+        chain: fromToken.chain,
+        account,
+        createTransaction: createSwapTransaction,
+        gasMultiplier: DEFAULT_GAS_MULTIPLIER,
+        retryTimes: DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
+      }),
+    );
+
+    return { txs };
   }
 }
 
-export default EchoDexSwap;
+export default EchoDexSwapAction;

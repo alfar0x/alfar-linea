@@ -3,7 +3,6 @@ import { ethers } from "ethers";
 import { Transaction as Web3Transaction, Web3 } from "web3";
 import { z } from "zod";
 
-import { DEFAULT_GAS_MULTIPLIER } from "../constants";
 import logger from "../utils/other/logger";
 import randomInteger from "../utils/random/randomInteger";
 import getShortString from "../utils/string/getShortString";
@@ -12,7 +11,6 @@ import Chain from "./chain";
 import Token from "./token";
 
 const evmAccountPrivateKeyLength = 66;
-const maxSendTransactionTimes = 20;
 
 const evmAccountPrivateKeySchema = z
   .string()
@@ -74,64 +72,27 @@ class Account {
   async signAndSendTransaction(
     chain: Chain,
     tx: Web3Transaction,
-    opts: {
-      retry?: { gasMultiplier: number; times: number };
-    } = {},
   ): Promise<string> {
-    const { retry } = opts;
-    const { gasMultiplier = DEFAULT_GAS_MULTIPLIER, times = 0 } = retry || {};
+    const signResult = await this.signTransaction(chain.w3, tx);
 
-    if (times > maxSendTransactionTimes) {
-      throw new Error(
-        `Unexpected error. times > maxSendTransactionTimes. ${times} > ${maxSendTransactionTimes}`,
-      );
+    if (!signResult?.rawTransaction) {
+      throw new Error("transaction was not generated");
     }
 
-    const _tx = Object.assign({}, tx);
+    const sendResult = await this.sendSignedTransaction(
+      chain.w3,
+      signResult.rawTransaction,
+    );
 
-    try {
-      if (times && _tx.gas) {
-        _tx.gas = Big(_tx.gas.toString())
-          .times(gasMultiplier)
-          .round()
-          .toString();
-      }
+    const hash = sendResult.transactionHash.toString();
 
-      const signResult = await this.signTransaction(chain.w3, _tx);
+    logger.debug(`${this} | tx sent: ${chain.getHashLink(hash)}`);
 
-      if (!signResult?.rawTransaction) {
-        throw new Error("transaction was not generated");
-      }
+    await chain.waitTxReceipt(hash);
 
-      const sendResult = await this.sendSignedTransaction(
-        chain.w3,
-        signResult.rawTransaction,
-      );
+    this.incrementTransactionsPerformed();
 
-      const hash = sendResult.transactionHash.toString();
-
-      logger.debug(`${this} | tx sent: ${chain.getHashLink(hash)}`);
-
-      await chain.waitTxReceipt(hash);
-
-      this.incrementTransactionsPerformed();
-
-      return hash;
-    } catch (error) {
-      const isTxReverted = (error as Error)?.message?.includes("reverted");
-      const isNullableError = (error as Error)?.message?.includes(
-        "Cannot use 'in' operator to search for 'originalError' in null",
-      );
-
-      if ((isTxReverted || isNullableError) && times) {
-        logger.debug(`Retrying to send tx: ${times} times | ${_tx.gas} gas`);
-        return this.signAndSendTransaction(chain, _tx, {
-          retry: { gasMultiplier, times: times - 1 },
-        });
-      }
-
-      throw error;
-    }
+    return hash;
   }
 
   private incrementTransactionsPerformed() {

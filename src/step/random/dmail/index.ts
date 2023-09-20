@@ -3,9 +3,9 @@ import Account from "../../../core/account";
 import Chain from "../../../core/chain";
 import Step from "../../../core/step";
 import Transaction from "../../../core/transaction";
-import RandomBlock from "../base";
+import RandomStep from "../../random";
 
-class DmailSendMail extends RandomBlock {
+class DmailSendMailStep extends RandomStep {
   private action: DmailSendMailAction;
 
   constructor(params: { chain: Chain }) {
@@ -62,4 +62,4 @@ class DmailSendMail extends RandomBlock {
   }
 }
 
-export default DmailSendMail;
+export default DmailSendMailStep;

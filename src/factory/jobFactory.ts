@@ -1,90 +1,111 @@
 import Big from "big.js";
 
-import RandomBlock from "../block/random/base";
-import SupplyBlock from "../block/supply";
-import SwapBlock from "../block/swap";
+import RandomBlock from "../block/random";
+import SupplyEthBlock from "../block/supplyEth";
+import SwapEthTokenEthBlock from "../block/swapEthTokenEth";
+import SwapSupplyTokenBlock from "../block/swapSupplyToken";
 import Account from "../core/account";
-import Step from "../core/step";
-import RandomPathGenerator from "../pathGenerator/random";
-import SupplyEthPathGenerator from "../pathGenerator/supplyEth";
-import SwapEthTokenEthPathGenerator from "../pathGenerator/swapEthTokenEth";
-import SwapSupplyTokenPathGenerator from "../pathGenerator/swapSupplyToken";
-import randomChoice from "../utils/random/randomChoice";
+import Block from "../core/block";
+import RunnableTransaction from "../core/transaction";
+import RandomStep from "../step/random";
+import SupplyStep from "../step/supply";
+import SwapStep from "../step/swap";
 
-type Generator =
+type BlockId =
   | "SWAP_ETH_TOKEN_ETH"
   | "SUPPLY_ETH"
   | "SWAP_SUPPLY_TOKEN"
   | "RANDOM";
 
 class JobFactory {
-  /*
-  otherPath: OtherPathGenerator[]; 
-  can request some token (or not) but it is not popular action so it doesn't 
-  have own Path class to randomize it. Some game with usdc for example 
-  */
+  private swapEthTokenEthBlock: SwapEthTokenEthBlock;
+  private supplyEthBlock: SupplyEthBlock;
+  private swapSupplyTokenBlock: SwapSupplyTokenBlock;
+  private randomBlock: RandomBlock;
 
-  private swapEthToTokenPath: SwapEthTokenEthPathGenerator;
-  private supplyEthPath: SupplyEthPathGenerator;
-  private swapSupplyTokenPath: SwapSupplyTokenPathGenerator;
-  private randomBlockPath: RandomPathGenerator;
-
-  private randomBlocks: RandomBlock[];
-  private generatorsWithWeights: Record<Generator, number>;
-
-  private minWorkAmountPercent: number;
-  private maxWorkAmountPercent: number;
+  private blocksData: Record<BlockId, { block: Block; weight: number }>;
 
   constructor(params: {
-    swapBlocks: SwapBlock[];
-    supplyBlocks: SupplyBlock[];
-    randomBlocks: RandomBlock[];
+    swapSteps: SwapStep[];
+    supplySteps: SupplyStep[];
+    randomSteps: RandomStep[];
     minWorkAmountPercent: number;
     maxWorkAmountPercent: number;
   }) {
     const {
-      swapBlocks,
-      supplyBlocks,
-      randomBlocks,
+      swapSteps,
+      supplySteps,
+      randomSteps,
       minWorkAmountPercent,
       maxWorkAmountPercent,
     } = params;
 
-    this.swapEthToTokenPath = new SwapEthTokenEthPathGenerator({ swapBlocks });
-    this.supplyEthPath = new SupplyEthPathGenerator({ supplyBlocks });
-    this.swapSupplyTokenPath = new SwapSupplyTokenPathGenerator({
-      supplyBlocks,
-      swapBlocks,
+    this.swapEthTokenEthBlock = new SwapEthTokenEthBlock({
+      swapSteps,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
     });
-    this.randomBlockPath = new RandomPathGenerator({ randomBlocks });
 
-    this.generatorsWithWeights = this.initializedWights();
-    this.randomBlocks = randomBlocks;
-    this.minWorkAmountPercent = minWorkAmountPercent;
-    this.maxWorkAmountPercent = maxWorkAmountPercent;
+    this.supplyEthBlock = new SupplyEthBlock({
+      supplySteps,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    });
+
+    this.swapSupplyTokenBlock = new SwapSupplyTokenBlock({
+      supplySteps,
+      swapSteps,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    });
+
+    this.randomBlock = new RandomBlock({
+      randomSteps,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    });
+
+    this.blocksData = this.initializedWeights();
   }
 
-  private initializedWights() {
+  private initializedWeights() {
     return {
       // @TODO temporary hardcoded
-      SWAP_ETH_TOKEN_ETH: this.swapEthToTokenPath.count() ? 70 : 0,
-      SUPPLY_ETH: this.supplyEthPath.count() ? 10 : 0,
-      SWAP_SUPPLY_TOKEN: this.swapSupplyTokenPath.count() ? 10 : 0,
-      RANDOM: this.randomBlockPath.count() ? 10 : 0,
+      SWAP_ETH_TOKEN_ETH: {
+        block: this.swapEthTokenEthBlock,
+        weight: this.swapEthTokenEthBlock.count() ? 70 : 0,
+      },
+      SUPPLY_ETH: {
+        block: this.supplyEthBlock,
+        weight: this.supplyEthBlock.count() ? 10 : 0,
+      },
+      SWAP_SUPPLY_TOKEN: {
+        block: this.swapSupplyTokenBlock,
+        weight: this.swapSupplyTokenBlock.count() ? 10 : 0,
+      },
+      RANDOM: {
+        block: this.randomBlock,
+        weight: this.randomBlock.count() ? 10 : 0,
+      },
     };
   }
 
-  private getRandomWeightedItem() {
-    const totalWeight = Object.values(this.generatorsWithWeights).reduce(
-      (sum, weight) => sum + weight,
+  private getTotalBlocksWeight() {
+    return Object.values(this.blocksData).reduce(
+      (sum, { weight }) => sum + weight,
       0,
     );
+  }
+
+  private getRandomWeightedBlock() {
+    const totalWeight = this.getTotalBlocksWeight();
 
     let randomValue = Math.random() * totalWeight;
 
-    for (const [key, weight] of Object.entries(this.generatorsWithWeights)) {
+    for (const { block, weight } of Object.values(this.blocksData)) {
       randomValue -= weight;
-      if (randomValue <= 0) return key as Generator;
+
+      if (randomValue <= 0) return block;
     }
 
     return null;
@@ -93,94 +114,60 @@ class JobFactory {
   private async generateRandomSteps(params: { account: Account }) {
     const { account } = params;
 
-    const generator = this.getRandomWeightedItem();
+    const block = this.getRandomWeightedBlock();
 
-    switch (generator) {
-      case "SWAP_ETH_TOKEN_ETH": {
-        return await this.swapEthToTokenPath.generateSteps({
-          account,
-          minWorkAmountPercent: this.minWorkAmountPercent,
-          maxWorkAmountPercent: this.maxWorkAmountPercent,
-        });
-      }
-      case "SUPPLY_ETH": {
-        return await this.supplyEthPath.generateSteps({
-          account,
-          minWorkAmountPercent: this.minWorkAmountPercent,
-          maxWorkAmountPercent: this.maxWorkAmountPercent,
-        });
-      }
-      case "SWAP_SUPPLY_TOKEN": {
-        return await this.swapSupplyTokenPath.generateSteps({
-          account,
-          minWorkAmountPercent: this.minWorkAmountPercent,
-          maxWorkAmountPercent: this.maxWorkAmountPercent,
-        });
-      }
-      case "RANDOM": {
-        return this.randomBlockPath.generateSteps({
-          account,
-        });
-      }
-      default: {
-        throw new Error(
-          `Unexpected error. Random generator is not available: ${generator}`,
-        );
-      }
+    if (!block) {
+      throw new Error(
+        `Unexpected error. Random generator is not available: ${block}`,
+      );
     }
+
+    return await block.generateTransactions({
+      account,
+    });
   }
 
-  private shouldRandomStepsBeAdded() {
-    const generatorKeys = Object.keys(
-      this.generatorsWithWeights,
-    ) as Generator[];
+  private shouldRandomTransactionsBeAdded() {
+    const totalWeight = this.getTotalBlocksWeight();
 
-    const totalWeight = generatorKeys.reduce(
-      (acc, key) => acc + this.generatorsWithWeights[key],
-      0,
-    );
-
-    return Big(this.generatorsWithWeights.RANDOM)
+    return Big(this.blocksData.RANDOM.weight)
       .div(totalWeight)
       .gte(Math.random());
   }
 
-  private addRandomSteps(account: Account, steps: Step[]) {
-    const randomBlock = randomChoice(this.randomBlocks);
-    const randomBlockSteps = [...randomBlock.allSteps(account)];
-    const newArray: (Step | Step[])[] = [...steps];
-    const randomIndex = Math.floor(Math.random() * (newArray.length + 1));
-    newArray.splice(randomIndex, 0, randomBlockSteps);
-    return newArray.flat();
+  private addRandomTransactions(account: Account, txs: RunnableTransaction[]) {
+    const randomBlock = this.randomBlock.getRandomStep();
+
+    const randomIdx = Math.floor(Math.random() * (txs.length + 1));
+
+    const firstPart = txs.slice(0, randomIdx);
+    const secondPart = txs.slice(randomIdx);
+
+    return [
+      ...firstPart,
+      ...randomBlock.allTransactions(account),
+      ...secondPart,
+    ];
   }
 
-  async getRandomSteps(params: { account: Account }) {
+  async getRandomTransactions(params: { account: Account }) {
     const { account } = params;
     const steps = await this.generateRandomSteps({
       account,
     });
 
-    const shouldRandomStepsBeAdded = this.shouldRandomStepsBeAdded();
-
-    return shouldRandomStepsBeAdded
-      ? this.addRandomSteps(account, steps)
+    return this.shouldRandomTransactionsBeAdded()
+      ? this.addRandomTransactions(account, steps)
       : steps;
   }
 
   infoString(isFull = false) {
-    const generators = [
-      this.swapEthToTokenPath,
-      this.supplyEthPath,
-      this.swapSupplyTokenPath,
-      this.randomBlockPath,
-    ];
-
-    const generatorsInfo = generators.map((g) => {
-      const short = `${g.description}: ${g.count()}`;
+    const generatorsInfo = Object.values(this.blocksData).map(({ block }) => {
+      const short = `${block.description}: ${block.count()}`;
 
       if (!isFull) return short;
 
-      const possibleWaysStrings = g.possibleWaysStrings().join("\n");
+      const possibleWaysStrings = block.possibleWaysStrings().join("\n");
 
       return `${short}\n${possibleWaysStrings}\n`;
     });

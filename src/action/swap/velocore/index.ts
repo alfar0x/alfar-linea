@@ -8,7 +8,7 @@ import {
 import getWeb3Contract from "../../../abi/methods/getWeb3Contract";
 import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import Account from "../../../core/account";
-import { SwapAction } from "../../../core/action/swap";
+import SwapAction from "../../../core/action/swap";
 import Chain from "../../../core/chain";
 import Token from "../../../core/token";
 import logger from "../../../utils/other/logger";
@@ -20,13 +20,9 @@ import {
   TOKEN_TYPES,
 } from "./constants";
 
-class VelocoreSwap extends SwapAction {
+class VelocoreSwapAction extends SwapAction {
   constructor() {
     super({ provider: "VELOCORE" });
-  }
-
-  public getApproveAddress(chain: Chain) {
-    return chain.getContractAddressByName(CONTRACT_VELOCORE_VAULT);
   }
 
   private getPackedPool(params: { address: string }) {
@@ -66,12 +62,12 @@ class VelocoreSwap extends SwapAction {
   }
 
   private async getPool(params: {
-    chain: Chain;
     fromToken: Token;
     toToken: Token;
     isReversed?: boolean;
   }): Promise<string> {
-    const { chain, fromToken, toToken, isReversed = false } = params;
+    const { fromToken, toToken, isReversed = false } = params;
+    const { chain } = fromToken;
 
     try {
       const factoryContractAddress = chain.getContractAddressByName(
@@ -102,9 +98,8 @@ class VelocoreSwap extends SwapAction {
       if (isReversed) throw error;
       logger.debug("reversing request");
       return await this.getPool({
-        chain,
-        toToken,
-        fromToken,
+        fromToken: toToken,
+        toToken: fromToken,
         isReversed: true,
       });
     }
@@ -119,11 +114,11 @@ class VelocoreSwap extends SwapAction {
     const { account, fromToken, toToken, normalizedAmount } = params;
     const { chain } = fromToken;
 
-    const vaultContractAddress = chain.getContractAddressByName(
+    const contractAddress = chain.getContractAddressByName(
       CONTRACT_VELOCORE_VAULT,
     );
 
-    if (!vaultContractAddress) {
+    if (!contractAddress) {
       throw new Error(`${this.name} action is not available in ${chain.name}`);
     }
 
@@ -133,28 +128,16 @@ class VelocoreSwap extends SwapAction {
       );
     }
 
-    const poolAddress = await this.getPool({ chain, fromToken, toToken });
+    const poolAddress = await this.getPool({ fromToken, toToken });
 
-    if (poolAddress === ethers.ZeroAddress) {
-      throw new Error(`${fromToken.name} -> ${toToken.name} pool not found`);
+    if (!contractAddress) {
+      throw new Error(`${this.name} action is not available in ${chain.name}`);
     }
 
-    if (!fromToken.isNative) {
-      const normalizedAllowance = await fromToken.normalizedAllowance(
-        account,
-        vaultContractAddress,
+    if (fromToken.isEquals(toToken)) {
+      throw new Error(
+        `action is not available for eq tokens: ${fromToken} -> ${toToken}`,
       );
-
-      if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance =
-          await fromToken.toReadableAmount(normalizedAllowance);
-        const readableAmount =
-          await fromToken.toReadableAmount(normalizedAmount);
-
-        throw new Error(
-          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
-        );
-      }
     }
 
     const normalizedBalance = await fromToken.normalizedBalanceOf(
@@ -171,7 +154,7 @@ class VelocoreSwap extends SwapAction {
       );
     }
 
-    return { vaultContractAddress, poolAddress };
+    return { contractAddress, poolAddress };
   }
 
   private getSwapCall(params: {
@@ -180,7 +163,7 @@ class VelocoreSwap extends SwapAction {
     normalizedAmount: number | string;
     minOutNormalizedAmount: number | string;
     poolAddress: string;
-    vaultContractAddress: string;
+    contractAddress: string;
   }) {
     const {
       fromToken,
@@ -188,7 +171,7 @@ class VelocoreSwap extends SwapAction {
       normalizedAmount,
       minOutNormalizedAmount,
       poolAddress,
-      vaultContractAddress,
+      contractAddress,
     } = params;
 
     const poolId = this.getPackedPool({ address: poolAddress });
@@ -205,7 +188,7 @@ class VelocoreSwap extends SwapAction {
     const vaultContract = getWeb3Contract({
       w3: fromToken.chain.w3,
       name: CONTRACT_VELOCORE_VAULT,
-      address: vaultContractAddress,
+      address: contractAddress,
     });
 
     const fromTokenInformation = this.getPackedTokenInformation({
@@ -242,7 +225,7 @@ class VelocoreSwap extends SwapAction {
     const { account, fromToken, toToken, normalizedAmount } = params;
     const { chain } = fromToken;
     const { w3 } = chain;
-    const { vaultContractAddress, poolAddress } = await this.checkIsAllowed({
+    const { contractAddress, poolAddress } = await this.checkIsAllowed({
       account,
       fromToken,
       toToken,
@@ -261,7 +244,7 @@ class VelocoreSwap extends SwapAction {
       normalizedAmount,
       minOutNormalizedAmount,
       poolAddress,
-      vaultContractAddress,
+      contractAddress,
     });
 
     const value = fromToken.isNative ? normalizedAmount : 0;
@@ -281,7 +264,7 @@ class VelocoreSwap extends SwapAction {
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: vaultContractAddress,
+      to: contractAddress,
       value,
     };
 
@@ -295,4 +278,4 @@ class VelocoreSwap extends SwapAction {
     return { hash, inReadableAmount, outReadableAmount };
   }
 }
-export default VelocoreSwap;
+export default VelocoreSwapAction;

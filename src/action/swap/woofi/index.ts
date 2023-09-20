@@ -27,11 +27,11 @@ class WoofiSwap extends SwapAction {
 
     const { chain } = fromToken;
 
-    const routerContractAddress = chain.getContractAddressByName(
+    const contractAddress = chain.getContractAddressByName(
       CONTRACT_WOOFI_ROUTER,
     );
 
-    if (!routerContractAddress) {
+    if (!contractAddress) {
       throw new Error(`${this.name} action is not available in ${chain.name}`);
     }
 
@@ -44,7 +44,7 @@ class WoofiSwap extends SwapAction {
     if (!fromToken.isNative) {
       const normalizedAllowance = await fromToken.normalizedAllowance(
         account,
-        routerContractAddress,
+        contractAddress,
       );
 
       if (Big(normalizedAllowance).lt(normalizedAmount)) {
@@ -73,7 +73,7 @@ class WoofiSwap extends SwapAction {
       );
     }
 
-    return { routerContractAddress };
+    return { contractAddress };
   }
 
   private getSwapCall(params: {
@@ -82,7 +82,7 @@ class WoofiSwap extends SwapAction {
     toToken: Token;
     normalizedAmount: number | string;
     minOutNormalizedAmount: number | string;
-    routerContractAddress: string;
+    contractAddress: string;
   }) {
     const {
       account,
@@ -90,7 +90,7 @@ class WoofiSwap extends SwapAction {
       toToken,
       normalizedAmount,
       minOutNormalizedAmount,
-      routerContractAddress,
+      contractAddress,
     } = params;
 
     const { chain } = fromToken;
@@ -99,7 +99,7 @@ class WoofiSwap extends SwapAction {
     const routerContract = getWeb3Contract({
       w3,
       name: CONTRACT_WOOFI_ROUTER,
-      address: routerContractAddress,
+      address: contractAddress,
     });
 
     return routerContract.methods.swap(
@@ -122,7 +122,7 @@ class WoofiSwap extends SwapAction {
 
     const { chain } = fromToken;
     const { w3 } = chain;
-    const { routerContractAddress } = await this.checkIsAllowed({
+    const { contractAddress } = await this.checkIsAllowed({
       account,
       fromToken,
       toToken,
@@ -141,7 +141,7 @@ class WoofiSwap extends SwapAction {
       toToken,
       normalizedAmount,
       minOutNormalizedAmount,
-      routerContractAddress,
+      contractAddress,
     });
 
     const value = fromToken.isNative ? normalizedAmount : 0;
@@ -160,7 +160,7 @@ class WoofiSwap extends SwapAction {
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: routerContractAddress,
+      to: contractAddress,
       value,
     };
 

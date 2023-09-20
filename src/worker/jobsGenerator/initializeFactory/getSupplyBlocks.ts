@@ -1,8 +1,8 @@
 import LineaBankSupply from "../../../action/supply/lineaBank";
-import SupplyBlock from "../../../block/supply";
 import { SupplyAction } from "../../../core/action/supply";
 import { Provider } from "../../../core/action/types";
 import Chain from "../../../core/chain";
+import SupplyBlock from "../../../core/step/supply";
 
 import tokens from "./tokens";
 

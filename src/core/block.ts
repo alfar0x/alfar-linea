@@ -1,41 +1,25 @@
-import logger from "../utils/other/logger";
-
+/* eslint-disable no-unused-vars */
 import Account from "./account";
-import Chain from "./chain";
+import RunnableTransaction from "./transaction";
 
-class Block {
-  public name: string;
-  protected chain: Chain;
+abstract class Block {
+  protected minWorkAmountPercent: number;
+  protected maxWorkAmountPercent: number;
 
-  constructor(params: { name: string; chain: Chain }) {
-    const { name, chain } = params;
-    this.name = name;
-    this.chain = chain;
+  constructor(params: {
+    minWorkAmountPercent: number;
+    maxWorkAmountPercent: number;
+  }) {
+    const { minWorkAmountPercent, maxWorkAmountPercent } = params;
+    this.minWorkAmountPercent = minWorkAmountPercent;
+    this.maxWorkAmountPercent = maxWorkAmountPercent;
   }
-
-  public equals(block: Block) {
-    return this.name === block.name;
-  }
-
-  public toString() {
-    return this.name;
-  }
-
-  private getFullMsg(account: Account, msg: string) {
-    return [account, this.name, msg].join(" | ");
-  }
-
-  protected getLogger(account: Account) {
-    return {
-      info: (msg: string) => logger.info(this.getFullMsg(account, msg)),
-      error: (msg: string) => logger.error(this.getFullMsg(account, msg)),
-      debug: (msg: string) => logger.debug(this.getFullMsg(account, msg)),
-    };
-  }
-
-  protected createDefaultStepName(name: string) {
-    return `${this.name}-${name}`;
-  }
+  abstract description: string;
+  abstract count(): number;
+  abstract possibleWaysStrings(): string[];
+  abstract generateTransactions(params: {
+    account: Account;
+  }): Promise<RunnableTransaction[]>;
 }
 
 export default Block;

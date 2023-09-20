@@ -4,10 +4,10 @@ import SyncswapSwap from "../../../action/swap/syncswap";
 import VelocoreSwap from "../../../action/swap/velocore";
 import WoofiSwap from "../../../action/swap/woofi";
 import XyFinanceSwap from "../../../action/swap/xyFinance";
-import SwapBlock from "../../../block/swap";
 import { SwapAction } from "../../../core/action/swap";
 import { Provider } from "../../../core/action/types";
 import Chain from "../../../core/chain";
+import SwapBlock from "../../../core/step/swap";
 
 import tokens from "./tokens";
 

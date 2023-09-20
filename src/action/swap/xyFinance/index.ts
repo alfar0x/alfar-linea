@@ -125,16 +125,16 @@ class XyFinanceSwap extends SwapAction {
 
     const { chain } = fromToken;
 
-    const routerContractAddress = this.getApproveAddress(chain);
+    const contractAddress = this.getApproveAddress(chain);
 
-    if (!routerContractAddress) {
+    if (!contractAddress) {
       throw new Error(`${this.name} action is not available in ${chain.name}`);
     }
 
     if (!fromToken.isNative) {
       const normalizedAllowance = await fromToken.normalizedAllowance(
         account,
-        routerContractAddress,
+        contractAddress,
       );
 
       if (Big(normalizedAllowance).lt(normalizedAmount)) {
@@ -169,7 +169,7 @@ class XyFinanceSwap extends SwapAction {
       );
     }
 
-    return { routerContractAddress };
+    return { contractAddress };
   }
 
   async swap(params: {
@@ -182,7 +182,7 @@ class XyFinanceSwap extends SwapAction {
 
     const { chain } = fromToken;
     const { w3 } = chain;
-    const { routerContractAddress } = await this.checkIsAllowed({
+    const { contractAddress } = await this.checkIsAllowed({
       account,
       fromToken,
       toToken,
@@ -195,9 +195,9 @@ class XyFinanceSwap extends SwapAction {
       normalizedAmount,
     });
 
-    if (contractAddress !== routerContractAddress) {
+    if (contractAddress !== contractAddress) {
       throw new Error(
-        `Unexpected error: contractAddress !== routerContractAddress: ${contractAddress} !== ${routerContractAddress}. Please contact developer`,
+        `Unexpected error: contractAddress !== contractAddress: ${contractAddress} !== ${contractAddress}. Please contact developer`,
       );
     }
 
@@ -212,9 +212,9 @@ class XyFinanceSwap extends SwapAction {
         provider,
       });
 
-    if (to !== routerContractAddress) {
+    if (to !== contractAddress) {
       throw new Error(
-        `Unexpected error: to !== routerContractAddress: ${to} !== ${routerContractAddress}. Please contact developer`,
+        `Unexpected error: to !== contractAddress: ${to} !== ${contractAddress}. Please contact developer`,
       );
     }
 
@@ -228,7 +228,7 @@ class XyFinanceSwap extends SwapAction {
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: routerContractAddress,
+      to: contractAddress,
       value: normalizedAmount,
     };
 

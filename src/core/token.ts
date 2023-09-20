@@ -1,10 +1,10 @@
 import Big from "big.js";
-import Web3 from "web3";
+import Web3, { Transaction } from "web3";
 
 import { CONTRACT_ERC20 } from "../abi/constants/contracts";
 import getWeb3Contract from "../abi/methods/getWeb3Contract";
 import { Erc20 } from "../abi/types/web3-v1/Erc20";
-import { TokenType } from "../types";
+import { Amount, TokenType } from "../types";
 
 import Account from "./account";
 import Chain from "./chain";
@@ -187,11 +187,13 @@ class Token {
     return allowanceNormalizedAmount;
   }
 
-  async approve(
-    account: Account,
-    spenderAddress: string,
-    normalizedAmount: string | number,
-  ) {
+  async getApproveTransaction(params: {
+    account: Account;
+    spenderAddress: string;
+    normalizedAmount: Amount;
+  }) {
+    const { account, spenderAddress, normalizedAmount } = params;
+
     if (this.isNative) return null;
 
     if (!this.contract) {
@@ -204,7 +206,7 @@ class Token {
     );
 
     if (Big(allowanceNormalizedAmount).gte(normalizedAmount)) {
-      return false;
+      return null;
     }
 
     const approveFunctionCall = this.contract.methods.approve(
@@ -220,7 +222,7 @@ class Token {
 
     const gasPrice = await this.chain.w3.eth.getGasPrice();
 
-    const tx = {
+    const tx: Transaction = {
       from: account.address,
       to: this.address,
       data: approveFunctionCall.encodeABI(),
@@ -230,9 +232,7 @@ class Token {
       gasPrice,
     };
 
-    const result = await account.signAndSendTransaction(this.chain, tx);
-
-    return result;
+    return tx;
   }
 
   async getMinOutReadableAmount(

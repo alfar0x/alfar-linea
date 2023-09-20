@@ -1,15 +1,13 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 import { Amount } from "../../types";
 import Account from "../account";
-import Chain from "../chain";
 import Token from "../token";
 
-import { Provider } from "./types";
+import { DefaultActionResult, Provider } from "./types";
 
 import Action from ".";
 
-export abstract class BridgeAction extends Action {
+abstract class BridgeAction extends Action {
   constructor(params: { provider: Provider }) {
     const { provider } = params;
 
@@ -21,13 +19,7 @@ export abstract class BridgeAction extends Action {
     fromToken: Token;
     toToken: Token;
     normalizedAmount: Amount;
-  }): Promise<{
-    hash: string;
-    inReadableAmount: Amount;
-    outReadableAmount: Amount;
-  }>;
-
-  getApproveAddress(chain: Chain): string | undefined {
-    throw new Error("Method is not implemented");
-  }
+  }): Promise<DefaultActionResult>;
 }
+
+export default BridgeAction;
