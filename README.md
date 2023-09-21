@@ -25,9 +25,9 @@ What will be added next:
 
 ## How it works
 
-Main mode creates `job` for each account consisting of `steps`, which represent a list of `transactions`:
+Main mode creates `task` for each account consisting of `steps`, which represent a list of `transactions`:
 1. One step is consists of transactions sent by real users within 1-2 minutes. E.g., [approve -> swap]. Here, 1 step is 2 transactions. Steps can currently consist of 1-3 transactions.
-2. One job consists of steps that can be executed by real users within hours/days. E.g., [swap ETH to USDC] --> [approve USDC -> add USDC to liquidity pool] --> [remove liquidity] --> [approve USDC -> swap to ETH]. Here, 1 job = 4 steps = 6 transactions. Each job concludes by returning all tokens/liquidity to ETH.
+2. One task consists of steps that can be executed by real users within hours/days. E.g., [swap ETH to USDC] --> [approve USDC -> add USDC to liquidity pool] --> [remove liquidity] --> [approve USDC -> swap to ETH]. Here, 1 task = 4 steps = 6 transactions. Each task concludes by returning all tokens/liquidity to ETH.
 
 Check for updates here: [alfar](https://t.me/+FozX3VZA0RIyNWY6)
 
@@ -36,7 +36,7 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 ![Console Screenshot](./img/screenshot.png)
 
 <details>
-    <summary> Click here to see all current possible jobs (if all providers are turned on) </summary>
+    <summary> Click here to see all current possible tasks (if all providers are turned on) </summary>
 
     Swap eth -> token -> eth: 55
     OPEN_OCEAN_SWAP_ETH_IUSD -> OPEN_OCEAN_SWAP_IUSD_ETH
@@ -150,7 +150,7 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 - [Modes](#modes)
 - [Suggestions](#suggestions)
 - [Installation](#installation)
-- [Job Generator](#job-generator)
+- [Task Generator](#task-generator)
     - [Create Files](#create-files)
     - [Config](#config)
     - [Example](#example)
@@ -167,10 +167,10 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 
 ## Modes
 
-- **Job Generator:** The main script responsible for generating/executing transactions.
+- **Task Generator:** The main script responsible for generating/executing transactions.
 - **Checker:** Check your accounts' analytics (transactions and balances).
-- **Encrypter:** Encrypt your assets files (private keys, addresses, proxies) to use job generator on server
-- **Eth Returner:** This script swaps all tokens used by the main script to ETH and removes all liquidity as a backup in case errors occur in the job generator mode.
+- **Encrypter:** Encrypt your assets files (private keys, addresses, proxies) to use task generator on server
+- **Eth Returner:** This script swaps all tokens used by the main script to ETH and removes all liquidity as a backup in case errors occur in the task generator mode.
 - **Depositor:** This mode facilitates deposits to Linea accounts.
 
 ## Suggestions
@@ -208,11 +208,11 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 6. Create a copy of `.env.example` file and name it `.env.prod`. Set the following variable in the `.env.prod` file:
    - `NODE_ENV` - Set it to `prod`.
 
-## Job Generator
+## Task Generator
 
 [Quick setup video](https://www.loom.com/share/722b554afdbd44f991d7be15b79d6248)
 
-The job generator mode uses private keys, proxies (optional), and configurations to execute jobs. It generates jobs and executes them.
+The task generator mode uses private keys, proxies (optional), and configurations to execute tasks. It generates tasks and executes them.
 
 ### Create Files
 
@@ -222,14 +222,14 @@ Before the first run, you must create the following files:
    - (Optional, only if you will use a proxy) Create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
    - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode.
 2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
-   - Copy the required config file (e.g., `jobs.example.json`) for this mode. Instructions on how to modify it are provided below.
+   - Copy the required config file (e.g., `tasks.example.json`) for this mode. Instructions on how to modify it are provided below.
 
 ### Config
 
 There are two main block types in the config: `dynamic` and `fixed`. The `dynamic` config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. Dynamic values can be changed during program run. Config values:
 - `dynamic`:
     - `maxLineaGwei` - The maximum Linea Gwei limit. The system will check it before each transaction.
-    - `minEthBalance` - The minimum ETH balance on the account required to work with (generate a job/start a new block). To forcefully stop the script and complete all current steps, set the value to `100`. It will skip the next blocks due to insufficient balance.
+    - `minEthBalance` - The minimum ETH balance on the account required to work with (generate a task/start a new block). To forcefully stop the script and complete all current steps, set the value to `100`. It will skip the next blocks due to insufficient balance.
 - `fixed`:
     - `delaySec`:
         - `step` - Set the minimum and maximum step delay in seconds.
@@ -250,7 +250,7 @@ There are two main block types in the config: `dynamic` and `fixed`. The `dynami
         - `serverIsRandom` - When using a server proxy, enable this option by setting it to `true` if you want the system to use a random proxy for each account. Setting it to `false` means that each account has its proxy, so the number of proxies must match the number of accounts.
     - `rpc`: 
         - `linea` - Specify the Linea RPC.
-    - `transactionsLimit` - Set the minimum and maximum number of transactions generated for **each** account. The script will generate the minimum limit between these values. It is not an exact value; it will be performed. It will end job generation for an account if the limit is reached. Otherwise, a new job will be generated.
+    - `transactionsLimit` - Set the minimum and maximum number of transactions generated for **each** account. The script will generate the minimum limit between these values. It is not an exact value; it will be performed. It will end task generation for an account if the limit is reached. Otherwise, a new task will be generated.
     - `workingAmountPercent` - Set the minimum and maximum working amount in percent.
 
 If config and assets files are ready you can run script as described [below](#running)
@@ -268,7 +268,7 @@ Let's assume the following values were configured:
 - Minimum/maximum transactions limit - 2/10
 - Added 4 accounts 
 
-The system will generate 2 first jobs. It will select a random job, then proceed to the next step and transaction. After executing a transaction, if there are more transactions within the step, it will sleep for 30-240 seconds before moving on. After completing the transactions in a step, it will sleep for 300-3600 seconds before the next step in a random job (account) and so on. If an account's job steps were ended but the minimum transactions limit was not reached, the program will generate new steps for it otherwise new job for new account will be generated:
+The system will generate 2 first tasks. It will select a random task, then proceed to the next step and transaction. After executing a transaction, if there are more transactions within the step, it will sleep for 30-240 seconds before moving on. After completing the transactions in a step, it will sleep for 300-3600 seconds before the next step in a random task (account) and so on. If an account's task steps were ended but the minimum transactions limit was not reached, the program will generate new steps for it otherwise new task for new account will be generated:
 
 --- first iteration
 acc1 (min tx limit = 8) - [step1, step2, step3]; <- working account
@@ -296,7 +296,7 @@ acc4 (min tx limit = 5) - [];
 
 --- next iteration acc2 was run
 acc1 (min tx limit = 8) - [step3]; <- working account
-acc2 (min tx limit = 2) - []; <- working account. As soon as the min transactions limit was reached, it will be removed from the jobs list.
+acc2 (min tx limit = 2) - []; <- working account. As soon as the min transactions limit was reached, it will be removed from the tasks list.
 acc3 (min tx limit = 6) - [step1, step2]; <- new account steps were generated
 acc4 (min tx limit = 5) - [];
 
@@ -347,7 +347,7 @@ If config and assets files are ready you can run script as described [below](#ru
 
 ## Encrypter
 
-Encrypt your assets files (private_keys,addresses,proxies) to use job generator on server
+Encrypt your assets files (private_keys,addresses,proxies) to use task generator on server
 
 ### Create Files
 

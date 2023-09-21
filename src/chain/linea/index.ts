@@ -8,7 +8,7 @@ type LineaConstructorParams = {
 };
 
 class Linea extends Chain {
-  constructor(params: LineaConstructorParams) {
+  public constructor(params: LineaConstructorParams) {
     const { rpc } = params;
 
     super({

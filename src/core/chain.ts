@@ -14,17 +14,18 @@ type ContractName =
 type Contracts = Partial<Record<ContractName, string>>;
 
 class Chain {
-  name: string;
-  chainId: number;
-  rpc: string;
-  explorer: string;
-  tokens: Token[];
-  contracts: Contracts;
-  w3: Web3;
+  public name: string;
+  public chainId: number;
+  public w3: Web3;
+
+  private rpc: string;
+  private explorer: string;
+  private tokens: Token[];
+  private contracts: Contracts;
   private native: Token | null;
   private wrappedNative: Token | null;
 
-  constructor(params: {
+  public constructor(params: {
     name: string;
     chainId: number;
     rpc: string;
@@ -71,14 +72,14 @@ class Chain {
     );
   }
 
-  getTokenByName(name: string) {
+  public getTokenByName(name: string) {
     const token = this.tokens.find((t) => t.name === name);
     if (!token) throw new Error(`token ${name} is not found`);
 
     return token;
   }
 
-  getNative() {
+  public getNative() {
     if (!this.native) {
       const nativeList = this.tokens.filter((t) => t.isNative);
 
@@ -96,7 +97,7 @@ class Chain {
     return this.native;
   }
 
-  getWrappedNative() {
+  public getWrappedNative() {
     if (!this.wrappedNative) {
       const wrappedNativeList = this.tokens.filter((t) => t.isWrappedNative);
 
@@ -114,26 +115,26 @@ class Chain {
     return this.wrappedNative;
   }
 
-  isEquals(chain: Chain) {
+  public isEquals(chain: Chain) {
     return this.chainId === chain.chainId;
   }
 
-  async getSwapDeadline(sec = 1800) {
+  public async getSwapDeadline(sec = 1800) {
     const lastBlock = await this.w3.eth.getBlock("latest");
     const currentTimestamp = lastBlock.timestamp;
 
     return Big(currentTimestamp.toString()).plus(sec).toNumber();
   }
 
-  toString() {
+  public toString() {
     return this.name;
   }
 
-  getHashLink(hash: string) {
+  public getHashLink(hash: string) {
     return `${this.explorer}/tx/${hash}`;
   }
 
-  waitTxReceipt = async (hash: string) => {
+  public waitTxReceipt = async (hash: string) => {
     let retry = 100;
 
     const successStatus = 1n;
@@ -158,7 +159,7 @@ class Chain {
     throw new Error(`waiting for tx status time out: ${txLink}`);
   };
 
-  getContractAddressByName(name: string) {
+  public getContractAddressByName(name: string) {
     return this.contracts[name as ContractName];
   }
 }

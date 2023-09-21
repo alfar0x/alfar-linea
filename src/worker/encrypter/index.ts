@@ -8,13 +8,13 @@ import getPassword from "../../utils/other/getPassword";
 import logger from "../../utils/other/logger";
 
 class EncrypterWorker {
-  config: EncrypterConfig;
+  private config: EncrypterConfig;
 
-  constructor(configFileName: string) {
+  public constructor(configFileName: string) {
     this.config = new EncrypterConfig({ configFileName });
   }
 
-  async run() {
+  public async run() {
     const password = await getPassword();
 
     const { decryptedFileName } = this.config.fixed;

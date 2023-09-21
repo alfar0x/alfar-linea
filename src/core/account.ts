@@ -24,7 +24,7 @@ class Account {
   public shortAddress: string;
   private _transactionsPerformed: number;
 
-  constructor(params: { privateKey: string; fileIndex: number }) {
+  public constructor(params: { privateKey: string; fileIndex: number }) {
     const { privateKey, fileIndex } = params;
     this.fileIndex = fileIndex;
     this.privateKey = this.initializePrivateKey(privateKey);
@@ -49,7 +49,7 @@ class Account {
     return ethers.computeAddress(this.privateKey);
   }
 
-  toString() {
+  public toString() {
     const idx = this.fileIndex + 1;
     const addr = this.shortAddress;
     const txs = this._transactionsPerformed;
@@ -57,7 +57,7 @@ class Account {
     return `[${idx}] ${addr} (txs:${txs})`;
   }
 
-  isEquals(account: Account) {
+  public isEquals(account: Account) {
     return this.fileIndex === account.fileIndex;
   }
 
@@ -69,7 +69,7 @@ class Account {
     return await w3.eth.sendSignedTransaction(rawTx);
   }
 
-  async signAndSendTransaction(
+  public async signAndSendTransaction(
     chain: Chain,
     tx: Web3Transaction,
   ): Promise<string> {
@@ -99,15 +99,15 @@ class Account {
     this._transactionsPerformed = this._transactionsPerformed + 1;
   }
 
-  transactionsPerformed() {
+  public transactionsPerformed() {
     return this._transactionsPerformed;
   }
 
-  async nonce(w3: Web3) {
+  public async nonce(w3: Web3) {
     return await w3.eth.getTransactionCount(this.address);
   }
 
-  async getRandomNormalizedAmountOfBalance(
+  public async getRandomNormalizedAmountOfBalance(
     token: Token,
     minPercent: number,
     maxPercent: number,

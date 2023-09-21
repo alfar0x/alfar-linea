@@ -1,6 +1,6 @@
+import { SwapAction } from "../action/swap/base";
 import Linea from "../chain/linea";
 import Account from "../core/account";
-import { SwapAction } from "../core/action/swap";
 import sleep from "../utils/other/sleep";
 
 const testLineaSwapToEth = async (params: {

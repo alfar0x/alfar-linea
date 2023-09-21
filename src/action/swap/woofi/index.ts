@@ -1,110 +1,43 @@
-import Big from "big.js";
-
 import { CONTRACT_WOOFI_ROUTER } from "../../../abi/constants/contracts";
 import getWeb3Contract from "../../../abi/methods/getWeb3Contract";
 import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import Account from "../../../core/account";
-import { SwapAction } from "../../../core/action/swap";
-import Chain from "../../../core/chain";
 import Token from "../../../core/token";
+import { Amount } from "../../../types";
+import SwapAction from "../base";
 
-class WoofiSwap extends SwapAction {
-  constructor() {
-    super({ provider: "WOOFI" });
-  }
+class WoofiSwapAction extends SwapAction {
+  private contractAddress: string;
 
-  public getApproveAddress(chain: Chain) {
-    return chain.getContractAddressByName(CONTRACT_WOOFI_ROUTER);
-  }
+  public constructor(params: { fromToken: Token; toToken: Token }) {
+    super(params);
 
-  private async checkIsAllowed(params: {
-    account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
-  }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
+    this.initializeName({ provider: "WOOFI" });
 
-    const { chain } = fromToken;
-
-    const contractAddress = chain.getContractAddressByName(
-      CONTRACT_WOOFI_ROUTER,
-    );
-
-    if (!contractAddress) {
-      throw new Error(`${this.name} action is not available in ${chain.name}`);
-    }
-
-    if (!fromToken.chain.isEquals(toToken.chain)) {
-      throw new Error(
-        `woofi is not available for tokens in different chains: ${fromToken} -> ${toToken}`,
-      );
-    }
-
-    if (!fromToken.isNative) {
-      const normalizedAllowance = await fromToken.normalizedAllowance(
-        account,
-        contractAddress,
-      );
-
-      if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance =
-          await fromToken.toReadableAmount(normalizedAllowance);
-        const readableAmount =
-          await fromToken.toReadableAmount(normalizedAmount);
-
-        throw new Error(
-          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
-        );
-      }
-    }
-
-    const normalizedBalance = await fromToken.normalizedBalanceOf(
-      account.address,
-    );
-
-    if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance =
-        await fromToken.toReadableAmount(normalizedBalance);
-      const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
-
-      throw new Error(
-        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`,
-      );
-    }
-
-    return { contractAddress };
+    this.contractAddress = this.getContractAddress({
+      contractName: CONTRACT_WOOFI_ROUTER,
+    });
   }
 
   private getSwapCall(params: {
     account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
-    minOutNormalizedAmount: number | string;
-    contractAddress: string;
+    normalizedAmount: Amount;
+    minOutNormalizedAmount: Amount;
   }) {
-    const {
-      account,
-      fromToken,
-      toToken,
-      normalizedAmount,
-      minOutNormalizedAmount,
-      contractAddress,
-    } = params;
+    const { account, normalizedAmount, minOutNormalizedAmount } = params;
 
-    const { chain } = fromToken;
+    const { chain } = this.fromToken;
     const { w3 } = chain;
 
     const routerContract = getWeb3Contract({
       w3,
       name: CONTRACT_WOOFI_ROUTER,
-      address: contractAddress,
+      address: this.contractAddress,
     });
 
     return routerContract.methods.swap(
-      fromToken.address,
-      toToken.address,
+      this.fromToken.address,
+      this.toToken.address,
       normalizedAmount,
       minOutNormalizedAmount,
       account.address,
@@ -112,39 +45,41 @@ class WoofiSwap extends SwapAction {
     );
   }
 
-  async swap(params: {
+  protected async approve(params: {
     account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
+    normalizedAmount: Amount;
   }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
+    const { account, normalizedAmount } = params;
 
-    const { chain } = fromToken;
-    const { w3 } = chain;
-    const { contractAddress } = await this.checkIsAllowed({
+    return await this.getDefaultApproveTransaction({
       account,
-      fromToken,
-      toToken,
+      token: this.fromToken,
+      spenderAddress: this.contractAddress,
       normalizedAmount,
     });
+  }
 
-    const minOutNormalizedAmount = await toToken.getMinOutNormalizedAmount(
-      fromToken,
+  protected async swap(params: { account: Account; normalizedAmount: Amount }) {
+    const { account, normalizedAmount } = params;
+
+    const { chain } = this.fromToken;
+    const { w3 } = chain;
+
+    await this.checkIsBalanceAllowed({ account, normalizedAmount });
+
+    const minOutNormalizedAmount = await this.toToken.getMinOutNormalizedAmount(
+      this.fromToken,
       normalizedAmount,
       DEFAULT_SLIPPAGE_PERCENT,
     );
 
     const swapFunctionCall = this.getSwapCall({
       account,
-      fromToken,
-      toToken,
       normalizedAmount,
       minOutNormalizedAmount,
-      contractAddress,
     });
 
-    const value = fromToken.isNative ? normalizedAmount : 0;
+    const value = this.fromToken.isNative ? normalizedAmount : 0;
 
     const estimatedGas = await swapFunctionCall.estimateGas({
       from: account.address,
@@ -160,19 +95,17 @@ class WoofiSwap extends SwapAction {
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: contractAddress,
+      to: this.contractAddress,
       value,
     };
 
-    const hash = await account.signAndSendTransaction(chain, tx);
-
-    const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
-    const outReadableAmount = await toToken.toReadableAmount(
+    const resultMsg = await this.getDefaultSwapResultMsg({
+      normalizedAmount,
       minOutNormalizedAmount,
-    );
+    });
 
-    return { hash, inReadableAmount, outReadableAmount };
+    return { tx, resultMsg };
   }
 }
 
-export default WoofiSwap;
+export default WoofiSwapAction;

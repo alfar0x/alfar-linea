@@ -57,7 +57,7 @@ export type Unpaused = ContractEventLog<{
 }>;
 
 export interface LineaBankLabDistributor extends BaseContract {
-  constructor(
+  public constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions

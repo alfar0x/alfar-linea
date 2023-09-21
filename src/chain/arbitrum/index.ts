@@ -8,7 +8,7 @@ type ArbitrumConstructorParams = {
 };
 
 class Arbitrum extends Chain {
-  constructor(params: ArbitrumConstructorParams) {
+  public constructor(params: ArbitrumConstructorParams) {
     const { rpc } = params;
 
     super({

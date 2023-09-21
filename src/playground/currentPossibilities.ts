@@ -1,7 +1,7 @@
 import Linea from "../chain/linea";
 import ACTION_PROVIDERS from "../constants/actionProviders";
-import { Provider } from "../core/action/types";
-import initializeFactory from "../worker/jobsGenerator/initializeFactory";
+import { Provider } from "../core/action";
+import initializeFactory from "../worker/tasksGenerator/initializeFactory";
 
 const currentPossibilities = () => {
   const factory = initializeFactory({

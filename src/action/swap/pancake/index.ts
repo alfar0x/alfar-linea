@@ -1,4 +1,6 @@
 import Big from "big.js";
+import { ethers } from "ethers";
+import { Transaction } from "web3";
 
 import {
   CONTRACT_PANCAKE_SWAP_ROUTER,
@@ -6,32 +8,43 @@ import {
   CONTRACT_PANCAKE_QUOTE,
 } from "../../../abi/constants/contracts";
 import getEthersInterface from "../../../abi/methods/getEthersInterface";
-import {
-  DEFAULT_GAS_MULTIPLIER,
-  DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
-  DEFAULT_SLIPPAGE_PERCENT,
-} from "../../../constants";
+import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import Account from "../../../core/account";
-import SwapAction from "../../../core/action/swap";
-import Chain from "../../../core/chain";
 import Token from "../../../core/token";
+import { Amount } from "../../../types";
+import logger from "../../../utils/other/logger";
+import SwapAction from "../base";
 
 import {
   FEE,
   INITIAL_GAS_MULTIPLIER,
+  RESEND_TX_TIMES,
   SQRT_PRICE_LIMIT_X96,
   UNWRAP_ETH_ADDRESS,
 } from "./constants";
-import RunnableTransaction from "../../../core/transaction";
-import { ethers } from "ethers";
-import logger from "../../../utils/other/logger";
 
 class PancakeSwapAction extends SwapAction {
-  constructor() {
-    super({ provider: "PANCAKE" });
+  private routerContractAddress: string;
+  private factoryContractAddress: string;
+  private quoteContractAddress: string;
+
+  public constructor(params: { fromToken: Token; toToken: Token }) {
+    super(params);
+
+    this.initializeName({ provider: "PANCAKE" });
+
+    this.routerContractAddress = this.getContractAddress({
+      contractName: CONTRACT_PANCAKE_SWAP_ROUTER,
+    });
+    this.factoryContractAddress = this.getContractAddress({
+      contractName: CONTRACT_PANCAKE_FACTORY,
+    });
+    this.quoteContractAddress = this.getContractAddress({
+      contractName: CONTRACT_PANCAKE_QUOTE,
+    });
   }
 
-  async getPool(params: {
+  private async getPool(params: {
     fromToken: Token;
     toToken: Token;
     isReversed?: boolean;
@@ -40,16 +53,6 @@ class PancakeSwapAction extends SwapAction {
     const { chain } = fromToken;
 
     try {
-      const poolFactoryContractAddress = chain.getContractAddressByName(
-        CONTRACT_PANCAKE_FACTORY,
-      );
-
-      if (!poolFactoryContractAddress) {
-        throw new Error(
-          `${this.name} action is not available in ${chain.name}`,
-        );
-      }
-
       const pancakeFactoryInterface = getEthersInterface({
         name: "PancakeFactory",
       });
@@ -65,7 +68,7 @@ class PancakeSwapAction extends SwapAction {
 
       const poolAddress = await chain.w3.eth.call({
         data: getPoolData,
-        to: poolFactoryContractAddress,
+        to: this.factoryContractAddress,
       });
 
       if (poolAddress === ethers.ZeroAddress) {
@@ -84,21 +87,9 @@ class PancakeSwapAction extends SwapAction {
     }
   }
 
-  private async getQuote(params: {
-    chain: Chain;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: string | number;
-  }) {
-    const { chain, fromToken, toToken, normalizedAmount } = params;
-
-    const poolQuoteContractAddress = chain.getContractAddressByName(
-      CONTRACT_PANCAKE_QUOTE,
-    );
-
-    if (!poolQuoteContractAddress) {
-      throw new Error(`${this.name} action is not available in ${chain.name}`);
-    }
+  private async getQuote(params: { normalizedAmount: Amount }) {
+    const { normalizedAmount } = params;
+    const { w3 } = this.fromToken.chain;
 
     const pancakeQuoteInterface = getEthersInterface({ name: "PancakeQuote" });
 
@@ -106,8 +97,8 @@ class PancakeSwapAction extends SwapAction {
       "quoteExactInputSingle",
       [
         {
-          tokenIn: fromToken.getAddressOrWrappedForNative(),
-          tokenOut: toToken.getAddressOrWrappedForNative(),
+          tokenIn: this.fromToken.getAddressOrWrappedForNative(),
+          tokenOut: this.toToken.getAddressOrWrappedForNative(),
           amountIn: normalizedAmount,
           fee: FEE,
           sqrtPriceLimitX96: SQRT_PRICE_LIMIT_X96,
@@ -115,9 +106,9 @@ class PancakeSwapAction extends SwapAction {
       ],
     );
 
-    const quoteExactInputSingleResult = await chain.w3.eth.call({
+    const quoteExactInputSingleResult = await w3.eth.call({
       data: quoteExactInputSingleData,
-      to: poolQuoteContractAddress,
+      to: this.quoteContractAddress,
     });
 
     const quote = pancakeQuoteInterface.decodeFunctionResult(
@@ -145,33 +136,27 @@ class PancakeSwapAction extends SwapAction {
 
   private async getSwapData(params: {
     account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
-    minOutNormalizedAmount: number | string;
+    normalizedAmount: Amount;
+    minOutNormalizedAmount: Amount;
   }) {
-    const {
-      account,
-      fromToken,
-      toToken,
-      normalizedAmount,
-      minOutNormalizedAmount,
-    } = params;
+    const { account, normalizedAmount, minOutNormalizedAmount } = params;
 
-    const { chain } = fromToken;
+    const { chain } = this.fromToken;
 
     const pancakeRouterInterface = getEthersInterface({
       name: "PancakeSwapRouter",
     });
 
-    const address = toToken.isNative ? UNWRAP_ETH_ADDRESS : account.address;
+    const address = this.toToken.isNative
+      ? UNWRAP_ETH_ADDRESS
+      : account.address;
 
     const exactInputSingleData = pancakeRouterInterface.encodeFunctionData(
       "exactInputSingle",
       [
         {
-          tokenIn: fromToken.getAddressOrWrappedForNative(),
-          tokenOut: toToken.getAddressOrWrappedForNative(),
+          tokenIn: this.fromToken.getAddressOrWrappedForNative(),
+          tokenOut: this.toToken.getAddressOrWrappedForNative(),
           fee: FEE,
           recipient: address,
           amountIn: normalizedAmount,
@@ -183,7 +168,7 @@ class PancakeSwapAction extends SwapAction {
 
     const multicallBytesArray = [exactInputSingleData];
 
-    if (toToken.isNative) {
+    if (this.toToken.isNative) {
       const unwrapEthData = pancakeRouterInterface.encodeFunctionData(
         "unwrapWETH9",
         [minOutNormalizedAmount, account.address],
@@ -201,85 +186,43 @@ class PancakeSwapAction extends SwapAction {
     return { data };
   }
 
-  private async checkIsAllowed(params: {
+  protected async approve(params: {
     account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
+    normalizedAmount: Amount;
   }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
+    const { account, normalizedAmount } = params;
 
-    const { chain } = fromToken;
-
-    const poolAddress = await this.getPool({ fromToken, toToken });
-
-    if (!poolAddress) {
-      throw new Error(`${fromToken.name} -> ${toToken.name} pool not found`);
-    }
-
-    if (!fromToken.chain.isEquals(toToken.chain)) {
-      throw new Error(
-        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`,
-      );
-    }
-
-    const contractAddress = chain.getContractAddressByName(
-      CONTRACT_PANCAKE_SWAP_ROUTER,
-    );
-
-    if (!contractAddress) {
-      throw new Error(`${this.name} action is not available in ${chain.name}`);
-    }
-
-    if (fromToken.isEquals(toToken)) {
-      throw new Error(
-        `action is not available for eq tokens: ${fromToken} -> ${toToken}`,
-      );
-    }
-
-    const normalizedBalance = await fromToken.normalizedBalanceOf(
-      account.address,
-    );
-
-    if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance =
-        await fromToken.toReadableAmount(normalizedBalance);
-      const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
-
-      throw new Error(
-        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`,
-      );
-    }
-
-    return { contractAddress };
+    return await this.getDefaultApproveTransaction({
+      account,
+      token: this.fromToken,
+      spenderAddress: this.routerContractAddress,
+      normalizedAmount,
+    });
   }
 
-  private async getSwapTransaction(params: {
-    account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
-    contractAddress: string;
-  }) {
-    const { account, fromToken, toToken, normalizedAmount, contractAddress } =
-      params;
+  protected async swap(params: { account: Account; normalizedAmount: Amount }) {
+    const { account, normalizedAmount } = params;
 
-    const { chain } = fromToken;
+    const { chain } = this.fromToken;
     const { w3 } = chain;
 
-    const value = fromToken.isNative ? normalizedAmount : 0;
+    await this.checkIsBalanceAllowed({ account, normalizedAmount });
+
+    const poolAddress = this.getPool({
+      fromToken: this.fromToken,
+      toToken: this.toToken,
+    });
+
+    if (!poolAddress) {
+      throw new Error(`pool not found`);
+    }
 
     const { minOutNormalizedAmount, estimatedGas } = await this.getQuote({
-      chain,
-      fromToken,
-      toToken,
       normalizedAmount,
     });
 
     const { data } = await this.getSwapData({
       account,
-      fromToken,
-      toToken,
       normalizedAmount,
       minOutNormalizedAmount,
     });
@@ -288,82 +231,24 @@ class PancakeSwapAction extends SwapAction {
 
     const gasPrice = await w3.eth.getGasPrice();
 
-    const swapTx = {
+    const value = this.fromToken.isNative ? normalizedAmount : 0;
+
+    const tx: Transaction = {
       data,
       from: account.address,
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: contractAddress,
+      to: this.routerContractAddress,
       value,
     };
 
-    const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
-    const outReadableAmount = await toToken.toReadableAmount(
+    const resultMsg = await this.getDefaultSwapResultMsg({
+      normalizedAmount,
       minOutNormalizedAmount,
-    );
-
-    return { swapTx, inReadableAmount, outReadableAmount };
-  }
-
-  async swap(params: {
-    account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
-  }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
-
-    const { contractAddress } = await this.checkIsAllowed({
-      account,
-      fromToken,
-      toToken,
-      normalizedAmount,
     });
 
-    const txs: RunnableTransaction[] = [];
-
-    const approveTx = await fromToken.getApproveTransaction({
-      account,
-      spenderAddress: contractAddress,
-      normalizedAmount,
-    });
-
-    if (approveTx) {
-      const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
-      txs.push(
-        new RunnableTransaction({
-          name: "approve",
-          chain: fromToken.chain,
-          account,
-          tx: approveTx,
-          resultMsg: `${readableAmount} ${fromToken} success`,
-        }),
-      );
-    }
-
-    const { swapTx, inReadableAmount, outReadableAmount } =
-      await this.getSwapTransaction({
-        account,
-        fromToken,
-        toToken,
-        normalizedAmount,
-        contractAddress,
-      });
-
-    txs.push(
-      new RunnableTransaction({
-        name: "swap",
-        chain: fromToken.chain,
-        account,
-        tx: swapTx,
-        resultMsg: `${inReadableAmount} ${fromToken} -> ${outReadableAmount} ${toToken} success`,
-        gasMultiplier: DEFAULT_GAS_MULTIPLIER,
-        retryTimes: DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
-      }),
-    );
-
-    return { txs };
+    return { tx, resultMsg, retryTimes: RESEND_TX_TIMES };
   }
 }
 

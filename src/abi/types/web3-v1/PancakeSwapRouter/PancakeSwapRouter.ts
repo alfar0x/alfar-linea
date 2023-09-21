@@ -22,7 +22,7 @@ export interface EventOptions {
 }
 
 export interface PancakeSwapRouter extends BaseContract {
-  constructor(
+  public constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions

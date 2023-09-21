@@ -10,11 +10,11 @@ import sleep from "../../utils/other/sleep";
 import initializeAddresses from "./initializeAddresses";
 
 class Checker {
-  config: CheckerConfig;
-  chain: Chain;
-  addresses: string[];
+  private config: CheckerConfig;
+  private chain: Chain;
+  private addresses: string[];
 
-  constructor(configFileName: string) {
+  public constructor(configFileName: string) {
     this.config = new CheckerConfig({ configFileName });
 
     const { rpc } = this.config.fixed;
@@ -57,7 +57,7 @@ class Checker {
     };
   }
 
-  async checkAllAccounts() {
+  private async checkAllAccounts() {
     const { delayBetweenChunkSec, maxParallelAccounts } = this.config.fixed;
     const chunks = sliceIntoChunks(this.addresses, maxParallelAccounts);
 
@@ -88,7 +88,7 @@ class Checker {
     return accountsData;
   }
 
-  async run() {
+  public async run() {
     const { files } = this.config.fixed;
 
     this.addresses = await initializeAddresses({

@@ -34,7 +34,7 @@ class Proxy {
   private onIpChangeUrlSleepSec: number;
   private onIpChangeErrorRepeatTimes: number;
 
-  constructor(params: {
+  public constructor(params: {
     type: ProxyType;
     isRandom?: boolean;
     ipChangeUrl?: string;
@@ -50,7 +50,7 @@ class Proxy {
     this.proxyList = [];
   }
 
-  async initializeProxy(fileName: string) {
+  public async initializeProxy(fileName: string) {
     if (this.type === "none") return [];
 
     const allFileData = await readFileAndEncryptByLine(fileName);
@@ -163,11 +163,11 @@ class Proxy {
     );
   }
 
-  isServerRandom() {
+  public isServerRandom() {
     return this.type === "server" && !this.isRandom;
   }
 
-  count() {
+  public count() {
     return this.proxyList.length;
   }
 }

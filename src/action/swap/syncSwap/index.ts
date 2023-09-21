@@ -1,4 +1,3 @@
-import Big from "big.js";
 import { ethers } from "ethers";
 import { Transaction } from "web3";
 
@@ -9,20 +8,29 @@ import {
 import getWeb3Contract from "../../../abi/methods/getWeb3Contract";
 import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import Account from "../../../core/account";
-import SwapAction from "../../../core/action/swap";
 import Token from "../../../core/token";
-import RunnableTransaction from "../../../core/transaction";
+import { Amount } from "../../../types";
 import logger from "../../../utils/other/logger";
+import SwapAction from "../base";
 
-const withdrawMode = {
-  VAULT_INTERNAL_TRANSFER: 0,
-  WITHDRAW_ETH: 1,
-  WITHDRAW_WETH: 2,
-};
+import { WITHDRAWAL_MODE } from "./constants";
 
 class SyncswapSwapAction extends SwapAction {
-  constructor() {
-    super({ provider: "SYNCSWAP" });
+  private routerContractAddress: string;
+  private factoryContractAddress: string;
+
+  public constructor(params: { fromToken: Token; toToken: Token }) {
+    super(params);
+
+    this.initializeName({ provider: "SYNCSWAP" });
+
+    this.routerContractAddress = this.getContractAddress({
+      contractName: CONTRACT_SYNCSWAP_ROUTER,
+    });
+
+    this.factoryContractAddress = this.getContractAddress({
+      contractName: CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY,
+    });
   }
 
   private async getPool(params: {
@@ -34,20 +42,10 @@ class SyncswapSwapAction extends SwapAction {
     const { chain } = fromToken;
 
     try {
-      const classicPoolFactoryContractAddress = chain.getContractAddressByName(
-        CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY,
-      );
-
-      if (!classicPoolFactoryContractAddress) {
-        throw new Error(
-          `${this.name} action is not available in ${chain.name}`,
-        );
-      }
-
       const classicPoolFactoryContract = getWeb3Contract({
         w3: chain.w3,
         name: CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY,
-        address: classicPoolFactoryContractAddress,
+        address: this.factoryContractAddress,
       });
 
       const poolAddress = await classicPoolFactoryContract.methods
@@ -73,71 +71,16 @@ class SyncswapSwapAction extends SwapAction {
     }
   }
 
-  private async checkIsAllowed(params: {
-    account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
-  }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
-
-    if (!fromToken.chain.isEquals(toToken.chain)) {
-      throw new Error(
-        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`,
-      );
-    }
-
-    const { chain } = fromToken;
-
-    const contractAddress = chain.getContractAddressByName(
-      CONTRACT_SYNCSWAP_ROUTER,
-    );
-
-    if (!contractAddress) {
-      throw new Error(`${this.name} action is not available in ${chain.name}`);
-    }
-
-    if (fromToken.isEquals(toToken)) {
-      throw new Error(
-        `action is not available for eq tokens: ${fromToken} -> ${toToken}`,
-      );
-    }
-
-    const normalizedBalance = await fromToken.normalizedBalanceOf(
-      account.address,
-    );
-
-    if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance =
-        await fromToken.toReadableAmount(normalizedBalance);
-      const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
-
-      throw new Error(
-        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`,
-      );
-    }
-
-    return { contractAddress };
-  }
-
   private async getSwapCall(params: {
     account: Account;
-    fromToken: Token;
-    normalizedAmount: number | string;
-    minOutNormalizedAmount: number | string;
-    contractAddress: string;
+    normalizedAmount: Amount;
+    minOutNormalizedAmount: Amount;
     poolAddress: string;
   }) {
-    const {
-      account,
-      fromToken,
-      normalizedAmount,
-      minOutNormalizedAmount,
-      contractAddress,
-      poolAddress,
-    } = params;
+    const { account, normalizedAmount, minOutNormalizedAmount, poolAddress } =
+      params;
 
-    const { chain } = fromToken;
+    const { chain } = this.fromToken;
     const { w3 } = chain;
 
     const encoder = new ethers.AbiCoder();
@@ -145,16 +88,16 @@ class SyncswapSwapAction extends SwapAction {
     const swapData = encoder.encode(
       ["address", "address", "uint8"],
       [
-        fromToken.getAddressOrWrappedForNative(),
+        this.fromToken.getAddressOrWrappedForNative(),
         account.address,
-        withdrawMode.WITHDRAW_ETH,
+        WITHDRAWAL_MODE.WITHDRAW_ETH,
       ],
     );
 
     const routerContract = getWeb3Contract({
       w3,
       name: CONTRACT_SYNCSWAP_ROUTER,
-      address: contractAddress,
+      address: this.routerContractAddress,
     });
 
     type SwapPath = Parameters<typeof routerContract.methods.swap>["0"][number];
@@ -162,7 +105,9 @@ class SyncswapSwapAction extends SwapAction {
 
     const step: SwapStep = [poolAddress, swapData, ethers.ZeroAddress, "0x"];
 
-    const tokenIn = fromToken.isNative ? ethers.ZeroAddress : fromToken.address;
+    const tokenIn = this.fromToken.isNative
+      ? ethers.ZeroAddress
+      : this.fromToken.address;
 
     const path: SwapPath = [[step], tokenIn, normalizedAmount];
 
@@ -175,37 +120,51 @@ class SyncswapSwapAction extends SwapAction {
     );
   }
 
-  private async getSwapTransaction(params: {
+  protected async approve(params: {
     account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
-    contractAddress: string;
+    normalizedAmount: Amount;
   }) {
-    const { account, fromToken, toToken, normalizedAmount, contractAddress } =
-      params;
+    const { account, normalizedAmount } = params;
 
-    const { chain } = fromToken;
+    return await this.getDefaultApproveTransaction({
+      account,
+      token: this.fromToken,
+      spenderAddress: this.routerContractAddress,
+      normalizedAmount,
+    });
+  }
+
+  protected async swap(params: { account: Account; normalizedAmount: Amount }) {
+    const { account, normalizedAmount } = params;
+
+    const { chain } = this.fromToken;
     const { w3 } = chain;
 
-    const minOutNormalizedAmount = await toToken.getMinOutNormalizedAmount(
-      fromToken,
+    await this.checkIsBalanceAllowed({ account, normalizedAmount });
+
+    const poolAddress = await this.getPool({
+      fromToken: this.fromToken,
+      toToken: this.toToken,
+    });
+
+    if (!poolAddress) {
+      throw new Error(`pool not found`);
+    }
+
+    const minOutNormalizedAmount = await this.toToken.getMinOutNormalizedAmount(
+      this.fromToken,
       normalizedAmount,
       DEFAULT_SLIPPAGE_PERCENT,
     );
 
-    const poolAddress = await this.getPool({ fromToken, toToken });
-
     const swapFunctionCall = await this.getSwapCall({
       account,
-      fromToken,
       normalizedAmount,
       minOutNormalizedAmount,
-      contractAddress,
       poolAddress,
     });
 
-    const value = fromToken.isNative ? normalizedAmount : 0;
+    const value = this.fromToken.isNative ? normalizedAmount : 0;
 
     const estimatedGas = await swapFunctionCall.estimateGas({
       from: account.address,
@@ -216,80 +175,22 @@ class SyncswapSwapAction extends SwapAction {
 
     const gasPrice = await w3.eth.getGasPrice();
 
-    const swapTx: Transaction = {
+    const tx: Transaction = {
       data: swapFunctionCall.encodeABI(),
       from: account.address,
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: contractAddress,
+      to: this.routerContractAddress,
       value,
     };
 
-    const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
-    const outReadableAmount = await toToken.toReadableAmount(
+    const resultMsg = await this.getDefaultSwapResultMsg({
+      normalizedAmount,
       minOutNormalizedAmount,
-    );
-
-    return { swapTx, inReadableAmount, outReadableAmount };
-  }
-
-  async swap(params: {
-    account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
-  }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
-
-    const { contractAddress } = await this.checkIsAllowed({
-      account,
-      fromToken,
-      toToken,
-      normalizedAmount,
     });
 
-    const txs: RunnableTransaction[] = [];
-
-    const approveTx = await fromToken.getApproveTransaction({
-      account,
-      spenderAddress: contractAddress,
-      normalizedAmount,
-    });
-
-    if (approveTx) {
-      const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
-      txs.push(
-        new RunnableTransaction({
-          name: "approve",
-          chain: fromToken.chain,
-          account,
-          tx: approveTx,
-          resultMsg: `${readableAmount} ${fromToken} success`,
-        }),
-      );
-    }
-
-    const { swapTx, inReadableAmount, outReadableAmount } =
-      await this.getSwapTransaction({
-        account,
-        fromToken,
-        toToken,
-        normalizedAmount,
-        contractAddress,
-      });
-
-    txs.push(
-      new RunnableTransaction({
-        name: "swap",
-        chain: fromToken.chain,
-        account,
-        tx: swapTx,
-        resultMsg: `${inReadableAmount} ${fromToken} -> ${outReadableAmount} ${toToken} success`,
-      }),
-    );
-
-    return { txs };
+    return { tx, resultMsg };
   }
 }
 

@@ -1,64 +1,49 @@
 import Big from "big.js";
 import { Transaction } from "web3";
 
-import { DEFAULT_GAS_MULTIPLIER } from "../constants";
 import logger from "../utils/other/logger";
 
 import Account from "./account";
 import Chain from "./chain";
 
-const maxSendTransactionTimes = 20;
+const MAX_RETRY_TIMES = 20;
 
-type TransactionResult = { tx: Transaction | null; resultMsg: string };
-export type CreateTransactionFunc = () => Promise<TransactionResult>;
+export type CreateTransactionResult = {
+  tx: Transaction | null;
+  resultMsg?: string;
+  gasMultiplier?: number;
+  retryTimes?: number;
+};
+
+export type CreateTransactionFunc = () => Promise<CreateTransactionResult>;
 
 class RunnableTransaction {
+  private DEFAULT_GAS_MULTIPLIER = 1.1;
+  private DEFAULT_RETRY_TIMES = 0;
+  private DEFAULT_RESULT_MSG = "work";
+
   public name: string;
   public chain: Chain;
   public account: Account;
   public createTransaction: CreateTransactionFunc;
-  public gasMultiplier: number;
-  public retryTimes: number;
 
-  constructor(params: {
+  public constructor(params: {
     name: string;
     chain: Chain;
     account: Account;
     createTransaction: CreateTransactionFunc;
-    gasMultiplier?: number;
-    retryTimes?: number;
   }) {
-    const {
-      name,
-      chain,
-      account,
-      createTransaction,
-      gasMultiplier,
-      retryTimes,
-    } = params;
-
-    if (retryTimes && retryTimes >= maxSendTransactionTimes) {
-      throw new Error(
-        `Unexpected error. times > maxSendTransactionTimes. ${retryTimes} >= ${maxSendTransactionTimes}`,
-      );
-    }
+    const { name, chain, account, createTransaction } = params;
 
     this.name = name;
     this.chain = chain;
     this.account = account;
     this.createTransaction = createTransaction;
-    this.gasMultiplier = gasMultiplier || DEFAULT_GAS_MULTIPLIER;
-    this.retryTimes = retryTimes || 0;
   }
 
-  private increaseGas(tx: Transaction) {
-    if (this.retryTimes && tx.gas) {
-      tx.gas = Big(tx.gas.toString())
-        .times(this.gasMultiplier)
-        .round()
-        .toString();
-
-      this.retryTimes -= 1;
+  private increaseGas(tx: Transaction, gasMultiplier: number) {
+    if (tx.gas) {
+      tx.gas = Big(tx.gas.toString()).times(gasMultiplier).round().toString();
     }
 
     return tx;
@@ -73,11 +58,11 @@ class RunnableTransaction {
     return await this.chain.getNative().readableAmountToUsd(priceEth);
   }
 
-  private getSuccessMessage(hash: string, resultMsg: string) {
+  private getSuccessMessage(hash: string, resultMsg?: string) {
     const msg = [
       String(this.account),
       this.name,
-      `${resultMsg} success`,
+      `${resultMsg ?? this.DEFAULT_RESULT_MSG} success`,
       this.chain.getHashLink(hash),
     ].join(" | ");
 
@@ -86,9 +71,11 @@ class RunnableTransaction {
 
   private async transactionRunner(params: {
     tx: Transaction;
+    retryTimes: number;
+    gasMultiplier: number;
     maxTxPriceUsd?: number;
   }): Promise<string> {
-    const { tx, maxTxPriceUsd } = params;
+    const { tx, retryTimes, gasMultiplier, maxTxPriceUsd } = params;
 
     if (maxTxPriceUsd) {
       const gasPriceUsd = await this.calcTxPriceUsd(tx);
@@ -104,42 +91,63 @@ class RunnableTransaction {
 
       return hash;
     } catch (error) {
+      if (retryTimes <= 0) throw error;
+
       const isTxReverted = (error as Error)?.message?.includes("reverted");
       const isNullableError = (error as Error)?.message?.includes(
         "Cannot use 'in' operator to search for 'originalError' in null",
       );
 
-      if (!this.retryTimes) throw error;
-
       if (!isTxReverted && !isNullableError) throw error;
 
-      const nextTx = this.increaseGas(tx);
+      const nextTx = this.increaseGas(tx, gasMultiplier);
 
       logger.debug(
-        `Retrying to resend tx: ${this.retryTimes} times | ${tx.gas} gas`,
+        `Retrying to resend tx: ${retryTimes} times | ${tx.gas} gas`,
       );
 
-      return this.transactionRunner({ tx: nextTx, maxTxPriceUsd });
+      return this.transactionRunner({
+        tx: nextTx,
+        retryTimes: retryTimes - 1,
+        gasMultiplier,
+        maxTxPriceUsd,
+      });
     }
   }
 
-  async run(params: { maxTxPriceUsd?: number }) {
+  public async run(params: { maxTxPriceUsd?: number }) {
     const { maxTxPriceUsd } = params;
 
     const data = await this.createTransaction();
 
-    const { tx, resultMsg } = data;
+    const {
+      tx,
+      resultMsg,
+      retryTimes = this.DEFAULT_RETRY_TIMES,
+      gasMultiplier = this.DEFAULT_GAS_MULTIPLIER,
+    } = data;
 
     if (!tx) return null;
 
-    const hash = await this.transactionRunner({ tx, maxTxPriceUsd });
+    if (retryTimes && retryTimes >= MAX_RETRY_TIMES) {
+      throw new Error(
+        `Unexpected error. times > maxSendTransactionTimes. ${retryTimes} >= ${MAX_RETRY_TIMES}`,
+      );
+    }
+
+    const hash = await this.transactionRunner({
+      tx,
+      maxTxPriceUsd,
+      retryTimes,
+      gasMultiplier,
+    });
 
     logger.info(this.getSuccessMessage(hash, resultMsg));
 
     return hash;
   }
 
-  toString() {
+  public toString() {
     return this.name;
   }
 }

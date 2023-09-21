@@ -1,34 +1,37 @@
+import RunnableTransaction from "./transaction";
+
 class Step {
   public name: string;
+  private storage: RunnableTransaction[];
 
-  constructor(params: { name: string }) {
-    const { name } = params;
+  public constructor(params: { name: string; txs?: RunnableTransaction[] }) {
+    const { name, txs } = params;
+
     this.name = name;
+    this.storage = txs ?? [];
   }
 
-  // public equals(step: Step) {
-  //   return this.name === step.name;
-  // }
+  public push(element: RunnableTransaction) {
+    this.storage.push(element);
+  }
+
+  public shift() {
+    if (this.isEmpty()) return null;
+
+    return this.storage.shift() as RunnableTransaction;
+  }
+
+  public isEmpty() {
+    return this.storage.length === 0;
+  }
+
+  public size() {
+    return this.storage.length;
+  }
 
   public toString() {
-    return this.name;
+    return this.storage.map(String).join(" -> ");
   }
-
-  // private getFullMsg(account: Account, msg: string) {
-  //   return [account, this.name, msg].join(" | ");
-  // }
-
-  // protected getLogger(account: Account) {
-  //   return {
-  //     info: (msg: string) => logger.info(this.getFullMsg(account, msg)),
-  //     error: (msg: string) => logger.error(this.getFullMsg(account, msg)),
-  //     debug: (msg: string) => logger.debug(this.getFullMsg(account, msg)),
-  //   };
-  // }
-
-  // protected createDefaultStepName(name: string) {
-  //   return `${this.name}-${name}`;
-  // }
 }
 
 export default Step;

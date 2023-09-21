@@ -1,4 +1,5 @@
 import Big from "big.js";
+import { Transaction } from "web3";
 
 import {
   CONTRACT_LINEA_BANK_CORE,
@@ -6,83 +7,58 @@ import {
 } from "../../../abi/constants/contracts";
 import getWeb3Contract from "../../../abi/methods/getWeb3Contract";
 import Account from "../../../core/account";
-import { SupplyAction } from "../../../core/action/supply";
 import Chain from "../../../core/chain";
 import Token from "../../../core/token";
+import { Amount } from "../../../types";
+import SupplyAction from "../base";
 
 import { CHAINS_DATA } from "./constants";
 
 class LineaBankSupply extends SupplyAction {
-  constructor() {
-    super({
-      provider: "LINEA_BANK",
+  private coreContractAddress: string;
+  private distributorContractAddress: string;
+  private marketAddress: string;
+
+  public constructor(params: { token: Token }) {
+    super(params);
+
+    this.initializeName({ provider: "LINEA_BANK" });
+
+    this.coreContractAddress = this.getContractAddress({
+      contractName: CONTRACT_LINEA_BANK_CORE,
     });
+    this.distributorContractAddress = this.getContractAddress({
+      contractName: CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR,
+    });
+    this.marketAddress = this.getMarketAddress();
   }
 
-  public getApproveAddress(chain: Chain, token: Token) {
-    const chainData = CHAINS_DATA[chain.chainId] || {};
-    const { marketAddress } = chainData[token.name] || {};
+  private getMarketAddress() {
+    const chainData = CHAINS_DATA[this.token.chain.chainId] || {};
+    const { marketAddress } = chainData[this.token.name] || {};
 
     if (!marketAddress) {
-      throw new Error(`Market address is not defined for ${token}`);
+      throw new Error(`market address is not defined`);
     }
 
     return marketAddress;
   }
 
-  private getCoreAddress(chain: Chain) {
-    const coreContractAddress = chain.getContractAddressByName(
-      CONTRACT_LINEA_BANK_CORE,
-    );
-
-    if (!coreContractAddress) {
-      throw new Error(`${this.name} action is not available in ${chain.name}`);
-    }
-
-    return coreContractAddress;
-  }
-
-  private getDistributorAddress(chain: Chain) {
-    const distributorContractAddress = chain.getContractAddressByName(
-      CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR,
-    );
-
-    if (!distributorContractAddress) {
-      throw new Error(`${this.name} action is not available in ${chain.name}`);
-    }
-
-    return distributorContractAddress;
-  }
-
-  private getMarketAddress(token: Token) {
-    const chainData = CHAINS_DATA[token.chain.chainId] || {};
-    const { marketAddress } = chainData[token.name] || {};
-
-    if (!marketAddress) {
-      throw new Error(`Market address is not defined for ${token}`);
-    }
-
-    return marketAddress;
-  }
-
-  async getAccountDistribution(params: {
+  private async getAccountDistribution(params: {
     account: Account;
     chain: Chain;
-    marketAddress: string;
   }) {
-    const { account, chain, marketAddress } = params;
+    const { account, chain } = params;
     const { w3 } = chain;
-
-    const distributorContractAddress = this.getDistributorAddress(chain);
 
     const distributorContract = getWeb3Contract({
       w3,
       name: CONTRACT_LINEA_BANK_LAB_DISTRIBUTOR,
-      address: distributorContractAddress,
+      address: this.distributorContractAddress,
     });
 
     const accountDistribution = await distributorContract.methods
-      .accountDistributionInfoOf(marketAddress, account.address)
+      .accountDistributionInfoOf(this.marketAddress, account.address)
       .call();
 
     const normalizedSupply = accountDistribution[1];
@@ -90,117 +66,42 @@ class LineaBankSupply extends SupplyAction {
     return normalizedSupply;
   }
 
-  private async checkIsSupplyAllowed(params: {
+  protected async approveSupply(params: {
     account: Account;
-    token: Token;
-    normalizedAmount: number | string;
+    normalizedAmount: Amount;
   }) {
-    const { account, token, normalizedAmount } = params;
+    const { account, normalizedAmount } = params;
 
-    const { chain } = token;
-
-    const coreContractAddress = this.getCoreAddress(chain);
-
-    const distributorContractAddress = this.getDistributorAddress(chain);
-
-    if (!coreContractAddress || !distributorContractAddress) {
-      throw new Error(`${this.name} action is not available in ${chain.name}`);
-    }
-
-    const marketAddress = this.getMarketAddress(token);
-
-    if (!token.isNative) {
-      const normalizedAllowance = await token.normalizedAllowance(
-        account,
-        marketAddress,
-      );
-
-      if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance =
-          await token.toReadableAmount(normalizedAllowance);
-        const readableAmount = await token.toReadableAmount(normalizedAmount);
-
-        throw new Error(
-          `account ${token} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
-        );
-      }
-    }
-
-    const normalizedBalance = await token.normalizedBalanceOf(account.address);
-
-    if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance = await token.toReadableAmount(normalizedBalance);
-      const readableAmount = await token.toReadableAmount(normalizedAmount);
-
-      throw new Error(
-        `account ${token} balance is less than amount: ${readableBalance} < ${readableAmount}`,
-      );
-    }
-
-    return { marketAddress, coreContractAddress };
-  }
-
-  private async checkIsRedeemAllowed(params: {
-    account: Account;
-    token: Token;
-  }) {
-    const { account, token } = params;
-
-    const { chain } = token;
-
-    const coreContractAddress = chain.getContractAddressByName(
-      CONTRACT_LINEA_BANK_CORE,
-    );
-
-    const distributorContractAddress = this.getDistributorAddress(chain);
-
-    if (!coreContractAddress || !distributorContractAddress) {
-      throw new Error(`${this.name} action is not available in ${chain.name}`);
-    }
-
-    const marketAddress = this.getMarketAddress(token);
-
-    const normalizedSupply = await this.getAccountDistribution({
+    return await this.getDefaultApproveTransaction({
       account,
-      chain,
-      marketAddress,
+      token: this.token,
+      spenderAddress: this.marketAddress,
+      normalizedAmount,
     });
-
-    return {
-      marketAddress,
-      coreContractAddress,
-      normalizedSupply,
-    };
   }
 
-  async supply(params: {
+  protected async supply(params: {
     account: Account;
-    token: Token;
-    normalizedAmount: number | string;
+    normalizedAmount: Amount;
   }) {
-    const { account, token, normalizedAmount } = params;
-    const { chain } = token;
+    const { account, normalizedAmount } = params;
+    const { chain } = this.token;
     const { w3 } = chain;
 
-    const { marketAddress, coreContractAddress } =
-      await this.checkIsSupplyAllowed({
-        account,
-        token,
-        normalizedAmount,
-      });
+    await this.checkIsBalanceAllowed({ account, normalizedAmount });
 
     const coreContract = getWeb3Contract({
       w3,
       name: CONTRACT_LINEA_BANK_CORE,
-      address: coreContractAddress,
+      address: this.coreContractAddress,
     });
 
     const supplyCall = coreContract.methods.supply(
-      marketAddress,
+      this.marketAddress,
       normalizedAmount,
     );
 
-    const value = token.isNative ? normalizedAmount : 0;
+    const value = this.token.isNative ? normalizedAmount : 0;
 
     const estimatedGas = await supplyCall.estimateGas({
       from: account.address,
@@ -211,42 +112,45 @@ class LineaBankSupply extends SupplyAction {
 
     const gasPrice = await w3.eth.getGasPrice();
 
-    const tx = {
+    const tx: Transaction = {
       data: supplyCall.encodeABI(),
       from: account.address,
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: coreContractAddress,
+      to: this.coreContractAddress,
       value,
     };
 
-    const hash = await account.signAndSendTransaction(chain, tx);
+    const resultMsg = await this.getDefaultSupplyResultMsg({
+      normalizedAmount,
+    });
 
-    const inReadableAmount = await token.toReadableAmount(normalizedAmount);
-
-    return { hash, inReadableAmount };
+    return { tx, resultMsg };
   }
 
-  async redeemAll(params: { account: Account; token: Token }) {
-    const { account, token } = params;
-    const { chain } = token;
+  protected async redeemAll(params: { account: Account }) {
+    const { account } = params;
+    const { chain } = this.token;
     const { w3 } = chain;
 
-    const { marketAddress, coreContractAddress, normalizedSupply } =
-      await this.checkIsRedeemAllowed({
-        account,
-        token,
-      });
+    const normalizedSupply = await this.getAccountDistribution({
+      account,
+      chain,
+    });
+
+    if (Big(normalizedSupply).lte(0)) {
+      throw new Error(`supplied amount is lte that zero: ${normalizedSupply}`);
+    }
 
     const coreContract = getWeb3Contract({
       w3,
       name: CONTRACT_LINEA_BANK_CORE,
-      address: coreContractAddress,
+      address: this.coreContractAddress,
     });
 
     const redeemTokenCall = coreContract.methods.redeemToken(
-      marketAddress,
+      this.marketAddress,
       normalizedSupply,
     );
 
@@ -258,20 +162,18 @@ class LineaBankSupply extends SupplyAction {
 
     const gasPrice = await w3.eth.getGasPrice();
 
-    const tx = {
+    const tx: Transaction = {
       data: redeemTokenCall.encodeABI(),
       from: account.address,
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: coreContractAddress,
+      to: this.coreContractAddress,
     };
 
-    const hash = await account.signAndSendTransaction(chain, tx);
+    const resultMsg = await this.getDefaultRedeemResultMsg({});
 
-    const outReadableAmount = await token.toReadableAmount(normalizedSupply);
-
-    return { hash, outReadableAmount };
+    return { tx, resultMsg };
   }
 }
 

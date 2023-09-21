@@ -39,7 +39,7 @@ export type Approval = ContractEventLog<{
 }>;
 
 export interface Erc20 extends BaseContract {
-  constructor(
+  public constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions

@@ -13,14 +13,14 @@ type TokenPricesData = Record<TokenId, number>;
 type GeskoResponse = Record<TokenId, { usd: number }>;
 
 class Prices {
-  url = "https://api.coingecko.com/api/v3/simple/price";
-  updatePricesIntervalMinutes = 10;
+  private url = "https://api.coingecko.com/api/v3/simple/price";
+  private updatePricesIntervalMinutes = 10;
 
-  lastUpdateTimestamp: number;
-  geskoIds: string[];
-  prices: TokenPricesData;
+  private lastUpdateTimestamp: number;
+  private geskoIds: string[];
+  private prices: TokenPricesData;
 
-  constructor(params: { geskoIds: string[] }) {
+  public constructor(params: { geskoIds: string[] }) {
     const { geskoIds } = params;
 
     this.lastUpdateTimestamp = this.getOutdatedTimestamp() - 1;
@@ -84,7 +84,7 @@ class Prices {
     return isOutdated;
   }
 
-  async getTokenPrice(geskoId: string) {
+  public async getTokenPrice(geskoId: string) {
     if (this.isPricesOutdated()) await this.updatePrices();
 
     const tokenPrice = this.prices[geskoId];

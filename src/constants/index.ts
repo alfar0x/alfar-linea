@@ -1,3 +1,1 @@
 export const DEFAULT_SLIPPAGE_PERCENT = 0.5;
-export const DEFAULT_GAS_MULTIPLIER = 1.1;
-export const DEFAULT_RETRY_MULTIPLY_GAS_TIMES = 5;

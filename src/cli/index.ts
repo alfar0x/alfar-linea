@@ -9,8 +9,8 @@ import sleep from "../utils/other/sleep";
 
 const modeChoices = [
   {
-    title: "job generator",
-    value: "job-generator",
+    title: "task generator",
+    value: "task-generator",
     description: "run random linea transactions",
   },
   {
@@ -21,7 +21,7 @@ const modeChoices = [
   {
     title: "encrypter",
     value: "encrypter",
-    description: "encrypt your private keys to use job generator on server",
+    description: "encrypt your private keys to use task generator on server",
   },
   {
     title: "eth returner",
@@ -37,12 +37,12 @@ const modeChoices = [
   },
 ];
 
-type Mode = "job-generator" | "reset" | "depositor" | "checker" | "encrypter";
+type Mode = "task-generator" | "reset" | "depositor" | "checker" | "encrypter";
 
 class Cli {
-  configPath = "config";
+  private configPath = "config";
 
-  getConfigChoices() {
+  private getConfigChoices() {
     try {
       const fileNames = fs.readdirSync(this.configPath);
 
@@ -66,7 +66,7 @@ class Cli {
     }
   }
 
-  async run() {
+  public async run() {
     // eslint-disable-next-line no-console
     console.info(greetingsStr);
     await sleep(2);

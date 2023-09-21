@@ -14,7 +14,7 @@ class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
   public fixed: z.infer<F>;
   private _dynamic: z.infer<D>;
 
-  constructor(params: {
+  public constructor(params: {
     configFileName: string;
     fixedSchema: F;
     dynamicSchema: D;
