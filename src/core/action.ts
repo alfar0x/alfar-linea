@@ -82,6 +82,10 @@ abstract class Action {
 
     return contractAddress;
   }
+
+  public toString() {
+    return this.name;
+  }
 }
 
 export default Action;

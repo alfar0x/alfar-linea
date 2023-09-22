@@ -1,6 +1,6 @@
 import Big from "big.js";
 
-type Num = number | string | Big;
+type Num = Big | number | string;
 
 const randomInteger = (min: Num, max: Num) => {
   if (Big(max).lt(min)) {

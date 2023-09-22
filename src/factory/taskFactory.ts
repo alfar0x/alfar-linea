@@ -12,10 +12,10 @@ import SwapEthTokenEthRouter from "../router/swapEthTokenEth";
 import SwapSupplyTokenRouter from "../router/swapSupplyToken";
 
 type RouterId =
-  | "SWAP_ETH_TOKEN_ETH"
+  | "RANDOM"
   | "SUPPLY_ETH"
-  | "SWAP_SUPPLY_TOKEN"
-  | "RANDOM";
+  | "SWAP_ETH_TOKEN_ETH"
+  | "SWAP_SUPPLY_TOKEN";
 
 class TaskFactory {
   private readonly swapEthTokenEthRouter: SwapEthTokenEthRouter;

@@ -1,6 +1,7 @@
 import RandomAction from "../action/random/base";
 import Account from "../core/account";
 import Router from "../core/router";
+import sortStringsHelper from "../utils/other/sortStringsHelper";
 import randomChoice from "../utils/random/randomChoice";
 
 type PossibleRoute = RandomAction;
@@ -32,7 +33,7 @@ class RandomRouter extends Router {
   public possibleRoutesStrings() {
     return this.possibleRoutes
       .map((possibleRoute) => `${possibleRoute}`)
-      .sort();
+      .sort(sortStringsHelper);
   }
 
   public size() {

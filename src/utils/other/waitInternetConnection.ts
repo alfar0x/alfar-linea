@@ -8,6 +8,7 @@ import sleep from "./sleep";
 const sleepSec = 60;
 
 const waitInternetConnection = async () => {
+  // eslint-disable-next-line no-constant-condition, @typescript-eslint/no-unnecessary-condition
   while (true) {
     const myIp = await getMyIp();
 

@@ -10,7 +10,7 @@ const getMyIp = async () => {
   try {
     const response = await axios.get<unknown, Response>(ipCheckerUrl);
 
-    return response?.data?.ip || null;
+    return response.data?.ip || null;
   } catch (error) {
     return null;
   }

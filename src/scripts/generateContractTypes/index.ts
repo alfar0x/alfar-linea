@@ -39,4 +39,4 @@ const main = async () => {
   fillGetWeb3Contract({ sources, outputFile: files.getWeb3Contract });
 };
 
-main();
+void main();

@@ -10,7 +10,7 @@ import logger from "../utils/other/logger";
 import sleep from "../utils/other/sleep";
 import randomChoice from "../utils/random/randomChoice";
 
-type ProxyType = "none" | "server" | "mobile";
+type ProxyType = "mobile" | "none" | "server";
 
 const proxyItemSchema = z.object({
   host: z.string().ip(),
@@ -111,6 +111,7 @@ class Proxy {
 
         const proxyItem = this.proxyList[index];
 
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (!proxyItem) {
           throw new Error(`unexpected error: no proxy on ${index} index`);
         }

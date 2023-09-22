@@ -2,6 +2,7 @@ import SupplyAction from "../action/supply/base";
 import SwapAction from "../action/swap/base";
 import Account from "../core/account";
 import Router from "../core/router";
+import sortStringsHelper from "../utils/other/sortStringsHelper";
 import randomChoice from "../utils/random/randomChoice";
 
 type PossibleRoute = {
@@ -72,7 +73,7 @@ class SwapSupplyTokenRouter extends Router {
         (possibleRoute) =>
           `${possibleRoute.buyAction} -> ${possibleRoute.supplyAction} -> ${possibleRoute.sellAction}`,
       )
-      .sort();
+      .sort(sortStringsHelper);
   }
 
   public size() {

@@ -1,6 +1,7 @@
 import SwapAction from "../action/swap/base";
 import Account from "../core/account";
 import Router from "../core/router";
+import sortStringsHelper from "../utils/other/sortStringsHelper";
 import randomChoice from "../utils/random/randomChoice";
 
 type PossibleRoute = {
@@ -49,7 +50,7 @@ class SwapEthTokenEthRouter extends Router {
         (possibleRoute) =>
           `${possibleRoute.buyAction} -> ${possibleRoute.sellAction}`,
       )
-      .sort();
+      .sort(sortStringsHelper);
   }
 
   public size() {

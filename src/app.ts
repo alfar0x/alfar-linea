@@ -10,13 +10,16 @@ const main = async () => {
 
     switch (mode) {
       case "task-runner": {
-        return await new TasksRunner(config).run();
+        await new TasksRunner(config).run();
+        return;
       }
       case "checker": {
-        return await new Checker(config).run();
+        await new Checker(config).run();
+        return;
       }
       case "encrypter": {
-        return await new EncrypterWorker(config).run();
+        await new EncrypterWorker(config).run();
+        return;
       }
       default: {
         throw new Error("this mode is not available");
@@ -27,4 +30,4 @@ const main = async () => {
   }
 };
 
-main();
+void main();

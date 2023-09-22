@@ -15,6 +15,7 @@ const initializeProxy = async (params: {
   const folder = "./assets";
   const fileName = `${folder}/${baseFileName}`;
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (proxyConfig.type !== "none" && !isFileAvailable(fileName)) {
     throw new Error(
       `proxy file name ${fileName} is not valid. Check ${folder} folder`,

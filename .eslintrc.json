@@ -25,8 +25,25 @@
   ],
   "rules": {
     "@typescript-eslint/await-thenable": "error",
+    "@typescript-eslint/ban-types": "error",
     "@typescript-eslint/explicit-member-accessibility": "error",
+    "@typescript-eslint/no-base-to-string": "error",
+    "@typescript-eslint/no-confusing-void-expression": "error",
+    "@typescript-eslint/no-extraneous-class": "error",
+    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/no-for-in-array": "error",
+    "@typescript-eslint/no-misused-promises": "error",
+    "@typescript-eslint/no-unnecessary-condition": "error",
     "@typescript-eslint/prefer-readonly": "error",
+    "@typescript-eslint/promise-function-async": [
+      "error",
+      {
+        "checkArrowFunctions": false
+      }
+    ],
+    "@typescript-eslint/require-array-sort-compare": "error",
+    "@typescript-eslint/sort-type-constituents": "error",
+    "@typescript-eslint/switch-exhaustiveness-check": "error",
     "arrow-body-style": [
       "error",
       "as-needed"
@@ -46,11 +63,8 @@
     ],
     "max-depth": "error",
     "max-lines": "error",
-    "no-case-declarations": "error",
     "no-console": "warn",
-    "no-constant-condition": "off",
     "no-else-return": "error",
-    "no-empty": "warn",
     "no-empty-function": "warn",
     "no-implicit-coercion": "error",
     "no-lone-blocks": "error",
@@ -60,8 +74,6 @@
     "no-plusplus": "error",
     "no-sequences": "error",
     "no-unneeded-ternary": "error",
-    "no-unused-vars": "warn",
-    "no-useless-catch": "error",
     "no-useless-computed-key": "error",
     "no-useless-concat": "error",
     "prefer-destructuring": [

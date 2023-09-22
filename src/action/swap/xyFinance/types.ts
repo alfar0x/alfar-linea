@@ -16,7 +16,7 @@ type XyFinanceQuoteSuccess = {
   routes: XyFinanceQuoteSuccessRoute[];
 };
 
-export type XyFinanceQuote = XyFinanceQuoteSuccess | XyFinanceError;
+export type XyFinanceQuote = XyFinanceError | XyFinanceQuoteSuccess;
 
 type XyFinanceBuildTxSuccess = {
   success: true;

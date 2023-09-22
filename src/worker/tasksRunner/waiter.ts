@@ -48,6 +48,7 @@ class Waiter {
   }
 
   public async waitGasLimit() {
+    // eslint-disable-next-line no-constant-condition, @typescript-eslint/no-unnecessary-condition
     while (true) {
       const maxGwei = this.config.dynamic().maxLineaGwei;
 

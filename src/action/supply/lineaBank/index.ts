@@ -34,8 +34,8 @@ class LineaBankSupply extends SupplyAction {
   }
 
   private getMarketAddress() {
-    const chainData = CHAINS_DATA[this.token.chain.chainId] || {};
-    const { marketAddress } = chainData[this.token.name] || {};
+    const marketAddress =
+      CHAINS_DATA[this.token.chain.chainId]?.[this.token.name]?.marketAddress;
 
     if (!marketAddress) {
       throw new Error(`market address is not defined`);

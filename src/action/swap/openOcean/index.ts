@@ -28,7 +28,7 @@ class OpenOceanSwapAction extends SwapAction {
   }
 
   private getChainPath() {
-    const { chainPath } = CHAINS_DATA[this.fromToken.chain.chainId] || {};
+    const chainPath = CHAINS_DATA[this.fromToken.chain.chainId]?.chainPath;
 
     if (!chainPath) {
       throw new Error(`chain path action is not available`);

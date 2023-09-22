@@ -206,7 +206,7 @@ class PancakeSwapAction extends SwapAction {
 
     await this.checkIsBalanceAllowed({ account, normalizedAmount });
 
-    const poolAddress = this.getPool({
+    const poolAddress = await this.getPool({
       fromToken: this.fromToken,
       toToken: this.toToken,
     });

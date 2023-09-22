@@ -9,8 +9,8 @@ import sleep from "../utils/other/sleep";
 import Token from "./token";
 
 type ContractName =
-  | (typeof CONTRACTS)[number]
-  | (typeof CONTRACTS_WITHOUT_ABI)[number];
+  | (typeof CONTRACTS_WITHOUT_ABI)[number]
+  | (typeof CONTRACTS)[number];
 type Contracts = Partial<Record<ContractName, string>>;
 
 type HttpProviderOptions = NonNullable<
@@ -157,6 +157,7 @@ class Chain {
     while ((retry -= 1)) {
       const transactionReceipt = await this.w3.eth.getTransactionReceipt(hash);
 
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (transactionReceipt) {
         if (transactionReceipt.status === successStatus) {
           return transactionReceipt;

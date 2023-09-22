@@ -7,6 +7,7 @@ import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import Account from "../../../core/account";
 import Token from "../../../core/token";
 import { Amount } from "../../../types";
+import sortStringsHelper from "../../../utils/other/sortStringsHelper";
 import SwapAction from "../base";
 
 import { AMOUNT_TYPES } from "./constants";
@@ -81,7 +82,7 @@ class VelocoreSwapAction extends SwapAction {
 
     const tokenRef = [fromTokenPacked, toTokenPacked];
 
-    tokenRef.sort();
+    tokenRef.sort(sortStringsHelper);
 
     const deposit = new Array(tokenRef.length).fill(0);
 
@@ -105,7 +106,7 @@ class VelocoreSwapAction extends SwapAction {
 
     const tokenInformationList = [fromTokenInformation, toTokenInformation];
 
-    tokenInformationList.sort();
+    tokenInformationList.sort(sortStringsHelper);
 
     const emptyPool = "0x";
 

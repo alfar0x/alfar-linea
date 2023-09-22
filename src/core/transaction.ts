@@ -81,7 +81,9 @@ class RunnableTransaction {
     } catch (error) {
       if (retryTimes <= 0) throw error;
 
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const isTxReverted = (error as Error)?.message?.includes("reverted");
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const isNullableError = (error as Error)?.message?.includes(
         "Cannot use 'in' operator to search for 'originalError' in null",
       );
