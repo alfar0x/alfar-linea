@@ -11,7 +11,7 @@ type PossibleRoute = {
 };
 
 class SwapSupplyTokenRouter extends Router {
-  private possibleRoutes: PossibleRoute[];
+  private readonly possibleRoutes: PossibleRoute[];
   public readonly description = "swap eth -> token -> supply -> redeem -> eth";
 
   public constructor(params: {

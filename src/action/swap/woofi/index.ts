@@ -7,7 +7,7 @@ import { Amount } from "../../../types";
 import SwapAction from "../base";
 
 class WoofiSwapAction extends SwapAction {
-  private contractAddress: string;
+  private readonly contractAddress: string;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
     super(params);

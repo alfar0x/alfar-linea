@@ -7,9 +7,9 @@ import logger from "../utils/other/logger";
 import errorPrettify from "../utils/zod/errorPrettify";
 
 class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
-  private fileName: string;
+  private readonly fileName: string;
 
-  private schema: z.ZodObject<{ fixed: F; dynamic: D }>;
+  private readonly schema: z.ZodObject<{ fixed: F; dynamic: D }>;
 
   public fixed: z.infer<F>;
   private _dynamic: z.infer<D>;

@@ -12,10 +12,10 @@ import initializeFactory from "./initializeFactory";
 import Task from "./task";
 
 class TaskCreator {
-  private config: TasksRunnerConfig;
+  private readonly config: TasksRunnerConfig;
   private tasks: Task[];
-  private factory: TaskFactory;
-  private chain: Chain;
+  private readonly factory: TaskFactory;
+  private readonly chain: Chain;
 
   public constructor(params: { chain: Chain; config: TasksRunnerConfig }) {
     const { chain, config } = params;

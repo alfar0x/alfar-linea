@@ -15,8 +15,8 @@ import SwapAction from "../base";
 import { WITHDRAWAL_MODE } from "./constants";
 
 class SyncswapSwapAction extends SwapAction {
-  private routerContractAddress: string;
-  private factoryContractAddress: string;
+  private readonly routerContractAddress: string;
+  private readonly factoryContractAddress: string;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
     super(params);

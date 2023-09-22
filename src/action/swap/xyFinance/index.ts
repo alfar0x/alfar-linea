@@ -14,7 +14,7 @@ import { API_URL, RESEND_TX_TIMES } from "./constants";
 import { XyFinanceBuildTx, XyFinanceQuote } from "./types";
 
 class XyFinanceSwapAction extends SwapAction {
-  private contractAddress: string;
+  private readonly contractAddress: string;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
     super(params);

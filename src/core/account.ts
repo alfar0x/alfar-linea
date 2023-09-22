@@ -22,7 +22,7 @@ class Account {
   public readonly address: string;
   public readonly shortAddress: string;
 
-  private privateKey: string;
+  private readonly privateKey: string;
   private _transactionsPerformed: number;
 
   public constructor(params: { privateKey: string; fileIndex: number }) {

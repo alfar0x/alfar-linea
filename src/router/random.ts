@@ -6,8 +6,8 @@ import randomChoice from "../utils/random/randomChoice";
 type PossibleRoute = RandomAction;
 
 class RandomRouter extends Router {
-  private possibleRoutes: PossibleRoute[];
-  private randomActions: RandomAction[];
+  private readonly possibleRoutes: PossibleRoute[];
+  private readonly randomActions: RandomAction[];
 
   public readonly description = "random";
 

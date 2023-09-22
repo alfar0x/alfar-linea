@@ -13,8 +13,8 @@ import TasksRunnerConfig from "./config";
 const WAIT_GAS_SEC = 10 * 60;
 
 class Waiter {
-  private chain: Chain;
-  private config: TasksRunnerConfig;
+  private readonly chain: Chain;
+  private readonly config: TasksRunnerConfig;
 
   public constructor(params: { chain: Chain; config: TasksRunnerConfig }) {
     const { chain, config } = params;

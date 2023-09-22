@@ -9,7 +9,7 @@ import logger from "../../utils/other/logger";
 import EncrypterConfig from "./config";
 
 class EncrypterWorker {
-  private config: EncrypterConfig;
+  private readonly config: EncrypterConfig;
 
   public constructor(configFileName: string) {
     this.config = new EncrypterConfig({ configFileName });

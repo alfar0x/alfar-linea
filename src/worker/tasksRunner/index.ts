@@ -16,11 +16,11 @@ import TaskCreator from "./taskCreator";
 import Waiter from "./waiter";
 
 class TasksRunner {
-  private config: TasksRunnerConfig;
-  private chain: Chain;
+  private readonly config: TasksRunnerConfig;
+  private readonly chain: Chain;
   private _proxy: Proxy | null;
-  private creator: TaskCreator;
-  private waiter: Waiter;
+  private readonly creator: TaskCreator;
+  private readonly waiter: Waiter;
 
   public constructor(configFileName: string) {
     this.config = new TasksRunnerConfig({ configFileName });

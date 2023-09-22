@@ -13,11 +13,11 @@ type TokenPricesData = Record<TokenId, number>;
 type GeskoResponse = Record<TokenId, { usd: number }>;
 
 class Prices {
-  private url = "https://api.coingecko.com/api/v3/simple/price";
-  private updatePricesIntervalMinutes = 10;
+  private readonly url = "https://api.coingecko.com/api/v3/simple/price";
+  private readonly updatePricesIntervalMinutes = 10;
 
   private lastUpdateTimestamp: number;
-  private geskoIds: string[];
+  private readonly geskoIds: string[];
   private prices: TokenPricesData;
 
   private static _instance: Prices | null;

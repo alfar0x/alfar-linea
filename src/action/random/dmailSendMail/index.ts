@@ -11,7 +11,7 @@ import RandomAction from "../base";
 import generateEmail from "./generateEmail";
 
 class DmailSendMailAction extends RandomAction {
-  private contractAddress: string;
+  private readonly contractAddress: string;
 
   public constructor(params: { chain: Chain }) {
     const { chain } = params;

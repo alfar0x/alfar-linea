@@ -15,9 +15,9 @@ import SupplyAction from "../base";
 import { CHAINS_DATA } from "./constants";
 
 class LineaBankSupply extends SupplyAction {
-  private coreContractAddress: string;
-  private distributorContractAddress: string;
-  private marketAddress: string;
+  private readonly coreContractAddress: string;
+  private readonly distributorContractAddress: string;
+  private readonly marketAddress: string;
 
   public constructor(params: { token: Token }) {
     super(params);

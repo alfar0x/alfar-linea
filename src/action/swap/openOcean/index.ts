@@ -13,8 +13,8 @@ import { API_URL, CHAINS_DATA } from "./constants";
 import { OpenOceanSwapQuote } from "./types";
 
 class OpenOceanSwapAction extends SwapAction {
-  private contractAddress: string;
-  private chainPath: string;
+  private readonly contractAddress: string;
+  private readonly chainPath: string;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
     super(params);

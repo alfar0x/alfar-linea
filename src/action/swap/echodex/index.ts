@@ -11,7 +11,7 @@ import SwapAction from "../base";
 import { UNWRAP_ETH_ADDRESS } from "./constants";
 
 class EchoDexSwapAction extends SwapAction {
-  private contractAddress: string;
+  private readonly contractAddress: string;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
     super(params);

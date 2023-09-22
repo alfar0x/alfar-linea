@@ -18,12 +18,15 @@ type RouterId =
   | "RANDOM";
 
 class TaskFactory {
-  private swapEthTokenEthRouter: SwapEthTokenEthRouter;
-  private supplyEthRouter: SupplyEthRouter;
-  private swapSupplyTokenRouter: SwapSupplyTokenRouter;
-  private randomRouter: RandomRouter;
+  private readonly swapEthTokenEthRouter: SwapEthTokenEthRouter;
+  private readonly supplyEthRouter: SupplyEthRouter;
+  private readonly swapSupplyTokenRouter: SwapSupplyTokenRouter;
+  private readonly randomRouter: RandomRouter;
 
-  private routersData: Record<RouterId, { router: Router; weight: number }>;
+  private readonly routersData: Record<
+    RouterId,
+    { router: Router; weight: number }
+  >;
 
   public constructor(params: {
     swapActions: SwapAction[];

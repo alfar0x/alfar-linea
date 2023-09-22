@@ -1,8 +1,8 @@
 import crypto from "crypto";
 
 export class Encrypter {
-  private algorithm = "aes256";
-  private salt = "salt";
+  private readonly algorithm = "aes256";
+  private readonly salt = "salt";
 
   private getKey(secret: string) {
     return crypto.scryptSync(secret, this.salt, 32);

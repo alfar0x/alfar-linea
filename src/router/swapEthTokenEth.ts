@@ -9,7 +9,7 @@ type PossibleRoute = {
 };
 
 class SwapEthTokenEthRouter extends Router {
-  private possibleRoutes: PossibleRoute[];
+  private readonly possibleRoutes: PossibleRoute[];
 
   public readonly description = "swap eth -> token -> eth";
 

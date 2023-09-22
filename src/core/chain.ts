@@ -23,9 +23,9 @@ class Chain {
   public readonly w3: Web3;
   public readonly tokens: Token[];
 
-  private rpc: string;
-  private explorer: string;
-  private contracts: Contracts;
+  private readonly rpc: string;
+  private readonly explorer: string;
+  private readonly contracts: Contracts;
   private native: Token | null;
   private wrappedNative: Token | null;
 

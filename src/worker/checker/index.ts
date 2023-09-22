@@ -10,8 +10,8 @@ import CheckerConfig from "./config";
 import initializeAddresses from "./initializeAddresses";
 
 class Checker {
-  private config: CheckerConfig;
-  private chain: Chain;
+  private readonly config: CheckerConfig;
+  private readonly chain: Chain;
   private addresses: string[];
 
   public constructor(configFileName: string) {

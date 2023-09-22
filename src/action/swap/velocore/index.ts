@@ -17,8 +17,8 @@ import {
 } from "./packHelpers";
 
 class VelocoreSwapAction extends SwapAction {
-  private vaultContractAddress: string;
-  private factoryContractAddress: string;
+  private readonly vaultContractAddress: string;
+  private readonly factoryContractAddress: string;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
     super(params);

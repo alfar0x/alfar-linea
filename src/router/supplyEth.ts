@@ -6,7 +6,7 @@ import randomChoice from "../utils/random/randomChoice";
 type PossibleRoute = SupplyAction;
 
 class SupplyEthRouter extends Router {
-  private possibleRoutes: PossibleRoute[];
+  private readonly possibleRoutes: PossibleRoute[];
   public readonly description = "supply -> redeem eth";
 
   public constructor(params: {

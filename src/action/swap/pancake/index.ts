@@ -23,9 +23,9 @@ import {
 } from "./constants";
 
 class PancakeSwapAction extends SwapAction {
-  private routerContractAddress: string;
-  private factoryContractAddress: string;
-  private quoteContractAddress: string;
+  private readonly routerContractAddress: string;
+  private readonly factoryContractAddress: string;
+  private readonly quoteContractAddress: string;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
     super(params);

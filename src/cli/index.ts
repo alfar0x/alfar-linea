@@ -40,7 +40,7 @@ const modeChoices = [
 type Mode = "task-runner" | "reset" | "depositor" | "checker" | "encrypter";
 
 class Cli {
-  private configPath = "config";
+  private readonly configPath = "config";
 
   private getConfigChoices() {
     try {

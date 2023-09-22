@@ -29,12 +29,12 @@ export type ProxyItem = z.infer<typeof proxySchema>;
 const WAIT_AFTER_POST_REQUEST_SEC = 30;
 
 class Proxy {
-  private type: ProxyType;
-  private isRandom?: boolean;
-  private ipChangeUrl?: string;
-  private proxyList: ProxyItem[];
-  private onIpChangeUrlSleepSec: number;
-  private onIpChangeErrorRepeatTimes: number;
+  private readonly type: ProxyType;
+  private readonly isRandom?: boolean;
+  private readonly ipChangeUrl?: string;
+  private readonly proxyList: ProxyItem[];
+  private readonly onIpChangeUrlSleepSec: number;
+  private readonly onIpChangeErrorRepeatTimes: number;
 
   public constructor(params: {
     type: ProxyType;
