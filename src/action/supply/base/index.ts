@@ -11,7 +11,7 @@ import RunnableTransaction from "../../../core/transaction";
 import { Amount } from "../../../types";
 
 abstract class SupplyAction extends Action {
-  public token: Token;
+  public readonly token: Token;
 
   public constructor(params: { token: Token }) {
     const { token } = params;

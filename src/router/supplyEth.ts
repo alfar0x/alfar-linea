@@ -7,7 +7,7 @@ type PossibleRoute = SupplyAction;
 
 class SupplyEthRouter extends Router {
   private possibleRoutes: PossibleRoute[];
-  public description = "supply -> redeem eth";
+  public readonly description = "supply -> redeem eth";
 
   public constructor(params: {
     supplyActions: SupplyAction[];

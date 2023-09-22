@@ -8,11 +8,8 @@
 ## Create a New Action
 * [ ] Add new provider (if needed) to `src/common/constants/actionProviders.ts` 
 * [ ] Add new type (if needed) to `src/common/constants/actionTypes.ts` 
-* [ ] Add provider (if needed) to example `config/block.example.json5`  
+* [ ] Add provider (if needed) to example `config/tasksRunner.example.json5`  
 * [ ] Create and export the action name in `src/common/constants/actions.ts` 
 * [ ] Add it as a name variable in the action class in `src/actions/<action_name>/<file_name>.ts` 
-
-## Create a New Block
-* [ ] Add the name to the block example `config/block.example.json5`  
-* [ ] Add it to the factory in `src/worker/block/initializeFactory/get<type>.ts`  
-* [ ] Add the block description in README file `README.md`
+* [ ] Add it to the factory in `src/worker/tasksRunner/initializeFactory/get<type>.ts`  
+* [ ] Add the action description in README file `README.md`

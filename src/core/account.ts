@@ -18,10 +18,11 @@ const evmAccountPrivateKeySchema = z
   .startsWith("0x");
 
 class Account {
+  public readonly fileIndex: number;
+  public readonly address: string;
+  public readonly shortAddress: string;
+
   private privateKey: string;
-  public fileIndex: number;
-  public address: string;
-  public shortAddress: string;
   private _transactionsPerformed: number;
 
   public constructor(params: { privateKey: string; fileIndex: number }) {

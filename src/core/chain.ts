@@ -18,10 +18,10 @@ type HttpProviderOptions = NonNullable<
 >;
 
 class Chain {
-  public name: string;
-  public chainId: number;
-  public w3: Web3;
-  public tokens: Token[];
+  public readonly name: string;
+  public readonly chainId: number;
+  public readonly w3: Web3;
+  public readonly tokens: Token[];
 
   private rpc: string;
   private explorer: string;

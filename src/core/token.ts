@@ -8,18 +8,16 @@ import { Amount, TokenType } from "../types";
 
 import Account from "./account";
 import Chain from "./chain";
-import prices from "./prices";
+import Prices from "./prices";
 
 class Token {
-  public name: string;
-  public address: string;
-  public geskoId: string;
-  public chain: Chain;
-  public type: TokenType;
-
-  public contract: Erc20 | null;
-
-  private readableDecimals: number | null;
+  public readonly name: string;
+  public readonly address: string;
+  public readonly geskoId: string;
+  public readonly chain: Chain;
+  public readonly type: TokenType;
+  public readonly contract: Erc20 | null;
+  public readonly readableDecimals: number | null;
 
   private _decimals: number | null;
   private _symbol: string | null;
@@ -116,7 +114,7 @@ class Token {
   }
 
   public async usdPrice() {
-    return await prices.getTokenPrice(this.geskoId);
+    return await Prices.instance.getTokenPrice(this.geskoId);
   }
 
   public async normalizedBalanceOf(address: string) {

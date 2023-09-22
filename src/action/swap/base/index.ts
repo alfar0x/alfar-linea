@@ -11,8 +11,8 @@ import RunnableTransaction from "../../../core/transaction";
 import { Amount } from "../../../types";
 
 abstract class SwapAction extends Action {
-  public fromToken: Token;
-  public toToken: Token;
+  public readonly fromToken: Token;
+  public readonly toToken: Token;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
     const { fromToken, toToken } = params;

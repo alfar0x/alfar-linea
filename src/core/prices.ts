@@ -20,7 +20,21 @@ class Prices {
   private geskoIds: string[];
   private prices: TokenPricesData;
 
-  public constructor(params: { geskoIds: string[] }) {
+  private static _instance: Prices | null;
+
+  public static get instance() {
+    if (!Prices._instance) {
+      const geskoIds = [...rawTokens]
+        .map((t) => t.geskoId)
+        .filter((value, index, array) => array.indexOf(value) === index);
+
+      Prices._instance = new Prices({ geskoIds });
+    }
+
+    return Prices._instance;
+  }
+
+  private constructor(params: { geskoIds: string[] }) {
     const { geskoIds } = params;
 
     this.lastUpdateTimestamp = this.getOutdatedTimestamp() - 1;
@@ -63,7 +77,10 @@ class Prices {
   }
 
   private async updatePrices() {
+    logger.info(`updating token prices`);
+
     const geskoPrices = await this.getGeskoPrices();
+
     const prices = Object.keys(geskoPrices)
       .map((key) => ({ key, value: geskoPrices[key].usd }))
       .reduce(
@@ -72,8 +89,6 @@ class Prices {
       );
 
     this.prices = prices;
-
-    logger.debug(`updating prices`);
 
     this.lastUpdateTimestamp = Date.now();
   }
@@ -96,10 +111,4 @@ class Prices {
   }
 }
 
-const allChainsGeskoIds = [...rawTokens]
-  .map((t) => t.geskoId)
-  .filter((value, index, array) => array.indexOf(value) === index);
-
-const prices = new Prices({ geskoIds: allChainsGeskoIds });
-
-export default prices;
+export default Prices;

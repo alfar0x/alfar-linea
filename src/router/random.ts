@@ -9,7 +9,7 @@ class RandomRouter extends Router {
   private possibleRoutes: PossibleRoute[];
   private randomActions: RandomAction[];
 
-  public description = "random";
+  public readonly description = "random";
 
   public constructor(params: {
     randomActions: RandomAction[];

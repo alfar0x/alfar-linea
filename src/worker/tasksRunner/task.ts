@@ -3,8 +3,8 @@ import Queue from "../../core/queue";
 import Step from "../../core/step";
 
 class Task extends Queue<Step> {
-  public account: Account;
-  public minimumTransactionsLimit: number;
+  public readonly account: Account;
+  public readonly minimumTransactionsLimit: number;
 
   public constructor(params: {
     account: Account;
@@ -35,10 +35,6 @@ class Task extends Queue<Step> {
     return (
       this.account.transactionsPerformed() >= this.minimumTransactionsLimit
     );
-  }
-
-  public setNextSteps(steps: Step[]) {
-    this.storage = steps;
   }
 
   public getNextStep() {

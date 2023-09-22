@@ -7,6 +7,8 @@ import Account from "./account";
 import Chain from "./chain";
 
 const MAX_RETRY_TIMES = 20;
+const DEFAULT_GAS_MULTIPLIER = 1.1;
+const DEFAULT_RETRY_TIMES = 0;
 
 export type CreateTransactionResult = {
   tx: Transaction | null;
@@ -18,10 +20,8 @@ export type CreateTransactionResult = {
 export type CreateTransactionFunc = () => Promise<CreateTransactionResult>;
 
 class RunnableTransaction {
-  private DEFAULT_GAS_MULTIPLIER = 1.1;
-  private DEFAULT_RETRY_TIMES = 0;
+  public readonly name: string;
 
-  public name: string;
   private chain: Chain;
   private account: Account;
   private createTransaction: CreateTransactionFunc;
@@ -111,8 +111,8 @@ class RunnableTransaction {
     const {
       tx,
       resultMsg,
-      retryTimes = this.DEFAULT_RETRY_TIMES,
-      gasMultiplier = this.DEFAULT_GAS_MULTIPLIER,
+      retryTimes = DEFAULT_RETRY_TIMES,
+      gasMultiplier = DEFAULT_GAS_MULTIPLIER,
     } = data;
 
     if (!tx) return null;

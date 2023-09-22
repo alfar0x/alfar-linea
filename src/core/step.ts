@@ -2,7 +2,7 @@ import Queue from "./queue";
 import RunnableTransaction from "./transaction";
 
 class Step extends Queue<RunnableTransaction> {
-  public name: string;
+  public readonly name: string;
 
   public constructor(params: { name: string; txs?: RunnableTransaction[] }) {
     const { name, txs } = params;
