@@ -41,7 +41,7 @@ abstract class SwapAction extends Action {
     const { provider } = params;
     this.initializeDefaultName({
       provider,
-      actionType: "SUPPLY",
+      actionType: "SWAP",
       operation: `${this.fromToken}_${this.toToken}`,
     });
   }
@@ -53,7 +53,7 @@ abstract class SwapAction extends Action {
       throw new Error(`swap is not available for equal tokens`);
     }
 
-    const isSameChains = !this.fromToken.chain.isEquals(this.toToken.chain);
+    const isSameChains = this.fromToken.chain.isEquals(this.toToken.chain);
 
     if (!isSameChains) {
       throw new Error(`swap is not available for tokens in different chains`);

@@ -269,7 +269,7 @@ class Token {
   }
 
   public toString() {
-    return `${this.name} [${this.chain}]`;
+    return this.name;
   }
 }
 

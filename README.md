@@ -238,7 +238,8 @@ There are two main block types in the config: `dynamic` and `fixed`. The `dynami
         - `privateKeys` - Specify the file name in the `assets` folder containing private keys.
         - `proxies` - Specify the file name in the `assets` folder containing proxies. It can be an empty string for `none` proxy type.
     - `isAccountsShuffle` - Determine whether the private keys file should be shuffled (set to `true` or `false`).
-    - `isCheckBalanceOnStart` - Determines whether the balance should be checked (depends on `minEthBalance`) before the start of work (set to `true` or `false`). Note: balances will be checked before each task in any case
+    - `isCheckBalanceOnStart` - Determine whether the balance should be checked (depends on `minEthBalance`) before the start of work (set to `true` or `false`). Note: balances will be checked before each task in any case.
+    - `isShuffleAccountOnStepsEnd` - Determine whether an account that hasn't made the required number of transactions should be moved to a random place in the queue. With this setting, you can configure the program to run indefinitely, especially if you specify a large number of transactions (`transactionsLimit`) and set it to `true`. In this case, once the current task for an account is completed, it will be placed in a random position within the queue. If there are many accounts, it's likely that this account will wait long in the queue and that new task will be created (set to `true` or `false`)
     - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run [example](#example) below)
     - `providers` - Specify the services to be used in this mode. All possible values are already defined in the example config file. To exclude certain blocks, simply comment them out (add `//` before the block ID). For example, the following lines in the config file mean that OPEN_OCEAN will be used while DMAIL won't be:
         ```json

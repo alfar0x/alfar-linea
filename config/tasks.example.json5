@@ -14,6 +14,7 @@
     },
     isAccountsShuffle: true,
     isCheckBalanceOnStart: false,
+    isShuffleAccountOnStepsEnd: true,
     maxParallelAccounts: 3,
     providers: [
       "DMAIL",

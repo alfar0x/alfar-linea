@@ -24,7 +24,7 @@ const getFactoryPairs = (factoryTokens: FactoryTokens) => {
 
     return {
       ...fromTokenAcc,
-      fromTokenPairs,
+      ...fromTokenPairs,
     };
   }, {} as Pairs);
 

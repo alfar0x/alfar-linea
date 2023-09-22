@@ -58,11 +58,12 @@ export const fixedSchema = z.object({
   delaySec: delaySecSchema,
   files: filesSchema,
   isAccountsShuffle: z.boolean(),
+  isCheckBalanceOnStart: z.boolean(),
+  isShuffleAccountOnStepsEnd: z.boolean(),
   maxParallelAccounts: maxParallelAccountsSchema,
   providers: providersSchema,
   proxy: proxySchema,
   rpc: rpcSchema,
-  isCheckBalanceOnStart: z.boolean(),
   transactionsLimit: transactionsLimitSchema,
   workingAmountPercent: workingAmountPercentSchema,
 });

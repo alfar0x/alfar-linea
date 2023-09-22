@@ -42,7 +42,7 @@ class TaskCreator {
     const minEthNormalizedBalance =
       await native.toNormalizedAmount(minEthBalance);
 
-    const normalizedBalance = await native.readableBalanceOf(account.address);
+    const normalizedBalance = await native.normalizedBalanceOf(account.address);
 
     const isAllowed = Big(normalizedBalance).gte(minEthNormalizedBalance);
 
@@ -73,12 +73,10 @@ class TaskCreator {
   }
 
   public async initializedTasks(accounts: Account[]) {
-    const tasks: Task[] = [];
-
     for (const account of accounts) {
       try {
         const task = await this.initializeTask(account);
-        tasks.push(task);
+        this.tasks.push(task);
       } catch (error) {
         logger.error(createMessage(account, (error as Error).message));
       }
@@ -89,7 +87,29 @@ class TaskCreator {
     return !this.tasks.length;
   }
 
+  private moveTaskRandomly(task: Task) {
+    const { maxParallelAccounts } = this.config.fixed;
+
+    const index = this.tasks.findIndex((t) => t.isEquals(task));
+
+    if (index === -1) {
+      throw new Error(`unexpected error. task ${task} is not defined`);
+    }
+
+    const [item] = this.tasks.splice(index, 1);
+
+    const minIndex =
+      this.tasks.length > maxParallelAccounts ? maxParallelAccounts : 0;
+
+    const maxIndex = this.tasks.length - 1;
+
+    const randomIndex = randomInteger(minIndex, maxIndex).toNumber();
+
+    this.tasks.splice(randomIndex, 0, item);
+  }
+
   private async checkIsTaskAllowed(task: Task) {
+    const { isShuffleAccountOnStepsEnd } = this.config.fixed;
     const { account } = task;
 
     try {
@@ -109,15 +129,19 @@ class TaskCreator {
         return false;
       }
 
-      logger.info(
-        createMessage(account, `new steps created: ${task.stepsString()}`),
-      );
-
       const steps = await this.factory.getRandomSteps({ account });
 
       task.pushMany(...steps);
 
-      return true;
+      logger.info(
+        createMessage(account, `new steps created: ${task.stepsString()}`),
+      );
+
+      if (!isShuffleAccountOnStepsEnd) return true;
+
+      this.moveTaskRandomly(task);
+
+      return false;
     } catch (error) {
       // eslint-disable-next-line prefer-destructuring
       const message = (error as Error).message;
@@ -144,19 +168,20 @@ class TaskCreator {
     return this.factory.info().join("\n");
   }
 
-  public async getNextTask() {
+  private pickRandomTask() {
     const { maxParallelAccounts } = this.config.fixed;
 
+    const maxIndexBaseOnOne = Math.min(this.tasks.length, maxParallelAccounts);
+
+    const maxIndex = maxIndexBaseOnOne - 1;
+    const randomIndex = randomInteger(0, maxIndex).toNumber();
+
+    return this.tasks[randomIndex];
+  }
+
+  public async getNextTask() {
     while (!this.isEmpty()) {
-      const maxIndexBaseOnOne = Math.min(
-        this.tasks.length,
-        maxParallelAccounts,
-      );
-      const maxIndex = maxIndexBaseOnOne - 1;
-      const randomIndex = randomInteger(0, maxIndex).toNumber();
-
-      const task = this.tasks[randomIndex];
-
+      const task = this.pickRandomTask();
       const isAllowed = await this.checkIsTaskAllowed(task);
 
       if (isAllowed) return task;

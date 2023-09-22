@@ -66,6 +66,9 @@ class TasksRunner {
     try {
       await this.waiter.waitGasLimit();
 
+      // worker tests
+      // const txResult = { hash: "", resultMsg: "" };
+
       const txResult = await transaction.run({});
 
       if (!txResult) return [false];
@@ -149,7 +152,7 @@ class TasksRunner {
 
     const factoryInfoStr = this.creator.getFactoryInfoStr();
 
-    logger.info(createMessage("Possible routes:\n", factoryInfoStr));
+    logger.info(`Possible routes:\n${factoryInfoStr}`);
 
     await confirmRun();
 
