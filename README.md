@@ -140,7 +140,7 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
     XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
     XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
 
-    Random blocks: 1
+    Random: 1
     DMAIL_SEND_MAIL
 
 </details>
@@ -222,7 +222,7 @@ Before the first run, you must create the following files:
    - (Optional, only if you will use a proxy) Create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
    - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode.
 2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
-   - Copy the required config file (e.g., `tasks.example.json`) for this mode. Instructions on how to modify it are provided below.
+   - Copy the required config file (e.g., `tasks.example.json5`) for this mode. Instructions on how to modify it are provided below.
 
 ### Config
 
@@ -238,6 +238,7 @@ There are two main block types in the config: `dynamic` and `fixed`. The `dynami
         - `privateKeys` - Specify the file name in the `assets` folder containing private keys.
         - `proxies` - Specify the file name in the `assets` folder containing proxies. It can be an empty string for `none` proxy type.
     - `isAccountsShuffle` - Determine whether the private keys file should be shuffled (set to `true` or `false`).
+    - `isCheckBalanceOnStart` - Determines whether the balance should be checked (depends on `minEthBalance`) before the start of work (set to `true` or `false`). Note: balances will be checked before each task in any case
     - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run [example](#example) below). If a mobile proxy is used, it can be only 1 parallel account.
     - `providers` - Specify the services to be used in this mode. All possible values are already defined in the example config file. To exclude certain blocks, simply comment them out (add `//` before the block ID). For example, the following lines in the config file mean that OPEN_OCEAN will be used while DMAIL won't be:
         ```json
@@ -327,7 +328,7 @@ Before the first run, you must create the following files:
    - (Optional, only if you will use a proxy) create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
    - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode. 
 2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the soft; just don't change example files):
-   - Copy the required config file (e.g., `checker.example.json`) for this mode. Instructions on how to modify it are provided below.
+   - Copy the required config file (e.g., `checker.example.json5`) for this mode. Instructions on how to modify it are provided below.
 
 ### Config
 
@@ -353,7 +354,7 @@ Encrypt your assets files (private_keys,addresses,proxies) to use task runner on
 
 Before the first run, you must create the following files:
 1. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the soft; just don't change example files):
-   - Copy the required config file (e.g., `encrypter.example.json`) for this mode. Instructions on how to modify it are provided below.
+   - Copy the required config file (e.g., `encrypter.example.json5`) for this mode. Instructions on how to modify it are provided below.
 
 ### Config
 

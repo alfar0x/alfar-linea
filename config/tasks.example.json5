@@ -13,10 +13,10 @@
       proxies: "proxies.txt",
     },
     isAccountsShuffle: true,
+    isCheckBalanceOnStart: false,
     maxParallelAccounts: 3,
     providers: [
       "DMAIL",
-      "ECHO_DEX",
       "LINEA_BANK",
       "OPEN_OCEAN",
       "PANCAKE",

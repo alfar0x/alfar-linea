@@ -58,9 +58,9 @@ class TaskCreator {
   }
 
   private async initializeTask(account: Account) {
-    const { transactionsLimit, shouldCheckBalanceOnStart } = this.config.fixed;
+    const { transactionsLimit, isCheckBalanceOnStart } = this.config.fixed;
 
-    if (shouldCheckBalanceOnStart) {
+    if (isCheckBalanceOnStart) {
       await this.checkIsBalanceAllowed(account);
     }
 
