@@ -239,7 +239,7 @@ There are two main block types in the config: `dynamic` and `fixed`. The `dynami
         - `proxies` - Specify the file name in the `assets` folder containing proxies. It can be an empty string for `none` proxy type.
     - `isAccountsShuffle` - Determine whether the private keys file should be shuffled (set to `true` or `false`).
     - `isCheckBalanceOnStart` - Determines whether the balance should be checked (depends on `minEthBalance`) before the start of work (set to `true` or `false`). Note: balances will be checked before each task in any case
-    - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run [example](#example) below). If a mobile proxy is used, it can be only 1 parallel account.
+    - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run [example](#example) below)
     - `providers` - Specify the services to be used in this mode. All possible values are already defined in the example config file. To exclude certain blocks, simply comment them out (add `//` before the block ID). For example, the following lines in the config file mean that OPEN_OCEAN will be used while DMAIL won't be:
         ```json
         "OPEN_OCEAN",
@@ -338,7 +338,7 @@ Config values:
     - `files`:
         - `addresses` - Specify the file name in the `assets` folder containing addresses.
         - `privateKeys` - Specify the file name in the `assets` folder containing private keys. Either privateKeys or addresses must be filled in.
-    - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run example below). If a mobile proxy is used, it can be only 1 parallel account.
+    - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run example below)
     - `delayBetweenChunkSec` - Set the delay between parallel accounts' requests.
     - `hideBalanceLessThanUsd` - Set the USD value of tokens that can be hidden. Set `-1` to see all tokens.
     - `rpc`:

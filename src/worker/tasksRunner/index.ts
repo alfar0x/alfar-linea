@@ -18,9 +18,10 @@ import Waiter from "./waiter";
 class TasksRunner {
   private readonly config: TasksRunnerConfig;
   private readonly chain: Chain;
-  private _proxy: Proxy | null;
   private readonly creator: TaskCreator;
   private readonly waiter: Waiter;
+
+  private _proxy: Proxy | null;
 
   public constructor(configFileName: string) {
     this.config = new TasksRunnerConfig({ configFileName });
@@ -99,8 +100,6 @@ class TasksRunner {
 
     if (!task) return false;
 
-    this.changeChainProvider(task.account);
-
     const step = task.getNextStep();
 
     if (!step || step.isEmpty()) return false;
@@ -108,6 +107,8 @@ class TasksRunner {
     if (isStepSleep) await this.waiter.waitStep();
 
     const { account } = task;
+
+    this.changeChainProvider(account);
 
     logger.info(createMessage(account, `step start: ${step}`));
 

@@ -65,7 +65,7 @@ class Proxy {
       case "mobile": {
         if (proxyList.length !== 1) {
           throw new Error(
-            `only 1 proxy must be in ${fileName} for ${this.type} proxy type`,
+            `exactly 1 proxy must be in ${fileName} for ${this.type} proxy type`,
           );
         }
         return proxyList;
@@ -85,15 +85,9 @@ class Proxy {
   }
 
   public getHttpsTunnelByIndex(index: number) {
-    if (this.type !== "server") return null;
+    const proxyItem = this.getProxyItemByIndex(index);
 
-    const proxyItem = this.isRandom
-      ? randomChoice(this.proxyList)
-      : this.proxyList[index];
-
-    if (!proxyItem) {
-      throw new Error(`unexpected error: no proxy on ${index} index`);
-    }
+    if (!proxyItem) return null;
 
     const proxy = {
       host: proxyItem.host,
@@ -102,6 +96,28 @@ class Proxy {
     };
 
     return tunnel.httpsOverHttp({ proxy });
+  }
+
+  private getProxyItemByIndex(index: number) {
+    switch (this.type) {
+      case "none": {
+        return null;
+      }
+      case "mobile": {
+        return this.proxyList[0];
+      }
+      case "server": {
+        if (this.isRandom) return randomChoice(this.proxyList);
+
+        const proxyItem = this.proxyList[index];
+
+        if (!proxyItem) {
+          throw new Error(`unexpected error: no proxy on ${index} index`);
+        }
+
+        return proxyItem;
+      }
+    }
   }
 
   public async postRequest() {

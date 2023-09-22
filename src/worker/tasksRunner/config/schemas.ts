@@ -66,12 +66,6 @@ export const fixedSchema = z.object({
   transactionsLimit: transactionsLimitSchema,
   workingAmountPercent: workingAmountPercentSchema,
 });
-// @TODO disabled until tested
-// .refine(
-//   (schema) =>
-//     !(schema.proxy.type === "mobile" && schema.maxParallelAccounts === 1),
-//   "Only 1 parallel account can be used with mobile proxy "
-// );
 
 const schema = z.object({ fixed: fixedSchema, dynamic: dynamicSchema });
 
