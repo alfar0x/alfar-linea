@@ -1,8 +1,10 @@
 import axios from "axios";
+import tunnel from "tunnel";
 import { z } from "zod";
 
 import formatIntervalSec from "../utils/datetime/formatIntervalSec";
 import readFileAndEncryptByLine from "../utils/file/readFileAndEncryptByLine";
+import createMessage from "../utils/other/createMessage";
 import getMyIp from "../utils/other/getMyIp";
 import logger from "../utils/other/logger";
 import sleep from "../utils/other/sleep";
@@ -82,45 +84,24 @@ class Proxy {
     }
   }
 
-  public proxyListLength() {
-    return this.proxyList.length;
-  }
+  public getHttpsTunnelByIndex(index: number) {
+    if (this.type !== "server") return null;
 
-  public getTunnelOptionsByIndex(index: number) {
-    const proxyItem = this.getProxyItemByIndex(index);
-    if (!proxyItem) return;
+    const proxyItem = this.isRandom
+      ? randomChoice(this.proxyList)
+      : this.proxyList[index];
 
-    return {
+    if (!proxyItem) {
+      throw new Error(`unexpected error: no proxy on ${index} index`);
+    }
+
+    const proxy = {
       host: proxyItem.host,
       port: proxyItem.port,
       proxyAuth: `${proxyItem.username}:${proxyItem.password}`,
     };
-  }
 
-  private getProxyItemByIndex(index: number) {
-    switch (this.type) {
-      case "none": {
-        return undefined;
-      }
-
-      case "mobile": {
-        return this.proxyList[0];
-      }
-
-      case "server": {
-        if (this.isRandom) {
-          return randomChoice(this.proxyList);
-        }
-
-        const proxy = this.proxyList[index];
-
-        if (!proxy) {
-          throw new Error(`no proxy on ${index} index`);
-        }
-
-        return proxy;
-      }
-    }
+    return tunnel.httpsOverHttp({ proxy });
   }
 
   public async postRequest() {
@@ -139,11 +120,12 @@ class Proxy {
 
           const sleepUntilStr = formatIntervalSec(WAIT_AFTER_POST_REQUEST_SEC);
 
-          const msg = [
-            `ip changed successfully: ${myIp}`,
-            `sleeping until ${sleepUntilStr}`,
-          ].join(" | ");
-          logger.info(msg);
+          logger.info(
+            createMessage(
+              `ip changed successfully: ${myIp}`,
+              `sleeping until ${sleepUntilStr}`,
+            ),
+          );
 
           await sleep(WAIT_AFTER_POST_REQUEST_SEC);
         }
@@ -151,7 +133,10 @@ class Proxy {
         throw new Error(`ip change response status is ${status}`);
       } catch (error) {
         logger.error(
-          `Attempt ${retry + 1} failed: ${(error as Error).message}`,
+          createMessage(
+            `Attempt to change ip ${retry + 1} failed`,
+            (error as Error).message,
+          ),
         );
 
         await sleep(this.onIpChangeUrlSleepSec);

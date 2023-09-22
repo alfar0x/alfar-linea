@@ -1,8 +1,8 @@
-import Config from "../../core/config";
+import Config from "../../../core/config";
 
 import { dynamicSchema, fixedSchema } from "./schemas";
 
-class CheckerConfig extends Config<typeof fixedSchema, typeof dynamicSchema> {
+class EncrypterConfig extends Config<typeof fixedSchema, typeof dynamicSchema> {
   public constructor(params: { configFileName: string }) {
     const { configFileName } = params;
 
@@ -10,4 +10,4 @@ class CheckerConfig extends Config<typeof fixedSchema, typeof dynamicSchema> {
   }
 }
 
-export default CheckerConfig;
+export default EncrypterConfig;

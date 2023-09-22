@@ -44,10 +44,7 @@
       }
     ],
     "max-depth": "error",
-    "max-lines": [
-      "error",
-      400
-    ],
+    "max-lines": "error",
     "no-case-declarations": "error",
     "no-console": "warn",
     "no-constant-condition": "off",

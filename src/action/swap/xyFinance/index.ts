@@ -47,7 +47,7 @@ class XyFinanceSwapAction extends SwapAction {
     if (!data.success) throw new Error(data.errorMsg || String(data.errorCode));
 
     if (!data.routes.length) {
-      throw new Error(`Unexpected error. No routes available`);
+      throw new Error(`unexpected error. No routes available`);
     }
 
     const { srcSwapDescription, contractAddress } = data.routes[0];
@@ -107,7 +107,7 @@ class XyFinanceSwapAction extends SwapAction {
 
     if (to !== this.contractAddress) {
       throw new Error(
-        `Unexpected error: to !== contractAddress: ${to} !== ${this.contractAddress}. Please contact developer`,
+        `unexpected error: to !== contractAddress: ${to} !== ${this.contractAddress}. Please contact developer`,
       );
     }
 

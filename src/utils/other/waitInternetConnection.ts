@@ -1,5 +1,6 @@
 import formatIntervalSec from "../datetime/formatIntervalSec";
 
+import createMessage from "./createMessage";
 import getMyIp from "./getMyIp";
 import logger from "./logger";
 import sleep from "./sleep";
@@ -12,12 +13,12 @@ const waitInternetConnection = async () => {
 
     if (myIp) return myIp;
 
-    const msg = [
-      "internet connection error",
-      `next check: ${formatIntervalSec(sleepSec)}`,
-    ].join(" | ");
-
-    logger.error(msg);
+    logger.error(
+      createMessage(
+        "internet connection error",
+        `next check: ${formatIntervalSec(sleepSec)}`,
+      ),
+    );
     await sleep(sleepSec);
   }
 };

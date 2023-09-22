@@ -2,11 +2,11 @@ import Big from "big.js";
 import cliProgress from "cli-progress";
 
 import Linea from "../../chain/linea";
-import CheckerConfig from "../../config/checker";
 import Chain from "../../core/chain";
 import sliceIntoChunks from "../../utils/array/sliceIntoChunks";
 import sleep from "../../utils/other/sleep";
 
+import CheckerConfig from "./config";
 import initializeAddresses from "./initializeAddresses";
 
 class Checker {

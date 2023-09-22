@@ -61,7 +61,8 @@ class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
     try {
       this._dynamic = this.getConfigData().dynamic;
     } catch (error) {
-      const { message } = error as Error;
+      // eslint-disable-next-line prefer-destructuring
+      const message = (error as Error).message;
 
       logger.error(
         `used the previous dynamic value due to error. Details: ${message}`,

@@ -47,7 +47,8 @@ class Prices {
 
       return result.data as GeskoResponse;
     } catch (error) {
-      const { message } = error as Error;
+      // eslint-disable-next-line prefer-destructuring
+      const message = (error as Error).message;
 
       if (isConnectionChecked) throw new Error(message);
 

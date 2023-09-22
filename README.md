@@ -150,7 +150,7 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 - [Modes](#modes)
 - [Suggestions](#suggestions)
 - [Installation](#installation)
-- [Task Generator](#task-generator)
+- [Task Runner](#task-runner)
     - [Create Files](#create-files)
     - [Config](#config)
     - [Example](#example)
@@ -167,10 +167,10 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 
 ## Modes
 
-- **Task Generator:** The main script responsible for generating/executing transactions.
+- **Task Runner:** The main script responsible for generating/executing transactions.
 - **Checker:** Check your accounts' analytics (transactions and balances).
-- **Encrypter:** Encrypt your assets files (private keys, addresses, proxies) to use task generator on server
-- **Eth Returner:** This script swaps all tokens used by the main script to ETH and removes all liquidity as a backup in case errors occur in the task generator mode.
+- **Encrypter:** Encrypt your assets files (private keys, addresses, proxies) to use task runner on server
+- **Eth Returner:** This script swaps all tokens used by the main script to ETH and removes all liquidity as a backup in case errors occur in the task runner mode.
 - **Depositor:** This mode facilitates deposits to Linea accounts.
 
 ## Suggestions
@@ -208,11 +208,11 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 6. Create a copy of `.env.example` file and name it `.env.prod`. Set the following variable in the `.env.prod` file:
    - `NODE_ENV` - Set it to `prod`.
 
-## Task Generator
+## Task Runner
 
 [Quick setup video](https://www.loom.com/share/722b554afdbd44f991d7be15b79d6248)
 
-The task generator mode uses private keys, proxies (optional), and configurations to execute tasks. It generates tasks and executes them.
+The task runner mode uses private keys, proxies (optional), and configurations to execute tasks. It generates tasks and executes them.
 
 ### Create Files
 
@@ -347,7 +347,7 @@ If config and assets files are ready you can run script as described [below](#ru
 
 ## Encrypter
 
-Encrypt your assets files (private_keys,addresses,proxies) to use task generator on server
+Encrypt your assets files (private_keys,addresses,proxies) to use task runner on server
 
 ### Create Files
 

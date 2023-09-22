@@ -12,7 +12,6 @@ import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import Account from "../../../core/account";
 import Token from "../../../core/token";
 import { Amount } from "../../../types";
-import logger from "../../../utils/other/logger";
 import SwapAction from "../base";
 
 import {
@@ -78,7 +77,6 @@ class PancakeSwapAction extends SwapAction {
       return poolAddress;
     } catch (error) {
       if (isReversed) throw error;
-      logger.debug("reversing request");
       return await this.getPool({
         fromToken: toToken,
         toToken: fromToken,

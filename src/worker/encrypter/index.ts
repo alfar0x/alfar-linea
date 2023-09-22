@@ -1,11 +1,12 @@
 import fs from "fs";
 import path from "path";
 
-import EncrypterConfig from "../../config/encrypter";
 import Encrypter from "../../core/encrypter";
 import readFile from "../../utils/file/readFile";
 import getPassword from "../../utils/other/getPassword";
 import logger from "../../utils/other/logger";
+
+import EncrypterConfig from "./config";
 
 class EncrypterWorker {
   private config: EncrypterConfig;

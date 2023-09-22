@@ -2,15 +2,15 @@ import Cli from "./cli";
 import logger from "./utils/other/logger";
 import Checker from "./worker/checker";
 import EncrypterWorker from "./worker/encrypter";
-import TasksGenerator from "./worker/tasksGenerator";
+import TasksRunner from "./worker/tasksRunner";
 
 const main = async () => {
   try {
     const { mode, config } = await new Cli().run();
 
     switch (mode) {
-      case "task-generator": {
-        return await new TasksGenerator(config).run();
+      case "task-runner": {
+        return await new TasksRunner(config).run();
       }
       case "checker": {
         return await new Checker(config).run();

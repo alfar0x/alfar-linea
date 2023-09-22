@@ -17,7 +17,6 @@ abstract class Action {
   private _actionType?: ActionType;
   private _provider?: Provider;
   private _operation?: string;
-  private _name?: string;
 
   protected initializeDefaultName(params: {
     provider: Provider;
@@ -25,24 +24,26 @@ abstract class Action {
     actionType: ActionType;
   }) {
     const { provider, actionType, operation } = params;
+
     this._provider = provider;
     this._operation = operation;
     this._actionType = actionType;
+  }
 
-    this._name =
-      `${this.provider}_${this._actionType}_${this._operation}`.toUpperCase();
+  public get actionType() {
+    return this._actionType || "NULL_ACTION_TYPE";
   }
 
   public get provider() {
     return this._provider || "NULL_PROVIDER";
   }
 
-  public get name() {
-    return this._name || "NULL_NAME";
+  public get operation() {
+    return this._operation || "NULL_OPERATION";
   }
 
-  public get actionType() {
-    return this._actionType || "NULL_ACTION_TYPE";
+  public get name() {
+    return `${this.provider}_${this.actionType}_${this.operation}`.toUpperCase();
   }
 
   protected getTxName(name: string) {

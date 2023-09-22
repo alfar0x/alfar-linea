@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import getFilenameRefine from "../../utils/zod/getFilenameRefine";
+import getFilenameRefine from "../../../utils/zod/getFilenameRefine";
 
 export const dynamicSchema = z.object({});
 

@@ -73,19 +73,19 @@ class TaskFactory {
       // @TODO temporary hardcoded
       SWAP_ETH_TOKEN_ETH: {
         router: this.swapEthTokenEthRouter,
-        weight: this.swapEthTokenEthRouter.count() ? 70 : 0,
+        weight: this.swapEthTokenEthRouter.size() ? 70 : 0,
       },
       SUPPLY_ETH: {
         router: this.supplyEthRouter,
-        weight: this.supplyEthRouter.count() ? 10 : 0,
+        weight: this.supplyEthRouter.size() ? 10 : 0,
       },
       SWAP_SUPPLY_TOKEN: {
         router: this.swapSupplyTokenRouter,
-        weight: this.swapSupplyTokenRouter.count() ? 10 : 0,
+        weight: this.swapSupplyTokenRouter.size() ? 10 : 0,
       },
       RANDOM: {
         router: this.randomRouter,
-        weight: this.randomRouter.count() ? 10 : 0,
+        weight: this.randomRouter.size() ? 10 : 0,
       },
     };
   }
@@ -146,32 +146,28 @@ class TaskFactory {
     return [...firstPart, ...randomSteps, ...secondPart];
   }
 
-  public async getRandomActions(params: { account: Account }) {
+  public async getRandomSteps(params: { account: Account }) {
     const { account } = params;
 
-    const actions = await this.generateRandomSteps({
-      account,
-    });
+    const steps = await this.generateRandomSteps({ account });
 
-    if (!this.shouldRandomTypeStepsBeAdded()) return actions;
+    if (!this.shouldRandomTypeStepsBeAdded()) return steps;
 
-    return await this.addRandomTypeSteps(account, actions);
+    return await this.addRandomTypeSteps(account, steps);
   }
 
-  public infoString(isFull = false) {
-    const generatorsInfo = Object.values(this.routersData).map(({ router }) => {
+  public info(isFull = false) {
+    const routesInfo = Object.values(this.routersData).map(({ router }) => {
       const short = `${router.description}: ${router.size()}`;
 
       if (!isFull) return short;
 
       const possibleRoutesStrings = router.possibleRoutesStrings().join("\n");
 
-      return `${short}\n${possibleRoutesStrings}\n`;
+      return `${short}\n${possibleRoutesStrings}`;
     });
 
-    const msg = [`Possible routes:`, ...generatorsInfo];
-
-    return msg.join("\n");
+    return routesInfo;
   }
 }
 

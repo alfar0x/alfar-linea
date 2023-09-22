@@ -10,7 +10,7 @@ const MAX_RETRY_TIMES = 20;
 
 export type CreateTransactionResult = {
   tx: Transaction | null;
-  resultMsg?: string;
+  resultMsg: string;
   gasMultiplier?: number;
   retryTimes?: number;
 };
@@ -20,12 +20,11 @@ export type CreateTransactionFunc = () => Promise<CreateTransactionResult>;
 class RunnableTransaction {
   private DEFAULT_GAS_MULTIPLIER = 1.1;
   private DEFAULT_RETRY_TIMES = 0;
-  private DEFAULT_RESULT_MSG = "work";
 
   public name: string;
-  public chain: Chain;
-  public account: Account;
-  public createTransaction: CreateTransactionFunc;
+  private chain: Chain;
+  private account: Account;
+  private createTransaction: CreateTransactionFunc;
 
   public constructor(params: {
     name: string;
@@ -56,17 +55,6 @@ class RunnableTransaction {
     const priceEth = Big(gas).times(gasPrice).toString();
 
     return await this.chain.getNative().readableAmountToUsd(priceEth);
-  }
-
-  private getSuccessMessage(hash: string, resultMsg?: string) {
-    const msg = [
-      String(this.account),
-      this.name,
-      `${resultMsg ?? this.DEFAULT_RESULT_MSG} success`,
-      this.chain.getHashLink(hash),
-    ].join(" | ");
-
-    return msg;
   }
 
   private async transactionRunner(params: {
@@ -131,7 +119,7 @@ class RunnableTransaction {
 
     if (retryTimes && retryTimes >= MAX_RETRY_TIMES) {
       throw new Error(
-        `Unexpected error. times > maxSendTransactionTimes. ${retryTimes} >= ${MAX_RETRY_TIMES}`,
+        `unexpected error. times > maxSendTransactionTimes. ${retryTimes} >= ${MAX_RETRY_TIMES}`,
       );
     }
 
@@ -142,9 +130,7 @@ class RunnableTransaction {
       gasMultiplier,
     });
 
-    logger.info(this.getSuccessMessage(hash, resultMsg));
-
-    return hash;
+    return { hash, resultMsg };
   }
 
   public toString() {

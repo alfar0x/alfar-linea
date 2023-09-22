@@ -1,33 +1,30 @@
 import Account from "../../core/account";
+import Queue from "../../core/queue";
 import Step from "../../core/step";
 
-class Task {
+class Task extends Queue<Step> {
   public account: Account;
-  private minimumTransactionsLimit: number;
-  private steps: Step[];
+  public minimumTransactionsLimit: number;
 
   public constructor(params: {
     account: Account;
     minimumTransactionsLimit: number;
-    steps: Step[];
+    steps?: Step[];
   }) {
     const { account, minimumTransactionsLimit, steps } = params;
 
+    super(steps);
+
     this.account = account;
     this.minimumTransactionsLimit = minimumTransactionsLimit;
-    this.steps = steps;
   }
 
-  public isEmpty() {
-    return !this.steps.length;
-  }
-
-  public nextStep(): Step | undefined {
-    return this.steps.shift();
+  public stepsString() {
+    return this.storage.map((step) => `[${step}]`).join(" => ");
   }
 
   public toString() {
-    return this.steps.map(String).join(", ");
+    return `${this.account}: ${this.stepsString()}`;
   }
 
   public isEquals(task: Task) {
@@ -41,7 +38,11 @@ class Task {
   }
 
   public setNextSteps(steps: Step[]) {
-    this.steps = steps;
+    this.storage = steps;
+  }
+
+  public getNextStep() {
+    return this.shift();
   }
 }
 

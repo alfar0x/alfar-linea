@@ -1,11 +1,12 @@
-import BlockConfig from "../../config/tasksGenerator";
 import Proxy from "../../core/proxy";
 import isFileAvailable from "../../utils/file/isFileAvailable";
 
-type BlockConfigProxy = BlockConfig["fixed"]["proxy"];
+import TasksRunnerConfig from "./config";
+
+type TasksRunnerConfigProxy = TasksRunnerConfig["fixed"]["proxy"];
 
 const initializeProxy = async (params: {
-  proxyConfig: BlockConfigProxy;
+  proxyConfig: TasksRunnerConfigProxy;
   baseFileName: string;
   accountsLength: number;
 }) => {
@@ -45,7 +46,7 @@ const initializeProxy = async (params: {
     }
     default: {
       throw new Error(
-        `${proxyConfig.type} proxy type not supported in block mode`,
+        `${proxyConfig.type} proxy type not supported in task runner mode`,
       );
     }
   }

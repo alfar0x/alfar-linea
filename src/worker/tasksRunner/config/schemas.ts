@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-import ACTION_PROVIDERS from "../../constants/actionProviders";
-import createUnionSchema from "../../utils/zod/createUnionSchema";
-import getFilenameRefine from "../../utils/zod/getFilenameRefine";
+import ACTION_PROVIDERS from "../../../constants/actionProviders";
+import createUnionSchema from "../../../utils/zod/createUnionSchema";
+import getFilenameRefine from "../../../utils/zod/getFilenameRefine";
 
 const minMaxRefine = [
   (schema: { min: number; max: number }) => schema.max >= schema.min,
@@ -58,6 +58,7 @@ export const fixedSchema = z.object({
   delaySec: delaySecSchema,
   files: filesSchema,
   isAccountsShuffle: z.boolean(),
+  shouldCheckBalanceOnStart: z.boolean(),
   maxParallelAccounts: maxParallelAccountsSchema,
   providers: providersSchema,
   proxy: proxySchema,

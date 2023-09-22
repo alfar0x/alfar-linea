@@ -76,7 +76,7 @@ class Account {
     const signResult = await this.signTransaction(chain.w3, tx);
 
     if (!signResult?.rawTransaction) {
-      throw new Error("transaction was not generated");
+      throw new Error("transaction was not generated in blockchain");
     }
 
     const sendResult = await this.sendSignedTransaction(

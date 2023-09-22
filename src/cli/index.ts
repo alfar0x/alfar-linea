@@ -9,8 +9,8 @@ import sleep from "../utils/other/sleep";
 
 const modeChoices = [
   {
-    title: "task generator",
-    value: "task-generator",
+    title: "task runner",
+    value: "task-runner",
     description: "run random linea transactions",
   },
   {
@@ -21,7 +21,7 @@ const modeChoices = [
   {
     title: "encrypter",
     value: "encrypter",
-    description: "encrypt your private keys to use task generator on server",
+    description: "encrypt your private keys to use task runner on server",
   },
   {
     title: "eth returner",
@@ -37,7 +37,7 @@ const modeChoices = [
   },
 ];
 
-type Mode = "task-generator" | "reset" | "depositor" | "checker" | "encrypter";
+type Mode = "task-runner" | "reset" | "depositor" | "checker" | "encrypter";
 
 class Cli {
   private configPath = "config";
@@ -60,7 +60,6 @@ class Cli {
 
       return choices;
     } catch (error) {
-      logger.debug(error);
       logger.error((error as Error).message);
       process.exit();
     }

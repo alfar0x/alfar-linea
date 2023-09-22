@@ -13,14 +13,18 @@ type ContractName =
   | (typeof CONTRACTS_WITHOUT_ABI)[number];
 type Contracts = Partial<Record<ContractName, string>>;
 
+type HttpProviderOptions = NonNullable<
+  ConstructorParameters<typeof HttpProvider>["1"]
+>;
+
 class Chain {
   public name: string;
   public chainId: number;
   public w3: Web3;
+  public tokens: Token[];
 
   private rpc: string;
   private explorer: string;
-  private tokens: Token[];
   private contracts: Contracts;
   private native: Token | null;
   private wrappedNative: Token | null;
@@ -70,6 +74,17 @@ class Chain {
       }),
       {} as Contracts,
     );
+  }
+
+  public updateHttpProviderOptions(params: {
+    httpProviderOptions: HttpProviderOptions;
+    rpc?: string;
+  }) {
+    const { httpProviderOptions, rpc = this.rpc } = params;
+
+    const httpProvider = new HttpProvider(rpc, httpProviderOptions);
+
+    this.w3.setProvider(httpProvider);
   }
 
   public getTokenByName(name: string) {

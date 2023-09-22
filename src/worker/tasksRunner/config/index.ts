@@ -1,8 +1,8 @@
-import Config from "../../core/config";
+import Config from "../../../core/config";
 
 import { dynamicSchema, fixedSchema } from "./schemas";
 
-class TasksGeneratorConfig extends Config<
+class TasksRunnerConfig extends Config<
   typeof fixedSchema,
   typeof dynamicSchema
 > {
@@ -13,4 +13,4 @@ class TasksGeneratorConfig extends Config<
   }
 }
 
-export default TasksGeneratorConfig;
+export default TasksRunnerConfig;

@@ -63,7 +63,7 @@ class DmailSendMailAction extends RandomAction {
     return { tx, resultMsg: "email sent" };
   }
 
-  public step(params: { account: Account }) {
+  public steps(params: { account: Account }) {
     const { account } = params;
 
     const step = new Step({ name: this.name });
@@ -79,7 +79,7 @@ class DmailSendMailAction extends RandomAction {
 
     step.push(sendMailTransaction);
 
-    return step;
+    return [step];
   }
 }
 

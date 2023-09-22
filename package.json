@@ -70,5 +70,5 @@
     "update": "git reset --hard HEAD && git pull",
     "test": "ts-node src/test.ts"
   },
-  "version": "3.0.0"
+  "version": "3.0.1"
 }

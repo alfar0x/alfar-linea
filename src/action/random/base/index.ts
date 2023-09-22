@@ -9,7 +9,7 @@ abstract class RandomAction extends Action {
   public constructor(params: { chain: Chain }) {
     const { chain } = params;
 
-    super({});
+    super();
 
     this.chain = chain;
   }
