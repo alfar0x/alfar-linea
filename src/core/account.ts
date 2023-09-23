@@ -8,6 +8,7 @@ import logger from "../utils/other/logger";
 import randomInteger from "../utils/random/randomInteger";
 import getShortString from "../utils/string/getShortString";
 import errorPrettify from "../utils/zod/errorPrettify";
+import evmAddressSchema from "../utils/zod/evmAddressSchema";
 import evmPrivateKeySchema from "../utils/zod/evmPrivateKeySchema";
 
 import Chain from "./chain";
@@ -18,16 +19,42 @@ class Account {
   public readonly address: string;
   public readonly shortAddress: string;
 
-  private readonly privateKey: string;
+  private readonly _privateKey?: string;
   private _transactionsPerformed: number;
 
-  public constructor(params: { privateKey: string; fileIndex: number }) {
-    const { privateKey, fileIndex } = params;
+  public constructor(params: {
+    privateKey?: string;
+    address?: string;
+    fileIndex: number;
+  }) {
+    const { privateKey, address, fileIndex } = params;
     this.fileIndex = fileIndex;
-    this.privateKey = this.initializePrivateKey(privateKey);
-    this.address = this.initializeAddress();
+
+    if (privateKey) {
+      this._privateKey = this.initializePrivateKey(privateKey);
+      this.address = ethers.computeAddress(privateKey);
+    } else if (address) {
+      this.address = this.initializeAddressFromGiven(address);
+    } else {
+      throw new Error("Either private key or address must be provided.");
+    }
+
     this.shortAddress = getShortString(this.address);
     this._transactionsPerformed = 0;
+  }
+
+  private initializeAddressFromGiven(address: string) {
+    const addressParsed = evmAddressSchema.safeParse(address);
+
+    if (addressParsed.success) return address;
+
+    const indexOrd = formatOrdinals(this.fileIndex + 1);
+
+    const errorMessage = errorPrettify(addressParsed.error.issues);
+
+    throw new Error(
+      `${indexOrd} address is not valid. Details: ${errorMessage}`,
+    );
   }
 
   private initializePrivateKey(privateKey: string) {
@@ -46,10 +73,6 @@ class Account {
     );
   }
 
-  private initializeAddress() {
-    return ethers.computeAddress(this.privateKey);
-  }
-
   public toString() {
     const idx = this.fileIndex + 1;
     const addr = this.shortAddress;
@@ -60,6 +83,16 @@ class Account {
 
   public isEquals(account: Account) {
     return this.fileIndex === account.fileIndex;
+  }
+
+  private get privateKey() {
+    if (!this._privateKey) {
+      throw new Error(
+        "This account is read-only. Cannot perform this operation.",
+      );
+    }
+
+    return this._privateKey;
   }
 
   private async signTransaction(w3: Web3, tx: Web3Transaction) {
