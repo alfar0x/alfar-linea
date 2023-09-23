@@ -5,13 +5,12 @@ import { z } from "zod";
 import formatIntervalSec from "../utils/datetime/formatIntervalSec";
 import readFileAndEncryptByLine from "../utils/file/readFileAndEncryptByLine";
 import createMessage from "../utils/other/createMessage";
-import getMyIp from "../utils/other/getMyIp";
+import formatOrdinals from "../utils/other/formatOrdinals";
 import logger from "../utils/other/logger";
 import sleep from "../utils/other/sleep";
 import randomChoice from "../utils/random/randomChoice";
-import ipOrDomainSchema from "../utils/zod/ipOrDomainSchema";
 import errorPrettify from "../utils/zod/errorPrettify";
-import formatOrdinals from "../utils/other/formatOrdinals";
+import ipOrDomainSchema from "../utils/zod/ipOrDomainSchema";
 
 type ProxyType = "mobile" | "none" | "server";
 

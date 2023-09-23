@@ -1,7 +1,6 @@
 import Big from "big.js";
 import { ethers } from "ethers";
 import { Transaction as Web3Transaction, Web3 } from "web3";
-import { z } from "zod";
 
 import formatOrdinals from "../utils/other/formatOrdinals";
 import logger from "../utils/other/logger";
