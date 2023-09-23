@@ -137,6 +137,10 @@ class TaskCreator {
         createMessage(account, `new steps created: ${task.stepsString()}`),
       );
 
+      const isFirstAccountRun = task.account.transactionsPerformed() === 0;
+
+      if (isFirstAccountRun) return true;
+
       if (!isShuffleAccountOnStepsEnd) return true;
 
       this.moveTaskRandomly(task);
