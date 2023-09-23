@@ -14,7 +14,12 @@ const filesSchema = z
     "Either privateKeys or addresses must be filled in.",
   );
 
-const maxParallelAccountsSchema = z.number().positive().min(1).max(10);
+const maxParallelAccountsSchema = z
+  .number()
+  .multipleOf(1)
+  .positive()
+  .min(1)
+  .max(10);
 
 const rpcSchema = z.object({
   linea: z.string().url(),
@@ -23,8 +28,8 @@ const rpcSchema = z.object({
 export const fixedSchema = z.object({
   files: filesSchema,
   maxParallelAccounts: maxParallelAccountsSchema,
-  delayBetweenChunkSec: z.number().positive(),
-  hideBalanceLessThanUsd: z.number(),
+  delayBetweenChunkSec: z.number().multipleOf(1).positive(),
+  hideBalanceLessThanUsd: z.number().multipleOf(0.01),
   rpc: rpcSchema,
 });
 

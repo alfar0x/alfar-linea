@@ -9,32 +9,49 @@ const minMaxRefine = [
   "Max must be greater than min",
 ] as const;
 
+const delaySecSchema = z.object({
+  transaction: z
+    .object({
+      min: z.number().multipleOf(1).positive().min(20),
+      max: z.number().multipleOf(1).positive().max(10000),
+    })
+    .refine(...minMaxRefine),
+  step: z
+    .object({
+      min: z.number().multipleOf(1).positive().min(60),
+      max: z.number().multipleOf(1).positive().max(10000),
+    })
+    .refine(...minMaxRefine),
+});
+
+const maxParallelAccountsSchema = z
+  .number()
+  .multipleOf(1)
+  .positive()
+  .min(1)
+  .max(10);
+
 export const dynamicSchema = z.object({
-  maxLineaGwei: z.number().positive(),
-  minEthBalance: z.number().min(0.001),
+  delaySec: delaySecSchema,
+  maxLineaGwei: z.number().multipleOf(0.05).positive().max(10000),
+  maxParallelAccounts: maxParallelAccountsSchema,
+  maxTxPriceUsd: z.number().multipleOf(0.1).positive().max(10000),
+  minEthBalance: z.number().multipleOf(0.0001).min(0.0005),
 });
 
 const providersSchema = z.array(createUnionSchema(ACTION_PROVIDERS)).min(1);
 
 const transactionsLimitSchema = z
-  .object({ min: z.number().positive().min(1), max: z.number().positive() })
+  .object({
+    min: z.number().multipleOf(1).positive().min(1).max(10000),
+    max: z.number().multipleOf(1).positive().max(10000),
+  })
   .refine(...minMaxRefine);
-
-const delaySecSchema = z.object({
-  transaction: z
-    .object({ min: z.number().positive().min(20), max: z.number().positive() })
-    .refine(...minMaxRefine),
-  step: z
-    .object({ min: z.number().positive().min(60), max: z.number().positive() })
-    .refine(...minMaxRefine),
-});
 
 const filesSchema = z.object({
   privateKeys: getFilenameRefine(".txt"),
   proxies: getFilenameRefine(".txt"),
 });
-
-const maxParallelAccountsSchema = z.number().positive().min(1).max(10);
 
 const proxySchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("none") }),
@@ -48,18 +65,16 @@ const rpcSchema = z.object({
 
 const workingAmountPercentSchema = z
   .object({
-    min: z.number().positive().min(0.1),
-    max: z.number().positive().max(30),
+    min: z.number().multipleOf(0.1).positive().min(0.1),
+    max: z.number().positive().multipleOf(0.1).max(30),
   })
   .refine(...minMaxRefine);
 
 export const fixedSchema = z.object({
-  delaySec: delaySecSchema,
   files: filesSchema,
   isAccountsShuffle: z.boolean(),
   isCheckBalanceOnStart: z.boolean(),
   isShuffleAccountOnStepsEnd: z.boolean(),
-  maxParallelAccounts: maxParallelAccountsSchema,
   providers: providersSchema,
   proxy: proxySchema,
   rpc: rpcSchema,

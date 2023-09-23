@@ -24,7 +24,7 @@ class Waiter {
   }
 
   public async waitStep() {
-    const { min, max } = this.config.fixed.delaySec.step;
+    const { min, max } = this.config.dynamic().delaySec.step;
 
     const nextStepRunSec = randomInteger(min, max).toNumber();
 
@@ -36,7 +36,7 @@ class Waiter {
   }
 
   public async waitTransaction() {
-    const { min, max } = this.config.fixed.delaySec.transaction;
+    const { min, max } = this.config.dynamic().delaySec.transaction;
 
     const nextTransactionRunSec = randomInteger(min, max).toNumber();
 

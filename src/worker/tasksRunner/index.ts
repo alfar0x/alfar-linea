@@ -59,6 +59,7 @@ class TasksRunner {
     step: Step,
     isConnectionChecked = false,
   ): Promise<readonly [false] | readonly [true, string]> {
+    const { maxTxPriceUsd } = this.config.dynamic();
     const transaction = step.getNextTransaction();
 
     if (!transaction) return [false];
@@ -69,7 +70,7 @@ class TasksRunner {
       // worker tests
       // const txResult = { hash: "", resultMsg: "" };
 
-      const txResult = await transaction.run({});
+      const txResult = await transaction.run({ maxTxPriceUsd });
 
       if (!txResult) return [false];
 

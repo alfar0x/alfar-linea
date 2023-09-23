@@ -88,7 +88,7 @@ class TaskCreator {
   }
 
   private moveTaskRandomly(task: Task) {
-    const { maxParallelAccounts } = this.config.fixed;
+    const { maxParallelAccounts } = this.config.dynamic();
 
     const index = this.tasks.findIndex((t) => t.isEquals(task));
 
@@ -173,7 +173,7 @@ class TaskCreator {
   }
 
   private pickRandomTask() {
-    const { maxParallelAccounts } = this.config.fixed;
+    const { maxParallelAccounts } = this.config.dynamic();
 
     const maxIndexBaseOnOne = Math.min(this.tasks.length, maxParallelAccounts);
 

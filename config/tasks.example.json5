@@ -1,13 +1,15 @@
 {
   dynamic: {
-    maxLineaGwei: 1.2,
-    minEthBalance: 0.002,
-  },
-  fixed: {
     delaySec: {
       step: { min: 300, max: 3600 },
       transaction: { min: 30, max: 240 },
     },
+    maxLineaGwei: 1.2,
+    maxParallelAccounts: 3,
+    maxTxPriceUsd: 3,
+    minEthBalance: 0.002,
+  },
+  fixed: {
     files: {
       privateKeys: "private_keys.txt",
       proxies: "proxies.txt",
@@ -15,7 +17,6 @@
     isAccountsShuffle: true,
     isCheckBalanceOnStart: false,
     isShuffleAccountOnStepsEnd: true,
-    maxParallelAccounts: 3,
     providers: [
       "DMAIL",
       "LINEA_BANK",

@@ -229,18 +229,19 @@ Before the first run, you must create the following files:
 There are two main block types in the config: `dynamic` and `fixed`. The `dynamic` config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. Dynamic values can be changed during program run. Config values:
 - `dynamic`:
     - `maxLineaGwei` - The maximum Linea Gwei limit. The system will check it before each transaction.
-    - `minEthBalance` - The minimum ETH balance on the account required to work with (generate a task/start a new block). To forcefully stop the script and complete all current steps, set the value to `100`. It will skip the next blocks due to insufficient balance.
-- `fixed`:
+    - `minEthBalance` - The minimum ETH balance on the account required to work with (generate a task/start a new block). To forcefully stop the script and complete all current steps, set the value to `100`. It will skip the next blocks due to insufficient balance. (min=0.0005)
     - `delaySec`:
-        - `step` - Set the minimum and maximum step delay in seconds.
-        - `transaction` - Set the minimum and maximum transaction delay in seconds.
+        - `step` - Set the minimum and maximum step delay in seconds. (min=20)
+        - `transaction` - Set the minimum and maximum transaction delay in seconds. (min=60)
+    - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run [example](#example) below)
+    - `maxTxPriceUsd` - Set the max price of a transaction in USD for gas fees. Note: If the transaction is deemed expensive, the system will generate an error, and the current account task steps will be cleared. If you're not concerned about the transaction cost, set this value to `100` so system will then ignore this setting until the transaction cost reaches $100.
+- `fixed`:
     - `files` (each file name must have the correct file format; `private_keys` is incorrect, while `private_keys.txt` is correct):
         - `privateKeys` - Specify the file name in the `assets` folder containing private keys.
         - `proxies` - Specify the file name in the `assets` folder containing proxies. It can be an empty string for `none` proxy type.
     - `isAccountsShuffle` - Determine whether the private keys file should be shuffled (set to `true` or `false`).
     - `isCheckBalanceOnStart` - Determine whether the balance should be checked (depends on `minEthBalance`) before the start of work (set to `true` or `false`). Note: balances will be checked before each task in any case.
     - `isShuffleAccountOnStepsEnd` - (set to `true` or `false`) Determine whether an account that hasn't made the required number of transactions should be moved to a random place in the queue. With this setting, you can configure the program to run indefinitely, especially if you specify a large number of transactions (`transactionsLimit`) and set it to `true`. In this case, once the current task for an account is completed, it will be placed in a random position within the queue. If there are many accounts, it's likely that this account will wait long in the queue and that new task will be created. Be careful: if you set this setting to `true`, the chance of starting each account decreases. Even with high frequency and time delay, some accounts may not start.
-    - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run [example](#example) below)
     - `providers` - Specify the services to be used in this mode. All possible values are already defined in the example config file. To exclude certain blocks, simply comment them out (add `//` before the block ID). For example, the following lines in the config file mean that OPEN_OCEAN will be used while DMAIL won't be:
         ```json
         "OPEN_OCEAN",
