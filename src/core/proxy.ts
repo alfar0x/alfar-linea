@@ -9,22 +9,20 @@ import getMyIp from "../utils/other/getMyIp";
 import logger from "../utils/other/logger";
 import sleep from "../utils/other/sleep";
 import randomChoice from "../utils/random/randomChoice";
+import ipOrDomainSchema from "../utils/zod/ipOrDomainSchema";
+import errorPrettify from "../utils/zod/errorPrettify";
+import formatOrdinals from "../utils/other/formatOrdinals";
 
 type ProxyType = "mobile" | "none" | "server";
 
 const proxyItemSchema = z.object({
-  host: z.string().ip(),
+  host: ipOrDomainSchema,
   port: z.string().transform((str) => Number(str)),
   username: z.string(),
   password: z.string(),
 });
 
-const proxySchema = z.string().transform((str) => {
-  const [host, port, username, password] = str.split(":");
-  return proxyItemSchema.parse({ host, port, username, password });
-});
-
-export type ProxyItem = z.infer<typeof proxySchema>;
+export type ProxyItem = z.infer<typeof proxyItemSchema>;
 
 const WAIT_AFTER_POST_REQUEST_SEC = 30;
 
@@ -52,6 +50,25 @@ class Proxy {
     this.proxyList = [];
   }
 
+  private parseProxyStr(proxyStr: string, idx: number) {
+    const [host, port, username, password] = proxyStr.split(":");
+
+    const proxyParsed = proxyItemSchema.safeParse({
+      host,
+      port,
+      username,
+      password,
+    });
+
+    if (proxyParsed.success) return proxyParsed.data;
+
+    const errorMessage = errorPrettify(proxyParsed.error.issues);
+
+    const indexOrd = formatOrdinals(idx + 1);
+
+    throw new Error(`${indexOrd} proxy is not valid. Details: ${errorMessage}`);
+  }
+
   public async initializeProxy(fileName: string) {
     if (this.type === "none") return [];
 
@@ -59,7 +76,7 @@ class Proxy {
 
     const fileData = allFileData.map((v) => v.trim()).filter(Boolean);
 
-    const proxyList = fileData.map((proxyStr) => proxySchema.parse(proxyStr));
+    const proxyList = fileData.map((p, i) => this.parseProxyStr(p, i));
 
     switch (this.type) {
       case "mobile": {

@@ -3,19 +3,15 @@ import { ethers } from "ethers";
 import { Transaction as Web3Transaction, Web3 } from "web3";
 import { z } from "zod";
 
+import formatOrdinals from "../utils/other/formatOrdinals";
 import logger from "../utils/other/logger";
 import randomInteger from "../utils/random/randomInteger";
 import getShortString from "../utils/string/getShortString";
+import errorPrettify from "../utils/zod/errorPrettify";
+import evmPrivateKeySchema from "../utils/zod/evmPrivateKeySchema";
 
 import Chain from "./chain";
 import Token from "./token";
-
-const evmAccountPrivateKeyLength = 66;
-
-const evmAccountPrivateKeySchema = z
-  .string()
-  .length(evmAccountPrivateKeyLength)
-  .startsWith("0x");
 
 class Account {
   public readonly fileIndex: number;
@@ -35,14 +31,18 @@ class Account {
   }
 
   private initializePrivateKey(privateKey: string) {
-    const isPrivateValid = evmAccountPrivateKeySchema.safeParse(privateKey);
+    const privateKeyParsed = evmPrivateKeySchema.safeParse(privateKey);
 
-    if (isPrivateValid.success) return privateKey;
+    if (privateKeyParsed.success) return privateKey;
+
+    const indexOrd = formatOrdinals(this.fileIndex + 1);
 
     const privateShortForm = getShortString(privateKey);
 
+    const errorMessage = errorPrettify(privateKeyParsed.error.issues);
+
     throw new Error(
-      `private key ${privateShortForm} on index ${this.fileIndex} is not valid. Check assets folder`,
+      `${indexOrd} private key ${privateShortForm} is not valid. Details: ${errorMessage}`,
     );
   }
 

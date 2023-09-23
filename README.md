@@ -218,7 +218,7 @@ The task runner mode uses private keys, proxies (optional), and configurations t
 
 Before the first run, you must create the following files:
 1. Open the `assets` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the config file; just don't change example files):
-   - Create a file for private keys (e.g., `private_keys.txt`) and fill it with private keys, each on a new line (must start with `0x`).
+   - Create a file for private keys (e.g., `private_keys.txt`) and fill it with private keys, each on a new line (both with `0x` and without is valid)
    - (Optional, only if you will use a proxy) Create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
    - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode.
 2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
@@ -239,7 +239,7 @@ There are two main block types in the config: `dynamic` and `fixed`. The `dynami
         - `proxies` - Specify the file name in the `assets` folder containing proxies. It can be an empty string for `none` proxy type.
     - `isAccountsShuffle` - Determine whether the private keys file should be shuffled (set to `true` or `false`).
     - `isCheckBalanceOnStart` - Determine whether the balance should be checked (depends on `minEthBalance`) before the start of work (set to `true` or `false`). Note: balances will be checked before each task in any case.
-    - `isShuffleAccountOnStepsEnd` - Determine whether an account that hasn't made the required number of transactions should be moved to a random place in the queue. With this setting, you can configure the program to run indefinitely, especially if you specify a large number of transactions (`transactionsLimit`) and set it to `true`. In this case, once the current task for an account is completed, it will be placed in a random position within the queue. If there are many accounts, it's likely that this account will wait long in the queue and that new task will be created (set to `true` or `false`)
+    - `isShuffleAccountOnStepsEnd` - (set to `true` or `false`) Determine whether an account that hasn't made the required number of transactions should be moved to a random place in the queue. With this setting, you can configure the program to run indefinitely, especially if you specify a large number of transactions (`transactionsLimit`) and set it to `true`. In this case, once the current task for an account is completed, it will be placed in a random position within the queue. If there are many accounts, it's likely that this account will wait long in the queue and that new task will be created. Be careful: if you set this setting to `true`, the chance of starting each account decreases. Even with high frequency and time delay, some accounts may not start.
     - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run [example](#example) below)
     - `providers` - Specify the services to be used in this mode. All possible values are already defined in the example config file. To exclude certain blocks, simply comment them out (add `//` before the block ID). For example, the following lines in the config file mean that OPEN_OCEAN will be used while DMAIL won't be:
         ```json
@@ -324,7 +324,7 @@ Check your accounts' analytics (transactions count and balances).
 
 Before the first run, you must create the following files:
 1. Open the `assets` folder in the file explorer and create the following files (you can name them as you want, than you will select them in the soft menu; just don't change example files):
-   - Create a file for private keys (e.g., `private_keys.txt`) and fill it with private keys, each on a new line (must start with `0x`).
+   - Create a file for private keys (e.g., `private_keys.txt`) and fill it with private keys, each on a new line (both with `0x` and without is valid).
    - (If you desire to use addresses instead of private keys) create a file for addresses (e.g., `addresses.txt`) and fill it with addresses, each on a new line (must start with `0x`).
    - (Optional, only if you will use a proxy) create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
    - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode. 

@@ -54,7 +54,11 @@ class RunnableTransaction {
 
     const priceEth = Big(gas).times(gasPrice).toString();
 
-    return await this.chain.getNative().readableAmountToUsd(priceEth);
+    const usdPrice = await this.chain.getNative().readableAmountToUsd(priceEth);
+
+    logger.info({ gas, gasPrice, priceEth, usdPrice });
+
+    return usdPrice;
   }
 
   private async transactionRunner(params: {
@@ -65,8 +69,9 @@ class RunnableTransaction {
   }): Promise<string> {
     const { tx, retryTimes, gasMultiplier, maxTxPriceUsd } = params;
 
+    const gasPriceUsd = await this.calcTxPriceUsd(tx);
+
     if (maxTxPriceUsd) {
-      const gasPriceUsd = await this.calcTxPriceUsd(tx);
       if (Big(gasPriceUsd).gt(maxTxPriceUsd)) {
         throw new Error(
           `Tx price is greater than max value: ${gasPriceUsd} > ${maxTxPriceUsd}`,

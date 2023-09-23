@@ -38,9 +38,8 @@ const maxParallelAccountsSchema = z.number().positive().min(1).max(10);
 
 const proxySchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("none") }),
-  // @TODO disabled until tested
-  // z.object({ type: z.literal("server"), serverIsRandom: z.boolean() }),
-  // z.object({ type: z.literal("mobile"), mobileIpChangeUrl: z.string().url() }),
+  z.object({ type: z.literal("server"), serverIsRandom: z.boolean() }),
+  z.object({ type: z.literal("mobile"), mobileIpChangeUrl: z.string().url() }),
 ]);
 
 const rpcSchema = z.object({
