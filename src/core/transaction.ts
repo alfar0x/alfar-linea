@@ -1,5 +1,5 @@
 import Big from "big.js";
-import { Transaction } from "web3";
+import Web3, { Transaction } from "web3";
 
 import logger from "../utils/other/logger";
 
@@ -52,11 +52,11 @@ class RunnableTransaction {
     const gas = String(tx.gas || 0);
     const gasPrice = String(tx.gasPrice || 0);
 
-    const priceEth = Big(gas).times(gasPrice).toString();
+    const priceEthWei = Big(gas).times(gasPrice).toString();
+
+    const priceEth = Web3.utils.fromWei(priceEthWei, "ether");
 
     const usdPrice = await this.chain.getNative().readableAmountToUsd(priceEth);
-
-    logger.info({ gas, gasPrice, priceEth, usdPrice });
 
     return usdPrice;
   }
@@ -66,7 +66,7 @@ class RunnableTransaction {
     retryTimes: number;
     gasMultiplier: number;
     maxTxPriceUsd?: number;
-  }): Promise<string> {
+  }): Promise<{ hash: string; gasPriceUsd: string }> {
     const { tx, retryTimes, gasMultiplier, maxTxPriceUsd } = params;
 
     const gasPriceUsd = await this.calcTxPriceUsd(tx);
@@ -82,7 +82,7 @@ class RunnableTransaction {
     try {
       const hash = await this.account.signAndSendTransaction(this.chain, tx);
 
-      return hash;
+      return { hash, gasPriceUsd };
     } catch (error) {
       if (retryTimes <= 0) throw error;
 
@@ -130,14 +130,14 @@ class RunnableTransaction {
       );
     }
 
-    const hash = await this.transactionRunner({
+    const { hash, gasPriceUsd } = await this.transactionRunner({
       tx,
       maxTxPriceUsd,
       retryTimes,
       gasMultiplier,
     });
 
-    return { hash, resultMsg };
+    return { hash, resultMsg, gasPriceUsd };
   }
 
   public toString() {

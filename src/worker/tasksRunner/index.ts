@@ -73,12 +73,13 @@ class TasksRunner {
 
       if (!txResult) return [false];
 
-      const { hash, resultMsg } = txResult;
+      const { hash, resultMsg, gasPriceUsd } = txResult;
 
       const message = createMessage(
         transaction.name,
         "success",
         resultMsg,
+        `tx price: $${gasPriceUsd}`,
         this.chain.getHashLink(hash),
       );
 
@@ -125,7 +126,7 @@ class TasksRunner {
       }
     }
 
-    logger.info(createMessage(account, `step finish: ${step}`));
+    logger.info(createMessage(account, `step finish`));
 
     await this.proxy.postRequest();
 

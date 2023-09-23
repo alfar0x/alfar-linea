@@ -96,14 +96,14 @@ class TaskCreator {
       throw new Error(`unexpected error. task ${task} is not defined`);
     }
 
-    const [item] = this.tasks.splice(index, 1);
-
     const minIndex =
       this.tasks.length > maxParallelAccounts ? maxParallelAccounts : 0;
 
     const maxIndex = this.tasks.length - 1;
 
     const randomIndex = randomInteger(minIndex, maxIndex).toNumber();
+
+    const [item] = this.tasks.splice(index, 1);
 
     this.tasks.splice(randomIndex, 0, item);
   }

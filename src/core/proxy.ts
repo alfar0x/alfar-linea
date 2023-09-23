@@ -149,26 +149,28 @@ class Proxy {
       try {
         const { status } = await axios.get(this.ipChangeUrl);
 
-        if (status === 200) {
-          const myIp = await getMyIp();
+        if (status !== 200)
+          throw new Error(`ip change response status is ${status}`);
 
-          const sleepUntilStr = formatIntervalSec(WAIT_AFTER_POST_REQUEST_SEC);
+        const sleepUntilStr = formatIntervalSec(WAIT_AFTER_POST_REQUEST_SEC);
 
-          logger.info(
-            createMessage(
-              `ip changed successfully: ${myIp}`,
-              `sleeping until ${sleepUntilStr}`,
-            ),
-          );
+        logger.info(
+          createMessage(
+            `ip change success`,
+            `paused after changes`,
+            `will resume ${sleepUntilStr}`,
+          ),
+        );
 
-          await sleep(WAIT_AFTER_POST_REQUEST_SEC);
-        }
+        await sleep(WAIT_AFTER_POST_REQUEST_SEC);
 
-        throw new Error(`ip change response status is ${status}`);
+        return;
       } catch (error) {
+        const retryOrd = formatOrdinals(retry + 1);
+
         logger.error(
           createMessage(
-            `Attempt to change ip ${retry + 1} failed`,
+            `${retryOrd} attempt to change ip failed`,
             (error as Error).message,
           ),
         );

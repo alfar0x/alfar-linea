@@ -17,7 +17,7 @@ const waitInternetConnection = async () => {
     logger.error(
       createMessage(
         "internet connection error",
-        `next check: ${formatIntervalSec(sleepSec)}`,
+        `next check ${formatIntervalSec(sleepSec)}`,
       ),
     );
     await sleep(sleepSec);
