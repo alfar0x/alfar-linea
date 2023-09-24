@@ -1,33 +1,33 @@
 [![Typing SVG](https://readme-typing-svg.demolab.com/?font=Fira+Code&size=50&pause=1000&vCenter=true&width=350&height=80&lines=alfar-linea&color=2a9d8f)](https://git.io/typing-svg)
 
-Soft designed to manage Linea accounts by simulating user activity through random transactions.
+This software is designed to manage Linea accounts by simulating user activity through random transactions.
+
 ## Overview
 
-***Please read the instructions carefully to understand how soft works before running it.***
+**_It is crucial to read the instructions carefully to fully understand how the software works before running it._**
 
-Main features:
-- Simple setup
-- Interaction with various services, such as syncswap, velocore, dmail, open ocean, xy finance, pancake, woofi, linea bank etc.
-- Dynamic gas limit before each transaction (that is, you can change the limit directly during the execution of the program)
-- Selection of services for work
-- Ability to run in several terminals with different settings/accounts
-- Collection of information from the blockchain about accounts (token balances and number of transactions)
-- Encryption of private keys, proxies, addresses with a password for using soft on the server
-- TRUE RANDOMIZATION. One of the examples: swap wbtc for eth on syncswap -> supply wbtc to linea bank -> send a message to dmail -> redeem wbtc from linea bank -> swap wbtc for eth on open ocean. and it's all automatic. now more than 100 different paths are available in 8 services, with more to come
+### Main Features:
 
-***Important: linea mainnet can sometimes throw errors and stop working suddenly. Please do not make large volumes with the soft, it is designed to increase the number of transactions. Adding $20 on an account and setting the working volume of 1-7% is ok***
+- **Simple Setup**: Get started easily without hassle.
+- **Wide Interaction**: Engage with various services like syncswap, velocore, dmail, open ocean, xy finance, pancake, woofi, linea bank and more.
+- **Dynamic Gas Limit**: Adjust the gas limit on the fly during the program execution.
+- **Service Selection**: Choose which services to work with.
+- **Multi-terminal Operation**: Operate in several terminals with different settings/accounts.
+- **Blockchain Information Collection**: Collect token balances and transaction numbers for accounts from the blockchain.
+- **Enhanced Security**: Encrypt private keys, proxies, and addresses with a password for server use.
+- **True Randomization**: Enjoy automatic and truly randomized transaction paths through different services.
+- **Proxy Use**: Utilize mobile/server proxies for operations.
 
-What will be added next:
-- Possibility of deposit in linea
-- Proxy connection
-- Separate mode for returning tokens from all services and swapping excess tokens in eth (in case of errors in the main mode)
-- Even more contracts
+**_Note: The Linea mainnet may occasionally encounter errors and cease to function unexpectedly. It's advised to avoid making large transactions using this software, as it primarily aims to increase the transaction count. It is considered safe to add $20 to an account and set the working volume to 1-7%._**
 
-## How it works
+## How It Works
 
-Main mode creates `task` for each account consisting of `steps`, which represent a list of `transactions`:
-1. One step is consists of transactions sent by real users within 1-2 minutes. E.g., [approve -> swap]. Here, 1 step is 2 transactions. Steps can currently consist of 1-3 transactions.
-2. One task consists of steps that can be executed by real users within hours/days. E.g., [swap ETH to USDC] --> [approve USDC -> add USDC to liquidity pool] --> [remove liquidity] --> [approve USDC -> swap to ETH]. Here, 1 task = 4 steps = 6 transactions. Each task concludes by returning all tokens/liquidity to ETH.
+In the main mode `task-runner`, the software creates a `task` for each account, comprising various `steps`, which in turn consist of a list of `transactions`.
+
+### Transaction Workflow:
+
+1. **Step**: Represents transactions sent by real users within 1-2 minutes (e.g., `[approve -> swap]`). Each step can currently include 1-3 transactions.
+2. **Task**: Encompasses steps executable by real users within hours/days (e.g., `[swap ETH to USDC] --> [approve USDC -> add USDC to liquidity pool] --> [remove liquidity] --> [approve USDC -> swap to ETH]`). Here, 1 task = 4 steps = 6 transactions. Each task concludes by returning all tokens/liquidity to ETH.
 
 Check for updates here: [alfar](https://t.me/+FozX3VZA0RIyNWY6)
 
@@ -36,112 +36,114 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 ![Console Screenshot](./img/screenshot.png)
 
 <details>
-    <summary> Click here to see all current possible tasks (if all providers are turned on) </summary>
+  <summary> Click here to see all current possible tasks (if all providers are turned on) </summary>
 
-    Swap eth -> token -> eth: 55
-    OPEN_OCEAN_SWAP_ETH_IUSD -> OPEN_OCEAN_SWAP_IUSD_ETH
-    OPEN_OCEAN_SWAP_ETH_IZI -> OPEN_OCEAN_SWAP_IZI_ETH
-    OPEN_OCEAN_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-    OPEN_OCEAN_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
-    OPEN_OCEAN_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
-    OPEN_OCEAN_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
-    OPEN_OCEAN_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
-    OPEN_OCEAN_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
-    OPEN_OCEAN_SWAP_ETH_WBTC -> OPEN_OCEAN_SWAP_WBTC_ETH
-    OPEN_OCEAN_SWAP_ETH_WBTC -> SYNCSWAP_SWAP_WBTC_ETH
-    OPEN_OCEAN_SWAP_ETH_wAVAX -> OPEN_OCEAN_SWAP_wAVAX_ETH
-    OPEN_OCEAN_SWAP_ETH_wBNB -> OPEN_OCEAN_SWAP_wBNB_ETH
-    OPEN_OCEAN_SWAP_ETH_wMATIC -> OPEN_OCEAN_SWAP_wMATIC_ETH
-    PANCAKE_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-    PANCAKE_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
-    PANCAKE_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
-    PANCAKE_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
-    PANCAKE_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
-    PANCAKE_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_WBTC -> OPEN_OCEAN_SWAP_WBTC_ETH
-    SYNCSWAP_SWAP_ETH_WBTC -> SYNCSWAP_SWAP_WBTC_ETH
-    SYNCSWAP_SWAP_ETH_ceBUSD -> SYNCSWAP_SWAP_ceBUSD_ETH
-    SYNCSWAP_SWAP_ETH_ceBUSD -> VELOCORE_SWAP_ceBUSD_ETH
-    SYNCSWAP_SWAP_ETH_ceBUSD -> XY_FINANCE_SWAP_ceBUSD_ETH
-    VELOCORE_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-    VELOCORE_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
-    VELOCORE_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
-    VELOCORE_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
-    VELOCORE_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
-    VELOCORE_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
-    VELOCORE_SWAP_ETH_ceBUSD -> SYNCSWAP_SWAP_ceBUSD_ETH
-    VELOCORE_SWAP_ETH_ceBUSD -> VELOCORE_SWAP_ceBUSD_ETH
-    VELOCORE_SWAP_ETH_ceBUSD -> XY_FINANCE_SWAP_ceBUSD_ETH
-    WOOFI_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-    WOOFI_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
-    WOOFI_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
-    WOOFI_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
-    WOOFI_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
-    WOOFI_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
-    XY_FINANCE_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-    XY_FINANCE_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
-    XY_FINANCE_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
-    XY_FINANCE_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
-    XY_FINANCE_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
-    XY_FINANCE_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
-    XY_FINANCE_SWAP_ETH_USDT -> XY_FINANCE_SWAP_USDT_ETH
-    XY_FINANCE_SWAP_ETH_ceBUSD -> SYNCSWAP_SWAP_ceBUSD_ETH
-    XY_FINANCE_SWAP_ETH_ceBUSD -> VELOCORE_SWAP_ceBUSD_ETH
-    XY_FINANCE_SWAP_ETH_ceBUSD -> XY_FINANCE_SWAP_ceBUSD_ETH
+```
+Swap eth -> token -> eth: 55
+OPEN_OCEAN_SWAP_ETH_IUSD -> OPEN_OCEAN_SWAP_IUSD_ETH
+OPEN_OCEAN_SWAP_ETH_IZI -> OPEN_OCEAN_SWAP_IZI_ETH
+OPEN_OCEAN_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
+OPEN_OCEAN_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
+OPEN_OCEAN_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
+OPEN_OCEAN_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
+OPEN_OCEAN_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
+OPEN_OCEAN_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
+OPEN_OCEAN_SWAP_ETH_WBTC -> OPEN_OCEAN_SWAP_WBTC_ETH
+OPEN_OCEAN_SWAP_ETH_WBTC -> SYNCSWAP_SWAP_WBTC_ETH
+OPEN_OCEAN_SWAP_ETH_wAVAX -> OPEN_OCEAN_SWAP_wAVAX_ETH
+OPEN_OCEAN_SWAP_ETH_wBNB -> OPEN_OCEAN_SWAP_wBNB_ETH
+OPEN_OCEAN_SWAP_ETH_wMATIC -> OPEN_OCEAN_SWAP_wMATIC_ETH
+PANCAKE_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
+PANCAKE_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
+PANCAKE_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
+PANCAKE_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
+PANCAKE_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
+PANCAKE_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_WBTC -> OPEN_OCEAN_SWAP_WBTC_ETH
+SYNCSWAP_SWAP_ETH_WBTC -> SYNCSWAP_SWAP_WBTC_ETH
+SYNCSWAP_SWAP_ETH_ceBUSD -> SYNCSWAP_SWAP_ceBUSD_ETH
+SYNCSWAP_SWAP_ETH_ceBUSD -> VELOCORE_SWAP_ceBUSD_ETH
+SYNCSWAP_SWAP_ETH_ceBUSD -> XY_FINANCE_SWAP_ceBUSD_ETH
+VELOCORE_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
+VELOCORE_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
+VELOCORE_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
+VELOCORE_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
+VELOCORE_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
+VELOCORE_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
+VELOCORE_SWAP_ETH_ceBUSD -> SYNCSWAP_SWAP_ceBUSD_ETH
+VELOCORE_SWAP_ETH_ceBUSD -> VELOCORE_SWAP_ceBUSD_ETH
+VELOCORE_SWAP_ETH_ceBUSD -> XY_FINANCE_SWAP_ceBUSD_ETH
+WOOFI_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
+WOOFI_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
+WOOFI_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
+WOOFI_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
+WOOFI_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
+WOOFI_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
+XY_FINANCE_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
+XY_FINANCE_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
+XY_FINANCE_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
+XY_FINANCE_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
+XY_FINANCE_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
+XY_FINANCE_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
+XY_FINANCE_SWAP_ETH_USDT -> XY_FINANCE_SWAP_USDT_ETH
+XY_FINANCE_SWAP_ETH_ceBUSD -> SYNCSWAP_SWAP_ceBUSD_ETH
+XY_FINANCE_SWAP_ETH_ceBUSD -> VELOCORE_SWAP_ceBUSD_ETH
+XY_FINANCE_SWAP_ETH_ceBUSD -> XY_FINANCE_SWAP_ceBUSD_ETH
 
-    Supply -> redeem eth: 1
-    LINEA_BANK_SUPPLY_ETH
+Supply -> redeem eth: 1
+LINEA_BANK_SUPPLY_ETH
 
-    Swap eth -> token -> supply -> redeem -> eth: 40
-    OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-    OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
-    OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
-    OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
-    OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
-    OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
-    OPEN_OCEAN_SWAP_ETH_WBTC -> LINEA_BANK_SUPPLY_WBTC -> OPEN_OCEAN_SWAP_WBTC_ETH
-    OPEN_OCEAN_SWAP_ETH_WBTC -> LINEA_BANK_SUPPLY_WBTC -> SYNCSWAP_SWAP_WBTC_ETH
-    PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-    PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
-    PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
-    PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
-    PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
-    PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
-    SYNCSWAP_SWAP_ETH_WBTC -> LINEA_BANK_SUPPLY_WBTC -> OPEN_OCEAN_SWAP_WBTC_ETH
-    SYNCSWAP_SWAP_ETH_WBTC -> LINEA_BANK_SUPPLY_WBTC -> SYNCSWAP_SWAP_WBTC_ETH
-    VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-    VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
-    VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
-    VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
-    VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
-    VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
-    WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-    WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
-    WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
-    WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
-    WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
-    WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
-    XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-    XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
-    XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
-    XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
-    XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
-    XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
+Swap eth -> token -> supply -> redeem -> eth: 40
+OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
+OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
+OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
+OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
+OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
+OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
+OPEN_OCEAN_SWAP_ETH_WBTC -> LINEA_BANK_SUPPLY_WBTC -> OPEN_OCEAN_SWAP_WBTC_ETH
+OPEN_OCEAN_SWAP_ETH_WBTC -> LINEA_BANK_SUPPLY_WBTC -> SYNCSWAP_SWAP_WBTC_ETH
+PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
+PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
+PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
+PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
+PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
+PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
+SYNCSWAP_SWAP_ETH_WBTC -> LINEA_BANK_SUPPLY_WBTC -> OPEN_OCEAN_SWAP_WBTC_ETH
+SYNCSWAP_SWAP_ETH_WBTC -> LINEA_BANK_SUPPLY_WBTC -> SYNCSWAP_SWAP_WBTC_ETH
+VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
+VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
+VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
+VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
+VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
+VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
+WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
+WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
+WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
+WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
+WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
+WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
+XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
+XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
+XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
+XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
+XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
+XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
 
-    Random: 1
-    DMAIL_SEND_MAIL
+Random: 1
+DMAIL_SEND_MAIL
+```
 
 </details>
 
@@ -151,15 +153,15 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 - [Suggestions](#suggestions)
 - [Installation](#installation)
 - [Task Runner](#task-runner)
-    - [Create Files](#create-files)
-    - [Config](#config)
-    - [Example](#example)
+  - [Create Files](#create-files)
+  - [Config](#config)
+  - [Example](#example)
 - [Checker](#checker)
-    - [Create Files](#create-files-1)
-    - [Config](#config-1)
+  - [Create Files](#create-files-1)
+  - [Config](#config-1)
 - [Encrypter](#encrypter)
-    - [Create Files](#create-files-2)
-    - [Config](#config-2)
+  - [Create Files](#create-files-2)
+  - [Config](#config-2)
 - [Eth Returner](#eth-returner)
 - [Depositor](#depositor)
 - [Running](#running)
@@ -167,206 +169,239 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 
 ## Modes
 
-- **Task Runner:** The main script responsible for generating/executing transactions.
-- **Checker:** Check your accounts' analytics (transactions and balances).
-- **Encrypter:** Encrypt your assets files (private keys, addresses, proxies) to use task runner on server
-- **Eth Returner:** This script swaps all tokens used by the main script to ETH and removes all liquidity as a backup in case errors occur in the task runner mode.
-- **Depositor:** This mode facilitates deposits to Linea accounts.
+- **Task Runner:** The core script for generating and executing transactions.
+- **Checker:** Use this to see your accounts' details like transactions and balances.
+- **Encrypter:** Use this to make your asset files (private keys, addresses, proxies) safe for using the Task Runner on a server.
+- **Eth Returner:** This part changes all tokens used by the main script back to ETH and takes out all liquidity. This is a backup in case there are errors in the Task Runner mode.
+- **Depositor:** This part makes it easy to put deposits into Linea accounts.
 
 ## Suggestions
 
-- Avoid modifying the **example** files. Instead, make copies of the files you need and change them. Updates may be released in the future for example files.
-- Rather than downloading a zip file of the soft, use the `git` command to install it (instructions below). Updates, including new providers and modes, will be available in the near future, it will be easier to stay up to date using `git`.
-- You can create multiple configuration/private keys/proxies files with different settings to run them in separate terminals.
-- Linea mainnet may throw errors or suddenly stop. Avoid using large volumes. The soft was created to increase the number of transactions, not volume.
-- If you want to use soft on server you can encrypt any file in `assets` folder using [Encrypter](#encrypter) mode on your own PC and move encrypted file on server.
+- Don't change the **example** files. Make copies of the files you need and change those copies. There may be updates in the future for example files.
+- Instead of downloading a zip file of the software, use the `git` command to install it. This way, it will be easier to get updates in the future. Instructions for using `git` are given below.
+- You can make many configuration, private key, or proxy files with different settings to use them in different terminals.
+- Be careful with the Linea mainnet. It can have errors or stop suddenly. Keep volumes low. The software is made to increase the number of transactions, not the volume.
+- If you want to use the software on a server, you can make any file in the `assets` folder safe using the Encrypter mode on your own computer. Then, move the safe file to the server.
+- If you get some critical/unexpected errors please contact developer in [chat](https://t.me/+VdlGPwVJx11mMTZi)
 
 ## Installation
 
-[Quick install video](https://www.loom.com/share/fbb6b2c7ca0c40cd87c89d4b90523316)
+[Watch this quick install video for help](https://www.loom.com/share/fbb6b2c7ca0c40cd87c89d4b90523316)
 
-1. Download and install [Node.js](https://nodejs.org/en/download) from the official website.
-2. Download and install [Git](https://git-scm.com/downloads) (leave all default options checked during installation).
-3. To open a command terminal in the folder where you want to download the soft:
-    - On Windows: 
-        - Hold down the Shift key and right-click in the folder. Select "Open PowerShell window here."
-    - On macOS:
-        - Press Command + Space to open Spotlight Search.
-        - Type "Terminal" and press Enter to open the Terminal.
-        - Use the `cd` command to navigate to the folder where you want to download the soft. For example, if your soft folder is on your desktop, you can type:
-        ```
-        cd ~/Desktop/alfar-linea
-        ```
-        - Press Enter to navigate to the soft folder.
-4. Run the following commands in the command terminal:
-    - `npm install -g yarn` (Installs Yarn, a required package manager)
-    - `git clone https://github.com/alfar0x/alfar-linea.git` (Downloads the soft)
-    - `cd alfar-linea` (Navigates into the soft folder)
-    - `yarn install` (Installs soft dependencies)
-        - if power shell throw en error use `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted` command (just paste it in power shell) as described [here](https://stackoverflow.com/a/49112322) and rerun `yarn install`
-5. Open the soft folder in your file explorer.
-6. Create a copy of `.env.example` file and name it `.env.prod`. Set the following variable in the `.env.prod` file:
-   - `NODE_ENV` - Set it to `prod`.
+### Follow these steps to install:
 
+1. **Download and Install Node.js:**
+  - Go to the [Node.js website](https://nodejs.org/en/download) and download Node.js.
+
+2. **Download and Install Git:**
+  - Go to the [Git website](https://git-scm.com/downloads) and download Git.
+  - Install it and keep all the options as they are.
+
+3. **Open a Command Terminal:**
+  - For Windows: 
+    - Hold the Shift key and right-click in the folder where you want the software.
+    - Choose "Open PowerShell window here."
+  - For macOS:
+    - Press Command + Space to search.
+    - Type "Terminal" and press Enter.
+    - In the Terminal, type `cd` and the path to your folder. Like this: 
+      ```bash
+      cd ~/Desktop/alfar-linea
+      ```
+    - Press Enter.
+
+4. **Type these Commands:**
+  - In the command terminal, type and enter these commands one by one:
+    ```bash
+    npm install -g yarn
+    git clone https://github.com/alfar0x/alfar-linea.git
+    cd alfar-linea
+    yarn install
+    ```
+  - Windows note: If you see an error, type this command and try `yarn install` again:
+    ```bash
+    Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted
+    ```
+    [More help here](https://stackoverflow.com/a/49112322)
+
+5. **Open the Software Folder:**
+  - Go to the software folder in your files.
+
+6. **Make a Copy of a File:**
+  - Find the `.env.example` file.
+  - Make a copy and name it `.env.prod`.
+  
 ## Task Runner
 
 [Quick setup video](https://www.loom.com/share/722b554afdbd44f991d7be15b79d6248)
 
-The task runner mode uses private keys, proxies (optional), and configurations to execute tasks. It generates tasks and executes them.
+Execute tasks efficiently using the Task Runner mode, leveraging private keys, optional proxies, and configurations. It not only generates tasks but also ensures their smooth execution.
 
 ### Create Files
 
-Before the first run, you must create the following files:
-1. Open the `assets` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the config file; just don't change example files):
-    - Create a file for private keys (e.g., `private_keys.txt`) and enter each private key on a new line. Both formats, with `0x` and without, are valid. You can also specify the name of the account by using a semicolon (`;`) after the private key. For example: `0xaaaaa;account_name`, where `0xaaaaa` is the private key and `account_name` is the account name.  If the name is not specified, the system will use the short address.
-    - (Optional, only if you will use a proxy) Create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
-    - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode.
-2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
-    - Copy the required config file (e.g., `tasks.example.json5`) for this mode. Instructions on how to modify it are provided below.
+Before embarking on the first run, ensure the creation of essential files:
 
-### Config
+1. **Navigate to the `assets` folder**:
+  - Generate a file for private keys (e.g., `private_keys.txt`). Enter each private key on a separate line. Acceptable formats include both with and without `0x`. Optionally, designate the account name following the private key, separated by a semicolon (`;`). For instance: `0xaaaaa;account_name`. Absence of a name defaults to using the short address.
+  - Optionally, if utilizing a proxy, establish a file (e.g., `proxies.txt`) and populate with proxy data in this format: `host:port:username:password`.
+  - **Note**: Opt for the [Encrypter](#encrypter) mode to encrypt any file within the `assets` folder.
 
-There are two main block types in the config: `dynamic` and `fixed`. The `dynamic` config block allows for real-time adjustments, such as changing the maximum Linea gas price if needed. Dynamic values can be changed during program run. Config values:
-- `dynamic`:
-    - `maxLineaGwei` - The maximum Linea Gwei limit. The system will check it before each transaction.
-    - `minEthBalance` - The minimum ETH balance on the account required to work with (generate a task/start a new block). To forcefully stop the script and complete all current steps, set the value to `100`. It will skip the next blocks due to insufficient balance. (min=0.0005)
-    - `delaySec`:
-        - `step` - Set the minimum and maximum step delay in seconds. (min=20)
-        - `transaction` - Set the minimum and maximum transaction delay in seconds. (min=60)
-    - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run [example](#example) below)
-    - `maxTxPriceUsd` - Set the max price of a transaction in USD for gas fees. Note: If the transaction is deemed expensive, the system will generate an error, and the current account task steps will be cleared. If you're not concerned about the transaction cost, set this value to `100` so system will then ignore this setting until the transaction cost reaches $100.
-- `fixed`:
-    - `files` (each file name must have the correct file format; `private_keys` is incorrect, while `private_keys.txt` is correct):
-        - `privateKeys` - Specify the file name in the `assets` folder containing private keys.
-        - `proxies` - Specify the file name in the `assets` folder containing proxies. It can be an empty string for `none` proxy type.
-    - `isAccountsShuffle` - Determine whether the private keys file should be shuffled (set to `true` or `false`).
-    - `isCheckBalanceOnStart` - Determine whether the balance should be checked (depends on `minEthBalance`) before the start of work (set to `true` or `false`). Note: balances will be checked before each task in any case.
-    - `isShuffleAccountOnStepsEnd` - (set to `true` or `false`) Determine whether an account that hasn't made the required number of transactions should be moved to a random place in the queue. With this setting, you can configure the program to run indefinitely, especially if you specify a large number of transactions (`transactionsLimit`) and set it to `true`. In this case, once the current task for an account is completed, it will be placed in a random position within the queue. If there are many accounts, it's likely that this account will wait long in the queue and that new task will be created. Be careful: if you set this setting to `true`, the chance of starting each account decreases. Even with high frequency and time delay, some accounts may not start.
-    - `providers` - Specify the services to be used in this mode. All possible values are already defined in the example config file. To exclude certain blocks, simply comment them out (add `//` before the block ID). For example, the following lines in the config file mean that OPEN_OCEAN will be used while DMAIL won't be:
-        ```json
-        "OPEN_OCEAN",
-        // "DMAIL",
-        ```
-    - `proxy`: 
-        - `type` - Specify the type of proxy to be used, choosing from `none`/`mobile`/`server`. Currently, only `none` type can be used.
-        - `mobileIpChangeUrl` - If you want the system to use a mobile proxy, add it to your proxies file in one line and specify the rotation URL here.
-        - `serverIsRandom` - When using a server proxy, enable this option by setting it to `true` if you want the system to use a random proxy for each account. Setting it to `false` means that each account has its proxy, so the number of proxies must match the number of accounts.
-    - `rpc`: 
-        - `linea` - Specify the Linea RPC.
-    - `transactionsLimit` - Set the minimum and maximum number of transactions generated for **each** account. The script will generate the minimum limit between these values. It is not an exact value; it will be performed. It will end task generation for an account if the limit is reached. Otherwise, a new task will be generated.
-    - `workingAmountPercent` - Set the minimum and maximum working amount in percent.
+2. **Access the `config` folder**:
+  - Duplicate the necessary config file (e.g., `tasks.example.json5`) for this mode. Guidance for modifications is detailed below.
+   
+## Config
 
-If config and assets files are ready you can run script as described [below](#running)
+The configuration is categorized into two primary sections: `dynamic` and `fixed`.
+
+### Dynamic Configuration Values
+
+The `dynamic` block contains values that can be altered in real-time during program execution. It includes the following fields:
+
+- `delaySec`: Manages delays in two areas:
+  - `step`: Determines the minimum and maximum delay, in seconds, between steps (minimum value is 20 seconds).
+  - `transaction`: Sets the minimum and maximum delay, in seconds, between transactions (minimum value is 60 seconds).
+- `maxLineaGwei`: Specifies the upper limit for Linea Gwei. The system verifies this limit before executing each transaction.
+- `maxParallelAccounts`: Designates the highest number of accounts that can operate concurrently.
+- `maxTxPriceUsd`: Establishes the maximum permissible transaction cost in USD for gas fees. If the cost exceeds this value, an error is triggered, and the ongoing account task steps are terminated. If you're not concerned about the transaction cost, set this value to `100` so system will then ignore this setting until the transaction cost reaches $100.
+- `minEthBalance`: Indicates the minimum ETH balance required in the account for start task. To halt the script abruptly, assign a value of `100`.
+
+### Fixed Configuration Values
+
+The `fixed` block encompasses static configuration details including:
+
+- `files`: Ensure the filenames within the `assets` folder are correctly formatted (e.g., `private_keys.txt` is correct, `private_keys` is not). Include the following:
+  - `privateKeys`: Denote the filename in the `assets` folder containing private keys.
+  - `proxies`: Designate the filename in the `assets` folder holding proxies. It can be an empty string for `none` proxy type.
+- `isAccountsShuffle`: A boolean value (`true` or `false`) determining whether to shuffle the private keys file.
+- `isCheckBalanceOnStart`: A boolean value deciding whether to examine the balance before the onset of work, based on `minEthBalance`. Note: balances will be checked before each task in any case.
+- `isShuffleAccountOnStepsEnd`: This is a boolean parameter (`true` or `false`). When set to `true`, it ensures that an account that has completed its current task is placed back in a random position within the queue for further tasks. This setting can be useful for running the program indefinitely, especially when a high number of transactions (`transactionsLimit`) is specified. 
+
+  By enabling this setting, after the completion of the current task for an account, the account is moved to a random position in the queue. If there are many accounts, this account might have to wait for a significant time before being assigned a new task, allowing the system to naturally create new tasks over time. 
+
+  Caution: When this setting is enabled (`true`), the opportunity for each account to start decreases. Even with high frequency and time delay, some accounts may not initiate at all, as they are continuously being moved within the queue. Use it after all accounts transactions is 
+
+- `providers`: List the service providers for this mode. To omit specific blocks, comment them out in the configuration file. For example, the following lines in the config file mean that OPEN_OCEAN will be used while DMAIL won't be:
+  ```json
+  "OPEN_OCEAN",
+  // "DMAIL",
+  ```
+- `proxy`: Includes proxy settings such as:
+  - `type`: Determines the proxy type (`none`, `mobile`, or `server`). Currently, only `none` type is operable.
+  - `mobileIpChangeUrl`: If using a mobile proxy, specify the rotation URL here.
+  - `serverIsRandom`: This configuration option is a boolean setting (`true` or `false`) associated with the use of server proxies. 
+    - When set to `true`, the system will allocate a random proxy from your proxy list to each account for every task. This setting ensures that the same account does not use the same proxy repeatedly, enhancing anonymity and reducing the likelihood of the account getting flagged or banned by networks or services due to consistent access from the same proxy. But you can use 10 proxies for 50 accounts for example.
+    - If set to `false`, each account will be assigned a dedicated proxy from the proxy list, and will use this same proxy for all its operations and transactions. In this configuration, the number of proxies in your proxy list should be equal to or more than the number of accounts to ensure each account has a proxy assigned to it.
+    This configuration setting allows users to manage the proxy allocation strategy for accounts, providing a balance between anonymity and consistent proxy assignment.
+- `rpc`: Holds the Linea RPC details in the `linea` field.
+- `transactionsLimit`: This setting controls the minimum and maximum number of transactions that will be generated for each account. 
+  - The value is set as a range (e.g., `1-5`). 
+  - The system will randomly select a limit within this range for each account. For example, if the `transactionsLimit` is set to `3-5`, one account might have a limit of 4 transactions, while another might have a limit of 5.
+  - This limit represents the total number of transactions an account will perform before it stops generating new tasks. If this limit is reached, the account will not generate any more tasks. If the limit is not reached, a new task will be created for the account, ensuring that the account continues to operate until it hits the transaction limit.
+  
+  The `transactionsLimit` configuration provides control over the workload allocated to each account, allowing for balanced distribution and preventing overuse of individual accounts.
+- `workingAmountPercent`: Set the minimum and maximum working amount in percentage.
+
+Ensure your config and assets files are prepared, then proceed to run the script as outlined [below](#running).
 
 ### Example
 
 <details>
-    <summary>Click here to see a run example</summary>
+  <summary>Click here to see a run example</summary>
 
-Let's assume the following values were configured:
-- Proxy type - none
-- Maximum parallel accounts - 2
-- Minimum/maximum step delay - 300/3600
-- Minimum/maximum transaction delay - 30/240
-- Minimum/maximum transactions limit - 2/10
-- Added 4 accounts 
+Assume the following configurations are set:
 
-The system will generate 2 first tasks. It will select a random task, then proceed to the next step and transaction. After executing a transaction, if there are more transactions within the step, it will sleep for 30-240 seconds before moving on. After completing the transactions in a step, it will sleep for 300-3600 seconds before the next step in a random task (account) and so on. If an account's task steps were ended but the minimum transactions limit was not reached, the program will generate new steps for it otherwise new task for new account will be generated:
+- **Maximum Parallel Accounts**: 2
+- **Minimum/Maximum Step Delay**: 300/3600 seconds
+- **Minimum/Maximum Transaction Delay**: 30/240 seconds
+- **Minimum/Maximum Transactions Limit**: 2/10
+- **Total Accounts Added**: 4 
+- **isShuffleAccountOnStepsEnd**: false
 
---- first iteration
-acc1 (min tx limit = 8) - [step1, step2, step3]; <- working account
-acc2 (min tx limit = 2) - [step1, step2]; <- working account
-acc3 (min tx limit = 6) - []; <- steps are not generated yet because of the max accounts are 2
-acc4 (min tx limit = 5) - []; <- steps are not generated yet
+Given these settings, the system will initially generate tasks for the first two accounts.
 
---- next iteration acc2 was run
-acc1 (min tx limit = 8) - [step1, step2, step3]; <- working account
-acc2 (min tx limit = 2) - [step2]; <- working account
-acc3 (min tx limit = 6) - [];
-acc4 (min tx limit = 5) - [];
+**First Iteration:**
+- acc1 (min tx limit = 8) - [step1, step2, step3]; (working account)
+- acc2 (min tx limit = 2) - [step1, step2]; (working account)
+- acc3 (min tx limit = 6) - []; (waiting)
+- acc4 (min tx limit = 5) - []; (waiting)
 
---- next iteration acc1 was run
-acc1 (min tx limit = 8) - [step2, step3]; <- working account
-acc2 (min tx limit = 2) - [step2]; <- working account
-acc3 (min tx limit = 6) - [];
-acc4 (min tx limit = 5) - [];
+**Next Iteration (acc2 was run):**
+- acc1 (min tx limit = 8) - [step1, step2, step3]; (working account)
+- acc2 (min tx limit = 2) - [step2]; (working account)
+- acc3 (min tx limit = 6) - []; (waiting)
+- acc4 (min tx limit = 5) - []; (waiting)
 
---- next iteration acc1 was run
-acc1 (min tx limit = 8) - [step3]; <- working account
-acc2 (min tx limit = 2) - [step2]; <- working account
-acc3 (min tx limit = 6) - [];
-acc4 (min tx limit = 5) - [];
+**Next Iteration (acc1 was run):**
+- acc1 (min tx limit = 8) - [step2, step3]; (working account)
+- acc2 (min tx limit = 2) - [step2]; (working account)
+- acc3 (min tx limit = 6) - []; (waiting)
+- acc4 (min tx limit = 5) - []; (waiting)
 
---- next iteration acc2 was run
-acc1 (min tx limit = 8) - [step3]; <- working account
-acc2 (min tx limit = 2) - []; <- working account. As soon as the min transactions limit was reached, it will be removed from the tasks list.
-acc3 (min tx limit = 6) - [step1, step2]; <- new account steps were generated
-acc4 (min tx limit = 5) - [];
+**Next Iteration (acc2 was run):**
+- acc1 (min tx limit = 8) - [step3]; (working account)
+- acc2 (min tx limit = 2) - []; (done, removed from queue)
+- acc3 (min tx limit = 6) - [step1, step2]; (new working account)
+- acc4 (min tx limit = 5) - []; (waiting)
 
---- next iteration acc3 was run
-acc1 (min tx limit = 8) - [step3]; <- working account
-acc3 (min tx limit = 6) - [step2]; <- working account
-acc4 (min tx limit = 5) - [];
+**Next Iteration (acc1 was run):**
+- acc1 (min tx limit = 8) - [step3]; (working account)
+- acc3 (min tx limit = 6) - [step2]; (working account)
+- acc4 (min tx limit = 5) - []; (waiting)
 
---- next iteration acc1 was run
-acc1 (min tx limit = 8) - [step4, step5, step6]; <- working account. Min transactions limit was not reached. New steps were generated
-acc3 (min tx limit = 6) - [step2]; <- working account
-acc4 (min tx limit = 5) - [];
+**Next Iteration (acc1 was run):**
+- acc1 (min tx limit = 8) - [step4, step5, step6]; (new steps generated, working account)
+- acc3 (min tx limit = 6) - [step2]; (working account)
+- acc4 (min tx limit = 5) - []; (waiting)
 
-and so on...
+...and so on. The process continues to cycle through the accounts, executing steps and transactions, generating new steps as needed, and introducing new accounts into the task list as others complete their minimum transaction limit and are removed from the queue.
 
 </details>
 
 ## Checker
 
-Check your accounts' analytics (transactions count and balances).
+Check your accounts' analytics (transactions count (nonce) and balances).
 
 ### Create Files
 
 Before the first run, you must create the following files:
-1. Open the `assets` folder in the file explorer and create the following files (you can name them as you want, than you will select them in the soft menu; just don't change example files):
-    - Create a file for private keys (e.g., `private_keys.txt`) and enter each private key on a new line. Both formats, with `0x` and without, are valid. You can also specify the name of the account by using a semicolon (`;`) after the private key. For example: `0xaaaaa;account_name`, where `0xaaaaa` is the private key and `account_name` is the account name.  If the name is not specified, the system will use the short address.s
-   - (If you desire to use addresses instead of private keys) create a file for addresses (e.g., `addresses.txt`) and fill it with addresses, each on a new line (must start with `0x`). You can also specify account name as in private keys file.
-   - (Optional, only if you will use a proxy) create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
-   - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode. 
-2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the soft; just don't change example files):
-   - Copy the required config file (e.g., `checker.example.json5`) for this mode. Instructions on how to modify it are provided below.
 
-### Config
+1. **Navigate to the `assets` folder**:
+  - Generate a file for private keys (e.g., `private_keys.txt`). Enter each private key on a separate line. Acceptable formats include both with and without `0x`. Optionally, designate the account name following the private key, separated by a semicolon (`;`). For instance: `0xaaaaa;account_name`. Absence of a name defaults to using the short address.
+  - If using addresses, create a file for addresses (e.g., `addresses.txt`). Enter each address on a new line, starting with `0x`. Optionally, specify the account name as in the private keys file.
+  - **Note**: Opt for the [Encrypter](#encrypter) mode to encrypt any file within the `assets` folder.
 
-Config values:
-- `dynamic` - Just an empty block.
+2. **Access the `config` folder**:
+  - Duplicate the necessary config file (e.g., `checker.example.json5`) for this mode. Guidance for modifications is detailed below.
+
+### Config:
+
+- `dynamic`: This is just an empty block, no configuration is needed here.
 - `fixed`:
-    - `files`:
-        - `addresses` - Specify the file name in the `assets` folder containing addresses.
-        - `privateKeys` - Specify the file name in the `assets` folder containing private keys. Either privateKeys or addresses must be filled in. You can fill both of them and add to config. It will check accounts from both files and show in one table.
-    - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run example below)
-    - `delayBetweenChunkSec` - Set the delay between parallel accounts' requests.
-    - `hideBalanceLessThanUsd` - Set the USD value of tokens that can be hidden. Set `-1` to see all tokens.
-    - `rpc`:
-        - `linea` - Specify the Linea RPC.
-
-If config and assets files are ready you can run script as described [below](#running)
+  - `files`:
+    - `addresses`: Specify the filename in the `assets` folder containing addresses.
+    - `privateKeys`: Specify the filename in the `assets` folder containing private keys (e.g., `private_keys.txt`). Either private_keys or addresses must be filled in. You can fill both of them and add to config. It will check accounts from both files and show in one table.
+  - `maxParallelAccounts` - Set the maximum number of parallel accounts to check.
+  - `delayBetweenChunkSec` - Set the delay between parallel accounts' requests.
+  - `hideBalanceLessThanUsd` - Set the USD value of tokens that can be hidden. Set `-1` to see all tokens.
+  - `rpc`: Holds the Linea RPC details in the `linea` field.
 
 ## Encrypter
 
-Encrypt your assets files (private_keys,addresses,proxies) to use task runner on server
+Encrypt your assets files (`private_keys`, `addresses`, `proxies`) for secure use on the server with the task runner.
 
 ### Create Files
 
-Before the first run, you must create the following files:
-1. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the soft; just don't change example files):
-   - Copy the required config file (e.g., `encrypter.example.json5`) for this mode. Instructions on how to modify it are provided below.
+Before the first run, perform the following steps:
+
+1. Open the `config` folder in the file explorer.
+   - Copy the required example config file (e.g., `encrypter.example.json5`) for this mode. Instructions for modification are outlined below.
 
 ### Config
 
-Config values:
-- `dynamic` - Just an empty block.
+- `dynamic`: This is just an empty block, no configuration is needed here.
 - `fixed`:
-    - `encryptedFileName` - Specify the file name in the `assets` folder containing decrypted data. It will create new file in assets folder with encrypted data
-
-If config and assets files are ready you can run soft as described [below](#running)
-
+    - `encryptedFileName`: Specify the name of the file in the `assets` folder containing decrypted data. The software will create a new file in the `assets` folder with encrypted data.
+    
 ## Eth Returner
 
 **Disabled for now until it is implemented.**
@@ -377,14 +412,17 @@ If config and assets files are ready you can run soft as described [below](#runn
 
 ## Running
 
-After you configured your mode you can run soft:
-1. Open a command terminal in soft folder (as described above)
-1. Run `yarn start` command:
-1. Select the desired mode and the corresponding config file:
-   - Use the arrow keys to move the selector.
-   - Press Enter to submit your choice.
-1. Confirm run if needed
+After configuring your desired mode, you can run the software by following these steps:
+
+1. Open a command terminal in the software folder (as described above).
+2. Run the command: `yarn start`.
+3. Select the desired mode and the corresponding config file:
+   - Use the arrow keys to navigate and select.
+   - Press Enter to confirm your choice.
+4. Confirm the run if necessary.
+
+Your selected mode will now start running based on the configurations you have set.
 
 ## Additional Links
 
-Explore our scripts on our telegram channel [alfar](https://t.me/+FozX3VZA0RIyNWY6). Feel free to suggest improvements or engage in discussions in our chat (link in the channel).
+Explore our scripts on our Telegram channel [alfar](https://t.me/+FozX3VZA0RIyNWY6). Your feedback is invaluable, feel free to suggest improvements or engage in discussions in our chat (link provided in the channel). Together, let's enhance the functionality and efficiency of our tools.

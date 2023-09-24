@@ -16,7 +16,7 @@
     },
     isAccountsShuffle: true,
     isCheckBalanceOnStart: false,
-    isShuffleAccountOnStepsEnd: true,
+    isShuffleAccountOnStepsEnd: false,
     providers: [
       "DMAIL",
       "LINEA_BANK",
