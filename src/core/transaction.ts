@@ -21,9 +21,9 @@ export type CreateTransactionFunc = () => Promise<CreateTransactionResult>;
 
 class RunnableTransaction {
   public readonly name: string;
+  public readonly account: Account;
 
   private readonly chain: Chain;
-  private readonly account: Account;
   private readonly createTransaction: CreateTransactionFunc;
 
   public constructor(params: {

@@ -2,7 +2,6 @@ import axios from "axios";
 import tunnel from "tunnel";
 import { z } from "zod";
 
-import formatIntervalSec from "../utils/datetime/formatIntervalSec";
 import readFileAndEncryptByLine from "../utils/file/readFileAndEncryptByLine";
 import createMessage from "../utils/other/createMessage";
 import formatOrdinals from "../utils/other/formatOrdinals";
@@ -22,8 +21,6 @@ const proxyItemSchema = z.object({
 });
 
 export type ProxyItem = z.infer<typeof proxyItemSchema>;
-
-const WAIT_AFTER_POST_REQUEST_SEC = 30;
 
 class Proxy {
   private readonly type: ProxyType;
@@ -137,7 +134,7 @@ class Proxy {
     }
   }
 
-  public async postRequest() {
+  public async onProviderChange() {
     if (this.type !== "mobile") return;
 
     if (!this.ipChangeUrl) {
@@ -151,17 +148,11 @@ class Proxy {
         if (status !== 200)
           throw new Error(`ip change response status is ${status}`);
 
-        const sleepUntilStr = formatIntervalSec(WAIT_AFTER_POST_REQUEST_SEC);
+        logger.info(createMessage(`ip change success`));
 
-        logger.info(
-          createMessage(
-            `ip change success`,
-            `paused after changes`,
-            `will resume ${sleepUntilStr}`,
-          ),
-        );
+        const pauseAfterIpChange = 5;
 
-        await sleep(WAIT_AFTER_POST_REQUEST_SEC);
+        await sleep(pauseAfterIpChange);
 
         return;
       } catch (error) {
@@ -178,9 +169,7 @@ class Proxy {
       }
     }
 
-    throw new Error(
-      `all ${this.onIpChangeErrorRepeatTimes} attempts to change ip failed. Please check ip change url`,
-    );
+    throw new Error(`ip change failed. check ip change url`);
   }
 
   public isServerRandom() {

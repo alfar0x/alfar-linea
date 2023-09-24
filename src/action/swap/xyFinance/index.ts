@@ -146,7 +146,9 @@ class XyFinanceSwapAction extends SwapAction {
       normalizedAmount,
     });
 
-    await sleep(5);
+    const sleepBetweenApiRequestsSec = 5;
+
+    await sleep(sleepBetweenApiRequestsSec);
 
     const { data, to, estimatedGas, minOutNormalizedAmount } =
       await this.buildTxRequest({

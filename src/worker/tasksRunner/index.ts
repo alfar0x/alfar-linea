@@ -12,14 +12,21 @@ import TasksRunnerConfig from "./config";
 import confirmRun from "./confirmRun";
 import initializeAccounts from "./initializeAccounts";
 import initializeProxy from "./initializeProxy";
+import Task from "./task";
 import TaskCreator from "./taskCreator";
 import Waiter from "./waiter";
+
+type PrevRun = {
+  task: Task | null;
+  isSuccess: boolean;
+};
 
 class TasksRunner {
   private readonly config: TasksRunnerConfig;
   private readonly chain: Chain;
   private readonly creator: TaskCreator;
   private readonly waiter: Waiter;
+  private readonly prevRun: PrevRun;
 
   private _proxy: Proxy | null;
 
@@ -35,6 +42,8 @@ class TasksRunner {
     this.creator = new TaskCreator({ chain: this.chain, config: this.config });
 
     this.waiter = new Waiter({ chain: this.chain, config: this.config });
+
+    this.prevRun = { task: null, isSuccess: true };
   }
 
   private get proxy() {
@@ -45,7 +54,7 @@ class TasksRunner {
     return this._proxy;
   }
 
-  private changeChainProvider(account: Account) {
+  private async changeChainProvider(account: Account) {
     const https = this.proxy.getHttpsTunnelByIndex(account.fileIndex);
 
     if (!https) return;
@@ -53,38 +62,41 @@ class TasksRunner {
     const httpProviderOptions = { providerOptions: { agent: { https } } };
 
     this.chain.updateHttpProviderOptions({ httpProviderOptions });
+
+    await this.proxy.onProviderChange();
   }
 
   private async runTransaction(
     step: Step,
     isConnectionChecked = false,
-  ): Promise<readonly [false] | readonly [true, string]> {
+  ): Promise<boolean> {
     const { maxTxPriceUsd } = this.config.dynamic();
     const transaction = step.getNextTransaction();
 
-    if (!transaction) return [false];
+    if (!transaction) return false;
 
     try {
       await this.waiter.waitGasLimit();
 
-      // worker tests
-      // const txResult = { hash: "", resultMsg: "" };
-
       const txResult = await transaction.run({ maxTxPriceUsd });
 
-      if (!txResult) return [false];
+      if (!txResult) return false;
 
       const { hash, resultMsg, gasPriceUsd } = txResult;
 
       const message = createMessage(
-        transaction.name,
+        transaction,
         "success",
         resultMsg,
         `tx price: $${gasPriceUsd}`,
         this.chain.getHashLink(hash),
       );
 
-      return [true, message];
+      logger.info(createMessage(transaction.account, message));
+
+      await this.waiter.waitTransaction();
+
+      return true;
     } catch (error) {
       const msg = `[${transaction}] ${(error as Error).message}`;
 
@@ -100,7 +112,7 @@ class TasksRunner {
     }
   }
 
-  private async runTask(isStepSleep = true) {
+  private async runTask() {
     const task = await this.creator.getNextTask();
 
     if (!task) return false;
@@ -109,29 +121,32 @@ class TasksRunner {
 
     if (!step || step.isEmpty()) return false;
 
-    if (isStepSleep) await this.waiter.waitStep();
-
     const { account } = task;
 
-    this.changeChainProvider(account);
+    const isDifferentTaskNow =
+      this.prevRun.task === null || !this.prevRun.task.isEquals(task);
+
+    if (isDifferentTaskNow) {
+      await this.changeChainProvider(account);
+    }
+
+    if (this.prevRun.isSuccess) await this.waiter.waitStep();
 
     logger.info(createMessage(account, `step start: ${step}`));
 
+    let isTransactionsSuccess = false;
+
     while (!step.isEmpty()) {
-      const [isSuccess, message] = await this.runTransaction(step);
+      const isSuccess = await this.runTransaction(step);
 
-      if (isSuccess) {
-        logger.info(createMessage(account, message));
-
-        if (!step.isEmpty()) await this.waiter.waitTransaction();
-      }
+      if (isSuccess) isTransactionsSuccess = true;
     }
+
+    this.prevRun.task = task;
 
     logger.info(createMessage(account, `step finish`));
 
-    await this.proxy.postRequest();
-
-    return true;
+    return isTransactionsSuccess;
   }
 
   public async run() {
@@ -158,13 +173,10 @@ class TasksRunner {
 
     await confirmRun();
 
-    // should not sleep before first step
-    let isBeforeStepSleep = false;
-
     while (!this.creator.isEmpty()) {
-      const isSuccess = await this.runTask(isBeforeStepSleep);
+      const isSuccess = await this.runTask();
 
-      isBeforeStepSleep = isSuccess;
+      this.prevRun.isSuccess = isSuccess;
     }
   }
 }
