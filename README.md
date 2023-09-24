@@ -288,7 +288,7 @@ The `fixed` block encompasses static configuration details including:
   // "DMAIL",
   ```
 - `proxy`: Includes proxy settings such as:
-  - `type`: Determines the proxy type (`none`, `mobile`, or `server`). Currently, only `none` type is operable.
+  - `type`: Determines the proxy type (`none`, `mobile`, or `server`).
   - `mobileIpChangeUrl`: If using a mobile proxy, specify the rotation URL here.
   - `serverIsRandom`: This configuration option is a boolean setting (`true` or `false`) associated with the use of server proxies. 
     - When set to `true`, the system will allocate a random proxy from your proxy list to each account for every task. This setting ensures that the same account does not use the same proxy repeatedly, enhancing anonymity and reducing the likelihood of the account getting flagged or banned by networks or services due to consistent access from the same proxy. But you can use 10 proxies for 50 accounts for example.
@@ -299,8 +299,7 @@ The `fixed` block encompasses static configuration details including:
   - The value is set as a range (e.g., `1-5`). 
   - The system will randomly select a limit within this range for each account. For example, if the `transactionsLimit` is set to `3-5`, one account might have a limit of 4 transactions, while another might have a limit of 5.
   - This limit represents the total number of transactions an account will perform before it stops generating new tasks. If this limit is reached, the account will not generate any more tasks. If the limit is not reached, a new task will be created for the account, ensuring that the account continues to operate until it hits the transaction limit.
-  
-  The `transactionsLimit` configuration provides control over the workload allocated to each account, allowing for balanced distribution and preventing overuse of individual accounts.
+  - This configuration provides control over the workload allocated to each account, allowing for balanced distribution and preventing overuse of individual accounts.
 - `workingAmountPercent`: Set the minimum and maximum working amount in percentage.
 
 Ensure your config and assets files are prepared, then proceed to run the script as outlined [below](#running).
