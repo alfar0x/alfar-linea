@@ -121,13 +121,6 @@ class TasksRunner {
 
     if (!task) return false;
 
-    const step = task.getNextStep();
-
-    if (!step || step.isEmpty()) {
-      await this.creator.updateTask(task);
-      return false;
-    }
-
     const { account } = task;
 
     const isDifferentTaskNow =
@@ -138,6 +131,13 @@ class TasksRunner {
     }
 
     if (this.prevRun.isTransactionsRun) await this.waiter.waitStep();
+
+    const step = task.getNextStep();
+
+    if (!step || step.isEmpty()) {
+      await this.creator.updateTask(task);
+      return false;
+    }
 
     logger.info(createMessage(account, `step start: ${step}`));
 
