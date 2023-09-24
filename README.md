@@ -218,11 +218,11 @@ The task runner mode uses private keys, proxies (optional), and configurations t
 
 Before the first run, you must create the following files:
 1. Open the `assets` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the config file; just don't change example files):
-   - Create a file for private keys (e.g., `private_keys.txt`) and fill it with private keys, each on a new line (both with `0x` and without is valid)
-   - (Optional, only if you will use a proxy) Create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
-   - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode.
+    - Create a file for private keys (e.g., `private_keys.txt`) and enter each private key on a new line. Both formats, with `0x` and without, are valid. You can also specify the name of the account by using a semicolon (`;`) after the private key. For example: `0xaaaaa;account_name`, where `0xaaaaa` is the private key and `account_name` is the account name.  If the name is not specified, the system will use the short address.
+    - (Optional, only if you will use a proxy) Create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
+    - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode.
 2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the script; just don't change example files):
-   - Copy the required config file (e.g., `tasks.example.json5`) for this mode. Instructions on how to modify it are provided below.
+    - Copy the required config file (e.g., `tasks.example.json5`) for this mode. Instructions on how to modify it are provided below.
 
 ### Config
 
@@ -325,8 +325,8 @@ Check your accounts' analytics (transactions count and balances).
 
 Before the first run, you must create the following files:
 1. Open the `assets` folder in the file explorer and create the following files (you can name them as you want, than you will select them in the soft menu; just don't change example files):
-   - Create a file for private keys (e.g., `private_keys.txt`) and fill it with private keys, each on a new line (both with `0x` and without is valid).
-   - (If you desire to use addresses instead of private keys) create a file for addresses (e.g., `addresses.txt`) and fill it with addresses, each on a new line (must start with `0x`).
+    - Create a file for private keys (e.g., `private_keys.txt`) and enter each private key on a new line. Both formats, with `0x` and without, are valid. You can also specify the name of the account by using a semicolon (`;`) after the private key. For example: `0xaaaaa;account_name`, where `0xaaaaa` is the private key and `account_name` is the account name.  If the name is not specified, the system will use the short address.s
+   - (If you desire to use addresses instead of private keys) create a file for addresses (e.g., `addresses.txt`) and fill it with addresses, each on a new line (must start with `0x`). You can also specify account name as in private keys file.
    - (Optional, only if you will use a proxy) create a file for proxies (e.g., `proxies.txt`) and fill it with proxy data in the following format: `host:port:username:password`.
    - Note: if you want to encrypt any file in `assets` folder use [Encrypter](#encrypter) mode. 
 2. Open the `config` folder in the file explorer and create the following files (you can name them as you want, but you will select them in the soft; just don't change example files):
@@ -339,7 +339,7 @@ Config values:
 - `fixed`:
     - `files`:
         - `addresses` - Specify the file name in the `assets` folder containing addresses.
-        - `privateKeys` - Specify the file name in the `assets` folder containing private keys. Either privateKeys or addresses must be filled in.
+        - `privateKeys` - Specify the file name in the `assets` folder containing private keys. Either privateKeys or addresses must be filled in. You can fill both of them and add to config. It will check accounts from both files and show in one table.
     - `maxParallelAccounts` - Set the maximum number of parallel accounts (see the run example below)
     - `delayBetweenChunkSec` - Set the delay between parallel accounts' requests.
     - `hideBalanceLessThanUsd` - Set the USD value of tokens that can be hidden. Set `-1` to see all tokens.

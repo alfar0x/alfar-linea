@@ -11,11 +11,12 @@ const initializeAccounts = async (params: {
   const fileName = `./assets/${baseFileName}`;
 
   const allFileData = await readFileAndEncryptByLine(fileName);
-  const privateKeys = allFileData.map((v) => v.trim()).filter(Boolean);
+  const accountsData = allFileData.map((v) => v.trim()).filter(Boolean);
 
-  const accounts = privateKeys.map(
-    (privateKey, fileIndex) => new Account({ privateKey, fileIndex }),
-  );
+  const accounts = accountsData.map((accountData, fileIndex) => {
+    const [privateKey, name] = accountData.split(";");
+    return new Account({ privateKey, name, fileIndex });
+  });
 
   return isShuffle ? randomShuffle(accounts) : accounts;
 };

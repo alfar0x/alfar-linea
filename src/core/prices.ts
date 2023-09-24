@@ -76,7 +76,7 @@ class Prices {
     }
   }
 
-  private async updatePrices() {
+  public async updatePrices() {
     logger.info(`updating token prices`);
 
     const geskoPrices = await this.getGeskoPrices();

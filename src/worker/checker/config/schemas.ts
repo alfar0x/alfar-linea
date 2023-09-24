@@ -29,7 +29,7 @@ export const fixedSchema = z.object({
   files: filesSchema,
   maxParallelAccounts: maxParallelAccountsSchema,
   delayBetweenChunkSec: z.number().multipleOf(1).positive(),
-  hideBalanceLessThanUsd: z.number().multipleOf(0.01),
+  hideBalanceLessThanUsd: z.number().multipleOf(0.001),
   rpc: rpcSchema,
 });
 

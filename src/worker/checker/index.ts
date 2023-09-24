@@ -2,17 +2,19 @@ import Big from "big.js";
 import cliProgress from "cli-progress";
 
 import Linea from "../../chain/linea";
+import Account from "../../core/account";
 import Chain from "../../core/chain";
+import Prices from "../../core/prices";
 import sliceIntoChunks from "../../utils/array/sliceIntoChunks";
 import sleep from "../../utils/other/sleep";
 
 import CheckerConfig from "./config";
-import initializeAddresses from "./initializeAddresses";
+import initializeAccounts from "./initializeAccounts";
 
 class Checker {
   private readonly config: CheckerConfig;
   private readonly chain: Chain;
-  private addresses: string[];
+  private accounts: Account[];
 
   public constructor(configFileName: string) {
     this.config = new CheckerConfig({ configFileName });
@@ -20,11 +22,13 @@ class Checker {
     const { rpc } = this.config.fixed;
 
     this.chain = new Linea({ rpc: rpc.linea });
-    this.addresses = [];
+    this.accounts = [];
   }
 
-  private async checkAccount(address: string) {
+  private async checkAccount(account: Account) {
     const { hideBalanceLessThanUsd } = this.config.fixed;
+
+    const { name, address } = account;
 
     const nonce = await this.chain.w3.eth.getTransactionCount(address);
 
@@ -51,6 +55,7 @@ class Checker {
     );
 
     return {
+      name,
       address,
       "txs (nonce)": nonce.toString(),
       ...balancesObj,
@@ -59,13 +64,15 @@ class Checker {
 
   private async checkAllAccounts() {
     const { delayBetweenChunkSec, maxParallelAccounts } = this.config.fixed;
-    const chunks = sliceIntoChunks(this.addresses, maxParallelAccounts);
+    const chunks = sliceIntoChunks(this.accounts, maxParallelAccounts);
 
     const bar = new cliProgress.SingleBar({});
 
-    bar.start(this.addresses.length, 0);
-
     const accountsData = [];
+
+    await Prices.instance.updatePrices();
+
+    bar.start(this.accounts.length, 0);
 
     while (chunks.length) {
       const chunk = chunks.shift();
@@ -73,7 +80,7 @@ class Checker {
       if (!chunk) return accountsData;
 
       const chunkResult = await Promise.all(
-        chunk.map((addr) => this.checkAccount(addr)),
+        chunk.map((account) => this.checkAccount(account)),
       );
 
       accountsData.push(...chunkResult);
@@ -91,7 +98,7 @@ class Checker {
   public async run() {
     const { files } = this.config.fixed;
 
-    this.addresses = await initializeAddresses({
+    this.accounts = await initializeAccounts({
       addressesFileName: files.addresses,
       privateKeysFileName: files.privateKeys,
     });

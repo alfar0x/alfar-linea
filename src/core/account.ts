@@ -16,17 +16,18 @@ import Token from "./token";
 class Account {
   public readonly fileIndex: number;
   public readonly address: string;
-  public readonly shortAddress: string;
+  public readonly name: string;
 
   private readonly _privateKey?: string;
   private _transactionsPerformed: number;
 
   public constructor(params: {
+    name?: string;
     privateKey?: string;
     address?: string;
     fileIndex: number;
   }) {
-    const { privateKey, address, fileIndex } = params;
+    const { name, privateKey, address, fileIndex } = params;
     this.fileIndex = fileIndex;
 
     if (privateKey) {
@@ -37,8 +38,7 @@ class Account {
     } else {
       throw new Error("Either private key or address must be provided.");
     }
-
-    this.shortAddress = getShortString(this.address);
+    this.name = name || getShortString(this.address);
     this._transactionsPerformed = 0;
   }
 
@@ -74,10 +74,9 @@ class Account {
 
   public toString() {
     const idx = this.fileIndex + 1;
-    const addr = this.shortAddress;
     const txs = this._transactionsPerformed;
 
-    return `[${idx}] ${addr} (txs:${txs})`;
+    return `[${idx}] ${this.name} (txs:${txs})`;
   }
 
   public isEquals(account: Account) {
