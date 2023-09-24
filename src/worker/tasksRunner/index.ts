@@ -1,3 +1,5 @@
+import readline from "readline";
+
 import Linea from "../../chain/linea";
 import Account from "../../core/account";
 import Chain from "../../core/chain";
@@ -78,6 +80,9 @@ class TasksRunner {
     try {
       await this.waiter.waitGasLimit();
 
+      // worker test
+      // const txResult = { hash: "", resultMsg: "msg", gasPriceUsd: 0 };
+
       const txResult = await transaction.run({ maxTxFeeUsd });
 
       if (!txResult) return false;
@@ -155,6 +160,44 @@ class TasksRunner {
     return isTransactionsRun;
   }
 
+  private initCommandListener() {
+    readline
+      .createInterface({
+        input: process.stdin,
+        output: process.stdout,
+      })
+      .on("line", (input) => {
+        this.rlCommands(input.trim());
+      })
+      .on("SIGTERM", () => {
+        process.exit();
+      })
+      .on("SIGINT", () => {
+        process.exit();
+      })
+      .on("close", () => {
+        process.exit();
+      });
+  }
+
+  private rlCommands(cmd: string) {
+    switch (cmd) {
+      case "status": {
+        // eslint-disable-next-line no-console
+        console.info(this.creator.getAllTasksInfoStr());
+        break;
+      }
+      case "exit": {
+        process.exit();
+        break;
+      }
+      default: {
+        // eslint-disable-next-line no-console
+        console.error("command not found");
+      }
+    }
+  }
+
   public async run() {
     const { files, isAccountsShuffle, proxy } = this.config.fixed;
 
@@ -175,13 +218,14 @@ class TasksRunner {
 
     const factoryInfoStr = this.creator.getFactoryInfoStr();
 
-    logger.info(`Possible routes:\n${factoryInfoStr}`);
+    logger.info(`possible routes:\n${factoryInfoStr}`);
 
     await confirmRun();
 
+    this.initCommandListener();
+
     while (!this.creator.isEmpty()) {
       const isTransactionsRun = await this.runTask();
-
       this.prevRun.isTransactionsRun = isTransactionsRun;
     }
   }

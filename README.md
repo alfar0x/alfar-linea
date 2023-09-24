@@ -155,6 +155,7 @@ DMAIL_SEND_MAIL
 - [Task Runner](#task-runner)
   - [Create Files](#create-files)
   - [Config](#config)
+  - [Available Commands](#available-commands)
   - [Example](#example)
 - [Checker](#checker)
   - [Create Files](#create-files-1)
@@ -303,6 +304,12 @@ The `fixed` block encompasses static configuration details including:
 
 Ensure your config and assets files are prepared, then proceed to run the script as outlined [below](#running).
 
+### Available Commands
+
+During this mode you can write commands directly in terminal:
+- **status**: check current tasks
+- **exit**: force stop program
+
 ### Example
 
 <details>
@@ -422,6 +429,8 @@ After configuring your desired mode, you can run the software by following these
 4. Confirm the run if necessary.
 
 Your selected mode will now start running based on the configurations you have set.
+
+To force stop program use Ctrl+C/Command+C shortcut in terminal
 
 ## Additional Links
 

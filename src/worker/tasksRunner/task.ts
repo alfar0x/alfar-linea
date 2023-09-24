@@ -19,6 +19,16 @@ class Task extends Queue<Step> {
     this.minimumTransactionsLimit = minimumTransactionsLimit;
   }
 
+  public infoStr() {
+    const { account } = this;
+    const limit = this.minimumTransactionsLimit;
+    const steps = this.storage.length
+      ? this.stepsString()
+      : "no steps have been created yet";
+
+    return `${account} / txs limit:${limit}: ${steps}`;
+  }
+
   public stepsString() {
     return this.storage.map((step) => `[${step}]`).join(" => ");
   }

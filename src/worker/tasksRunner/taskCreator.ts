@@ -199,6 +199,11 @@ class TaskCreator {
 
     return null;
   }
+
+  public getAllTasksInfoStr() {
+    const data = this.tasks.map((task) => task.infoStr()).join("\n");
+    return `Current tasks:\n${data}`;
+  }
 }
 
 export default TaskCreator;

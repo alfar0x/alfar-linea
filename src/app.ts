@@ -28,6 +28,7 @@ const main = async () => {
   } catch (error) {
     logger.debug(String(error));
     logger.error((error as Error).message);
+    process.exit();
   }
 };
 
