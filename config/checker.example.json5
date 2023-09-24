@@ -9,7 +9,7 @@
     delayBetweenChunkSec: 1,
     hideBalanceLessThanUsd: 0.001,
     rpc: {
-      linea: "https://1rpc.io/linea",
+      linea: "https://linea.drpc.org",
     },
   },
 }

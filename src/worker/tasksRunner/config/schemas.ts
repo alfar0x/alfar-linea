@@ -35,7 +35,7 @@ export const dynamicSchema = z.object({
   delaySec: delaySecSchema,
   maxLineaGwei: z.number().multipleOf(0.05).positive().max(10000),
   maxParallelAccounts: maxParallelAccountsSchema,
-  maxTxPriceUsd: z.number().multipleOf(0.1).positive().max(10000),
+  maxTxFeeUsd: z.number().multipleOf(0.1).positive().max(10000),
   minEthBalance: z.number().multipleOf(0.0001).min(0.0005),
 });
 

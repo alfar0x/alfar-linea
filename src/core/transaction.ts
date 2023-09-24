@@ -48,7 +48,7 @@ class RunnableTransaction {
     return tx;
   }
 
-  private async calcTxPriceUsd(tx: Transaction) {
+  private async calcTxFeeUsd(tx: Transaction) {
     const gas = String(tx.gas || 0);
     const gasPrice = String(tx.gasPrice || 0);
 
@@ -65,16 +65,16 @@ class RunnableTransaction {
     tx: Transaction;
     retryTimes: number;
     gasMultiplier: number;
-    maxTxPriceUsd?: number;
+    maxTxFeeUsd?: number;
   }): Promise<{ hash: string; gasPriceUsd: string }> {
-    const { tx, retryTimes, gasMultiplier, maxTxPriceUsd } = params;
+    const { tx, retryTimes, gasMultiplier, maxTxFeeUsd } = params;
 
-    const gasPriceUsd = await this.calcTxPriceUsd(tx);
+    const gasPriceUsd = await this.calcTxFeeUsd(tx);
 
-    if (maxTxPriceUsd) {
-      if (Big(gasPriceUsd).gt(maxTxPriceUsd)) {
+    if (maxTxFeeUsd) {
+      if (Big(gasPriceUsd).gt(maxTxFeeUsd)) {
         throw new Error(
-          `Tx price is greater than max value: ${gasPriceUsd} > ${maxTxPriceUsd}`,
+          `Tx price is greater than max value: ${gasPriceUsd} > ${maxTxFeeUsd}`,
         );
       }
     }
@@ -105,13 +105,13 @@ class RunnableTransaction {
         tx: nextTx,
         retryTimes: retryTimes - 1,
         gasMultiplier,
-        maxTxPriceUsd,
+        maxTxFeeUsd,
       });
     }
   }
 
-  public async run(params: { maxTxPriceUsd?: number }) {
-    const { maxTxPriceUsd } = params;
+  public async run(params: { maxTxFeeUsd?: number }) {
+    const { maxTxFeeUsd } = params;
 
     const data = await this.createTransaction();
 
@@ -132,7 +132,7 @@ class RunnableTransaction {
 
     const { hash, gasPriceUsd } = await this.transactionRunner({
       tx,
-      maxTxPriceUsd,
+      maxTxFeeUsd,
       retryTimes,
       gasMultiplier,
     });

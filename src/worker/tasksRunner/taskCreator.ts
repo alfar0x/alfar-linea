@@ -87,6 +87,43 @@ class TaskCreator {
     return !this.tasks.length;
   }
 
+  public async updateTask(task: Task) {
+    const { isShuffleAccountOnStepsEnd } = this.config.fixed;
+
+    const { account } = task;
+
+    if (task.isMinimumTransactionsLimitReached()) {
+      logger.info(
+        createMessage(
+          account,
+          `txs limit reached: ${task.minimumTransactionsLimit}`,
+        ),
+      );
+      this.removeTask(task);
+      return false;
+    }
+
+    const steps = await this.factory.getRandomSteps({ account });
+
+    task.clear();
+
+    task.pushMany(...steps);
+
+    logger.info(
+      createMessage(account, `new steps created: ${task.stepsString()}`),
+    );
+
+    const isFirstAccountRun = task.account.transactionsPerformed() === 0;
+
+    if (isFirstAccountRun) return true;
+
+    if (!isShuffleAccountOnStepsEnd) return true;
+
+    this.moveTaskRandomly(task);
+
+    return false;
+  }
+
   private moveTaskRandomly(task: Task) {
     const { maxParallelAccounts } = this.config.dynamic();
 
@@ -109,43 +146,12 @@ class TaskCreator {
   }
 
   private async checkIsTaskAllowed(task: Task) {
-    const { isShuffleAccountOnStepsEnd } = this.config.fixed;
     const { account } = task;
 
     try {
       await this.checkIsBalanceAllowed(account);
 
-      if (!task.isEmpty()) return true;
-
-      if (task.isMinimumTransactionsLimitReached()) {
-        logger.info(
-          createMessage(
-            account,
-            "success",
-            `txs limit reached: ${task.minimumTransactionsLimit}`,
-          ),
-        );
-        this.removeTask(task);
-        return false;
-      }
-
-      const steps = await this.factory.getRandomSteps({ account });
-
-      task.pushMany(...steps);
-
-      logger.info(
-        createMessage(account, `new steps created: ${task.stepsString()}`),
-      );
-
-      const isFirstAccountRun = task.account.transactionsPerformed() === 0;
-
-      if (isFirstAccountRun) return true;
-
-      if (!isShuffleAccountOnStepsEnd) return true;
-
-      this.moveTaskRandomly(task);
-
-      return false;
+      return await this.updateTask(task);
     } catch (error) {
       // eslint-disable-next-line prefer-destructuring
       const message = (error as Error).message;

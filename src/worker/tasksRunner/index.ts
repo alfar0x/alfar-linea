@@ -18,7 +18,7 @@ import Waiter from "./waiter";
 
 type PrevRun = {
   task: Task | null;
-  isSuccess: boolean;
+  isTransactionsRun: boolean;
 };
 
 class TasksRunner {
@@ -43,7 +43,7 @@ class TasksRunner {
 
     this.waiter = new Waiter({ chain: this.chain, config: this.config });
 
-    this.prevRun = { task: null, isSuccess: true };
+    this.prevRun = { task: null, isTransactionsRun: false };
   }
 
   private get proxy() {
@@ -70,7 +70,7 @@ class TasksRunner {
     step: Step,
     isConnectionChecked = false,
   ): Promise<boolean> {
-    const { maxTxPriceUsd } = this.config.dynamic();
+    const { maxTxFeeUsd } = this.config.dynamic();
     const transaction = step.getNextTransaction();
 
     if (!transaction) return false;
@@ -78,7 +78,7 @@ class TasksRunner {
     try {
       await this.waiter.waitGasLimit();
 
-      const txResult = await transaction.run({ maxTxPriceUsd });
+      const txResult = await transaction.run({ maxTxFeeUsd });
 
       if (!txResult) return false;
 
@@ -130,23 +130,29 @@ class TasksRunner {
       await this.changeChainProvider(account);
     }
 
-    if (this.prevRun.isSuccess) await this.waiter.waitStep();
+    if (this.prevRun.isTransactionsRun) await this.waiter.waitStep();
 
     logger.info(createMessage(account, `step start: ${step}`));
 
-    let isTransactionsSuccess = false;
+    let isTransactionsRun = false;
 
     while (!step.isEmpty()) {
-      const isSuccess = await this.runTransaction(step);
+      try {
+        const isRun = await this.runTransaction(step);
+        if (isRun) isTransactionsRun = true;
+      } catch (error) {
+        logger.debug(String(error));
+        logger.error((error as Error).message);
 
-      if (isSuccess) isTransactionsSuccess = true;
+        await this.creator.updateTask(task);
+      }
     }
 
     this.prevRun.task = task;
 
     logger.info(createMessage(account, `step finish`));
 
-    return isTransactionsSuccess;
+    return isTransactionsRun;
   }
 
   public async run() {
@@ -174,9 +180,9 @@ class TasksRunner {
     await confirmRun();
 
     while (!this.creator.isEmpty()) {
-      const isSuccess = await this.runTask();
+      const isTransactionsRun = await this.runTask();
 
-      this.prevRun.isSuccess = isSuccess;
+      this.prevRun.isTransactionsRun = isTransactionsRun;
     }
   }
 }

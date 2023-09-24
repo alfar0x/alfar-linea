@@ -40,6 +40,10 @@ class Task extends Queue<Step> {
   public getNextStep() {
     return this.shift();
   }
+
+  public clear() {
+    this.storage = [];
+  }
 }
 
 export default Task;

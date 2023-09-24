@@ -26,7 +26,7 @@ const main = async () => {
       }
     }
   } catch (error) {
-    logger.debug(JSON.stringify(error, null, 2));
+    logger.debug(String(error));
     logger.error((error as Error).message);
   }
 };

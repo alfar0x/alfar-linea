@@ -6,7 +6,7 @@
     },
     maxLineaGwei: 1.2,
     maxParallelAccounts: 3,
-    maxTxPriceUsd: 3,
+    maxTxFeeUsd: 3,
     minEthBalance: 0.002,
   },
   fixed: {

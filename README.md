@@ -262,7 +262,7 @@ The `dynamic` block contains values that can be altered in real-time during prog
   - `transaction`: Sets the minimum and maximum delay, in seconds, between transactions (minimum value is 60 seconds).
 - `maxLineaGwei`: Specifies the upper limit for Linea Gwei. The system verifies this limit before executing each transaction.
 - `maxParallelAccounts`: Designates the highest number of accounts that can operate concurrently.
-- `maxTxPriceUsd`: Establishes the maximum permissible transaction cost in USD for gas fees. If the cost exceeds this value, an error is triggered, and the ongoing account task steps are terminated. If you're not concerned about the transaction cost, set this value to `100` so system will then ignore this setting until the transaction cost reaches $100.
+- `maxTxFeeUsd`: Establishes the maximum permissible transaction cost in USD for gas fees. If the cost exceeds this value, an error is triggered, and the ongoing account task steps are terminated. If you're not concerned about the transaction cost, set this value to `100` so system will then ignore this setting until the transaction cost reaches $100.
 - `minEthBalance`: Indicates the minimum ETH balance required in the account for start task. To halt the script abruptly, assign a value of `100`.
 
 ### Fixed Configuration Values
