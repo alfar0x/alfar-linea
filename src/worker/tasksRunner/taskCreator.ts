@@ -5,6 +5,7 @@ import Chain from "../../core/chain";
 import TaskFactory from "../../factory/taskFactory";
 import createMessage from "../../utils/other/createMessage";
 import logger from "../../utils/other/logger";
+import prettifyError from "../../utils/other/prettifyError";
 import randomInteger from "../../utils/random/randomInteger";
 
 import TasksRunnerConfig from "./config";
@@ -72,13 +73,14 @@ class TaskCreator {
     return new Task({ account, minimumTransactionsLimit });
   }
 
-  public async initializedTasks(accounts: Account[]) {
+  public async initializeTasks(accounts: Account[]) {
     for (const account of accounts) {
       try {
         const task = await this.initializeTask(account);
         this.tasks.push(task);
       } catch (error) {
         logger.error(createMessage(account, (error as Error).message));
+        logger.debug(prettifyError.render(error as Error));
       }
     }
   }
@@ -160,10 +162,9 @@ class TaskCreator {
 
       return await this.updateTask(task);
     } catch (error) {
-      // eslint-disable-next-line prefer-destructuring
-      const message = (error as Error).message;
+      logger.error(createMessage(account, (error as Error).message));
+      logger.debug(prettifyError.render(error as Error));
 
-      logger.error(createMessage(account, `error: ${message}`));
       this.removeTask(task);
       return false;
     }

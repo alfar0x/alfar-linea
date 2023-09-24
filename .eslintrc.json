@@ -76,12 +76,6 @@
     "no-unneeded-ternary": "error",
     "no-useless-computed-key": "error",
     "no-useless-concat": "error",
-    "prefer-destructuring": [
-      "error",
-      {
-        "object": true
-      }
-    ],
     "prefer-template": "error",
     "prettier/prettier": "error",
     "require-await": "error",

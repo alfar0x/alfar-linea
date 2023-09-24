@@ -32,41 +32,29 @@ class SyncswapSwapAction extends SwapAction {
     });
   }
 
-  private async getPool(params: {
-    fromToken: Token;
-    toToken: Token;
-    isReversed?: boolean;
-  }): Promise<string> {
-    const { fromToken, toToken, isReversed = false } = params;
+  private async getPool(fromToken: Token, toToken: Token): Promise<string> {
     const { chain } = fromToken;
 
-    try {
-      const classicPoolFactoryContract = getWeb3Contract({
-        w3: chain.w3,
-        name: CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY,
-        address: this.factoryContractAddress,
-      });
+    const classicPoolFactoryContract = getWeb3Contract({
+      w3: chain.w3,
+      name: CONTRACT_SYNCSWAP_CLASSIC_POOL_FACTORY,
+      address: this.factoryContractAddress,
+    });
 
-      const poolAddress = await classicPoolFactoryContract.methods
-        .getPool(
-          fromToken.getAddressOrWrappedForNative(),
-          toToken.getAddressOrWrappedForNative(),
-        )
-        .call();
+    const poolAddress = await classicPoolFactoryContract.methods
+      .getPool(
+        fromToken.getAddressOrWrappedForNative(),
+        toToken.getAddressOrWrappedForNative(),
+      )
+      .call();
 
-      if (poolAddress === ethers.ZeroAddress) {
-        throw new Error(`${fromToken.name} -> ${toToken.name} pool not found`);
-      }
+    if (poolAddress !== ethers.ZeroAddress) return poolAddress;
 
-      return poolAddress;
-    } catch (error) {
-      if (isReversed) throw error;
-      return await this.getPool({
-        fromToken: toToken,
-        toToken: fromToken,
-        isReversed: true,
-      });
-    }
+    const reversedPoolAddress = await this.getPool(toToken, fromToken);
+
+    if (reversedPoolAddress !== ethers.ZeroAddress) return reversedPoolAddress;
+
+    throw new Error(`${fromToken.name} -> ${toToken.name} pool not found`);
   }
 
   private async getSwapCall(params: {
@@ -140,10 +128,7 @@ class SyncswapSwapAction extends SwapAction {
 
     await this.checkIsBalanceAllowed({ account, normalizedAmount });
 
-    const poolAddress = await this.getPool({
-      fromToken: this.fromToken,
-      toToken: this.toToken,
-    });
+    const poolAddress = await this.getPool(this.fromToken, this.toToken);
 
     if (!poolAddress) {
       throw new Error(`pool not found`);

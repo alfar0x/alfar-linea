@@ -8,8 +8,8 @@ import formatOrdinals from "../utils/other/formatOrdinals";
 import logger from "../utils/other/logger";
 import sleep from "../utils/other/sleep";
 import randomChoice from "../utils/random/randomChoice";
-import errorPrettify from "../utils/zod/errorPrettify";
 import ipOrDomainSchema from "../utils/zod/ipOrDomainSchema";
+import zodErrorPrettify from "../utils/zod/zodErrorPrettify";
 
 type ProxyType = "mobile" | "none" | "server";
 
@@ -27,8 +27,9 @@ class Proxy {
   private readonly isRandom?: boolean;
   private readonly ipChangeUrl?: string;
   private readonly proxyList: ProxyItem[];
-  private readonly onIpChangeUrlSleepSec: number;
-  private readonly onIpChangeErrorRepeatTimes: number;
+  private readonly onIpChangeErrorSleepSec = 30;
+  private readonly onIpChangeErrorRepeatTimes = 3;
+  private readonly pauseAfterIpChange = 5;
 
   public constructor(params: {
     type: ProxyType;
@@ -40,8 +41,6 @@ class Proxy {
     this.type = type;
     this.isRandom = isRandom;
     this.ipChangeUrl = ipChangeUrl;
-    this.onIpChangeUrlSleepSec = 30;
-    this.onIpChangeErrorRepeatTimes = 3;
 
     this.proxyList = [];
   }
@@ -58,7 +57,7 @@ class Proxy {
 
     if (proxyParsed.success) return proxyParsed.data;
 
-    const errorMessage = errorPrettify(proxyParsed.error.issues);
+    const errorMessage = zodErrorPrettify(proxyParsed.error.issues);
 
     const indexOrd = formatOrdinals(index + 1);
 
@@ -150,9 +149,7 @@ class Proxy {
 
         logger.info(createMessage(`ip change success`));
 
-        const pauseAfterIpChange = 5;
-
-        await sleep(pauseAfterIpChange);
+        await sleep(this.pauseAfterIpChange);
 
         return;
       } catch (error) {
@@ -165,7 +162,7 @@ class Proxy {
           ),
         );
 
-        await sleep(this.onIpChangeUrlSleepSec);
+        await sleep(this.onIpChangeErrorSleepSec);
       }
     }
 

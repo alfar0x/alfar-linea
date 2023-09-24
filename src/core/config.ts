@@ -4,7 +4,7 @@ import json5 from "json5";
 import { z } from "zod";
 
 import logger from "../utils/other/logger";
-import errorPrettify from "../utils/zod/errorPrettify";
+import zodErrorPrettify from "../utils/zod/zodErrorPrettify";
 
 class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
   private readonly fileName: string;
@@ -28,7 +28,7 @@ class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
       fixed: fixedSchema,
     });
 
-    const { fixed, dynamic } = this.initializeConfig();
+    const { fixed, dynamic } = this.getConfigData();
 
     this._dynamic = dynamic;
     this.fixed = fixed;
@@ -43,25 +43,15 @@ class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
 
     if (result.success) return result.data;
 
-    const errorMessage = errorPrettify(result.error.issues);
+    const errorMessage = zodErrorPrettify(result.error.issues);
 
     throw new Error(errorMessage);
-  }
-
-  private initializeConfig() {
-    try {
-      return this.getConfigData();
-    } catch (error) {
-      logger.error((error as Error).message);
-      process.exit();
-    }
   }
 
   public dynamic() {
     try {
       this._dynamic = this.getConfigData().dynamic;
     } catch (error) {
-      // eslint-disable-next-line prefer-destructuring
       const message = (error as Error).message;
 
       logger.error(

@@ -4,7 +4,6 @@ import path from "path";
 import prompts from "prompts";
 
 import greetingsStr from "../utils/other/greetingsStr";
-import logger from "../utils/other/logger";
 import sleep from "../utils/other/sleep";
 
 const modeChoices = [
@@ -43,26 +42,22 @@ class Cli {
   private readonly configPath = "config";
 
   private getConfigChoices() {
-    try {
-      const fileNames = fs.readdirSync(this.configPath);
+    const fileNames = fs.readdirSync(this.configPath);
 
-      const choices = fileNames
-        .filter((filename) => !filename.endsWith(".example.json5"))
-        .map((filename) => ({
-          title: filename,
-          value: `${this.configPath}/${path.basename(filename)}`,
-        }));
+    const choices = fileNames
+      .filter((filename) => !filename.endsWith(".example.json5"))
+      .map((filename) => ({
+        title: filename,
+        value: `${this.configPath}/${path.basename(filename)}`,
+      }));
 
-      if (!choices.length)
-        throw new Error(
-          `add at least 1 valid config (examples is not valid). Check config folder`,
-        );
-
-      return choices;
-    } catch (error) {
-      logger.error((error as Error).message);
-      process.exit();
+    if (!choices.length) {
+      throw new Error(
+        `add at least 1 valid config (examples is not valid). Check config folder`,
+      );
     }
+
+    return choices;
   }
 
   public async run() {

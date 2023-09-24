@@ -6,9 +6,9 @@ import formatOrdinals from "../utils/other/formatOrdinals";
 import logger from "../utils/other/logger";
 import randomInteger from "../utils/random/randomInteger";
 import getShortString from "../utils/string/getShortString";
-import errorPrettify from "../utils/zod/errorPrettify";
 import evmAddressSchema from "../utils/zod/evmAddressSchema";
 import evmPrivateKeySchema from "../utils/zod/evmPrivateKeySchema";
+import zodErrorPrettify from "../utils/zod/zodErrorPrettify";
 
 import Chain from "./chain";
 import Token from "./token";
@@ -49,7 +49,7 @@ class Account {
 
     const indexOrd = formatOrdinals(this.fileIndex + 1);
 
-    const errorMessage = errorPrettify(addressParsed.error.issues);
+    const errorMessage = zodErrorPrettify(addressParsed.error.issues);
 
     throw new Error(
       `${indexOrd} address is not valid. Details: ${errorMessage}`,
@@ -65,7 +65,7 @@ class Account {
 
     const privateShortForm = getShortString(privateKey);
 
-    const errorMessage = errorPrettify(privateKeyParsed.error.issues);
+    const errorMessage = zodErrorPrettify(privateKeyParsed.error.issues);
 
     throw new Error(
       `${indexOrd} private key ${privateShortForm} is not valid. Details: ${errorMessage}`,

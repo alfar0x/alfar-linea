@@ -8,6 +8,7 @@ import Step from "../../core/step";
 import createMessage from "../../utils/other/createMessage";
 import getMyIp from "../../utils/other/getMyIp";
 import logger from "../../utils/other/logger";
+import prettifyError from "../../utils/other/prettifyError";
 import sleep from "../../utils/other/sleep";
 import waitInternetConnection from "../../utils/other/waitInternetConnection";
 
@@ -102,7 +103,7 @@ class TasksRunner {
 
       return true;
     } catch (error) {
-      const msg = `[${transaction}] ${(error as Error).message}`;
+      const msg = createMessage(transaction, (error as Error).message);
 
       if (isConnectionChecked) throw new Error(msg);
 
@@ -152,8 +153,8 @@ class TasksRunner {
           if (!step.isEmpty()) await this.waiter.waitTransaction();
         }
       } catch (error) {
-        logger.debug(String(error));
-        logger.error((error as Error).message);
+        logger.error(createMessage(account, (error as Error).message));
+        logger.debug(prettifyError.render(error as Error));
 
         await this.creator.updateTask(task);
 
@@ -224,7 +225,7 @@ class TasksRunner {
 
     logger.info(`accounts found: ${accounts.length}`);
 
-    await this.creator.initializedTasks(accounts);
+    await this.creator.initializeTasks(accounts);
 
     const factoryInfoStr = this.creator.getFactoryInfoStr();
 
@@ -238,6 +239,9 @@ class TasksRunner {
       const isTransactionsRun = await this.runTask();
       this.prevRun.isTransactionsRun = isTransactionsRun;
     }
+
+    logger.info("all tasks finished");
+    process.exit();
   }
 }
 
