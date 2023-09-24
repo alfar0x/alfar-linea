@@ -231,7 +231,6 @@ DMAIL_SEND_MAIL
 6. **Make a Copy of a File:**
   - Find the `.env.example` file.
   - Make a copy and name it `.env.prod`.
-  - If you want to get telegram bot messages on errors fill `TELEGRAM_TOKEN` and `TELEGRAM_CHAT_ID` in `.env.prod` file. To get `TELEGRAM_TOKEN` use this [docs](https://core.telegram.org/bots/tutorial#obtain-your-bot-token) and to get your `TELEGRAM_CHAT_ID` use this [bot](t.me/https://t.me/my_id_bot). To get messages you need to start your bot first using `/start` command in t.me/<your_bot_name>
   
 ## Task Runner
 
