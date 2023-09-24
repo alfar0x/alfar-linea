@@ -4,13 +4,12 @@ import Linea from "../../chain/linea";
 import Account from "../../core/account";
 import Chain from "../../core/chain";
 import Proxy from "../../core/proxy";
-import Step from "../../core/step";
+import RunnableTransaction from "../../core/transaction";
 import createMessage from "../../utils/other/createMessage";
-import getMyIp from "../../utils/other/getMyIp";
 import logger from "../../utils/other/logger";
 import prettifyError from "../../utils/other/prettifyError";
 import sleep from "../../utils/other/sleep";
-import waitInternetConnection from "../../utils/other/waitInternetConnection";
+import waitInternetConnectionWrapper from "../../utils/other/waitInternetConnectionWrapper";
 
 import TasksRunnerConfig from "./config";
 import confirmRun from "./confirmRun";
@@ -71,50 +70,32 @@ class TasksRunner {
   }
 
   private async runTransaction(
-    step: Step,
-    isConnectionChecked = false,
+    transaction: RunnableTransaction,
   ): Promise<boolean> {
     const { maxTxFeeUsd } = this.config.dynamic();
-    const transaction = step.getNextTransaction();
 
-    if (!transaction) return false;
+    await this.waiter.waitGasLimit();
 
-    try {
-      await this.waiter.waitGasLimit();
+    // worker test
+    // const txResult = { hash: "", resultMsg: "msg", gasPriceUsd: 0 };
 
-      // worker test
-      // const txResult = { hash: "", resultMsg: "msg", gasPriceUsd: 0 };
+    const txResult = await transaction.run({ maxTxFeeUsd });
 
-      const txResult = await transaction.run({ maxTxFeeUsd });
+    if (!txResult) return false;
 
-      if (!txResult) return false;
+    const { hash, resultMsg, gasPriceUsd } = txResult;
 
-      const { hash, resultMsg, gasPriceUsd } = txResult;
+    const message = createMessage(
+      transaction,
+      "success",
+      resultMsg,
+      `fee: $${gasPriceUsd}`,
+      this.chain.getHashLink(hash),
+    );
 
-      const message = createMessage(
-        transaction,
-        "success",
-        resultMsg,
-        `fee: $${gasPriceUsd}`,
-        this.chain.getHashLink(hash),
-      );
+    logger.info(createMessage(transaction.account, message));
 
-      logger.info(createMessage(transaction.account, message));
-
-      return true;
-    } catch (error) {
-      const msg = createMessage(transaction, (error as Error).message);
-
-      if (isConnectionChecked) throw new Error(msg);
-
-      const myIp = await getMyIp();
-
-      if (myIp) throw new Error(msg);
-
-      await waitInternetConnection();
-
-      return this.runTransaction(step, true);
-    }
+    return true;
   }
 
   private async runTask() {
@@ -145,15 +126,26 @@ class TasksRunner {
     let isTransactionsRun = false;
 
     while (!step.isEmpty()) {
+      const transaction = step.getNextTransaction();
+
+      if (!transaction) break;
+
       try {
-        const isRun = await this.runTransaction(step);
+        const wrapped = waitInternetConnectionWrapper(
+          this.runTransaction.bind(this),
+        );
+
+        const isRun = await wrapped(transaction);
+
         if (isRun) {
           isTransactionsRun = true;
 
           if (!step.isEmpty()) await this.waiter.waitTransaction();
         }
       } catch (error) {
-        logger.error(createMessage(account, (error as Error).message));
+        logger.error(
+          createMessage(account, transaction, (error as Error).message),
+        );
         logger.debug(prettifyError.render(error as Error));
 
         await this.creator.updateTask(task);

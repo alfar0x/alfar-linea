@@ -142,9 +142,8 @@ class TaskCreator {
 
     const randomIndex = randomInteger(minIndex, maxIndex).toNumber();
 
-    const [item] = this.tasks.splice(index, 1);
+    const [item] = this.tasks.splice(index, 1) as (Task | undefined)[];
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!item) {
       throw new Error(`unexpected error. task is not defined`);
     }

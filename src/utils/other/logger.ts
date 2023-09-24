@@ -1,6 +1,5 @@
 import dateFormat from "date-fns/format";
 import { format, createLogger, transports } from "winston";
-import TelegramLogger from "winston-telegram";
 
 import env from "./env";
 
@@ -40,17 +39,6 @@ const initLogger = () => {
       }),
     ],
   });
-
-  if (env.TELEGRAM_TOKEN && env.TELEGRAM_CHAT_ID) {
-    logger.add(
-      new TelegramLogger({
-        token: env.TELEGRAM_TOKEN,
-        chatId: env.TELEGRAM_CHAT_ID,
-        level: "error",
-        batchingDelay: 1000,
-      }),
-    );
-  }
 
   return logger;
 };

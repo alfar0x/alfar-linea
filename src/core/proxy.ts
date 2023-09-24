@@ -121,9 +121,8 @@ class Proxy {
       case "server": {
         if (this.isRandom) return randomChoice(this.proxyList);
 
-        const proxyItem = this.proxyList[index];
+        const proxyItem = this.proxyList.at(index);
 
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (!proxyItem) {
           throw new Error(`unexpected error: no proxy on ${index} index`);
         }

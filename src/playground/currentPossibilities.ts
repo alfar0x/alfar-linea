@@ -12,7 +12,7 @@ const currentPossibilities = () => {
   });
 
   // eslint-disable-next-line no-console
-  console.info(factory.infoString(true));
+  console.info(factory.info(true));
 };
 
 export default currentPossibilities;

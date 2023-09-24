@@ -8,12 +8,6 @@ const getEnv = () => {
 
   const schema = z.object({
     NODE_ENV: z.union([z.literal("dev"), z.literal("prod")]),
-    TELEGRAM_TOKEN: z.string().optional(),
-    TELEGRAM_CHAT_ID: z
-      .string()
-      .regex(/\d+/, "Must be a number")
-      .optional()
-      .transform((str) => (str ? Number(str) : undefined)),
   });
 
   const env = schema.safeParse(process.env);

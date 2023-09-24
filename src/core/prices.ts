@@ -2,9 +2,8 @@ import axios from "axios";
 import Big from "big.js";
 
 import rawTokens from "../chain/linea/rawTokens";
-import getMyIp from "../utils/other/getMyIp";
 import logger from "../utils/other/logger";
-import waitInternetConnection from "../utils/other/waitInternetConnection";
+import waitInternetConnectionWrapper from "../utils/other/waitInternetConnectionWrapper";
 
 type TokenId = string;
 
@@ -48,38 +47,25 @@ class Prices {
     return Date.now() - updatePricesIntervalMillis;
   }
 
-  private async getGeskoPrices(
-    isConnectionChecked = false,
-  ): Promise<GeskoResponse> {
-    try {
-      // eslint-disable-next-line camelcase
-      const params = { ids: this.geskoIds.join(","), vs_currencies: "usd" };
+  private async getGeskoPrices(): Promise<GeskoResponse> {
+    // eslint-disable-next-line camelcase
+    const params = { ids: this.geskoIds.join(","), vs_currencies: "usd" };
 
-      const urlParams = new URLSearchParams(params).toString();
+    const urlParams = new URLSearchParams(params).toString();
 
-      const result = await axios.get(`${this.url}?${urlParams}`);
+    const result = await axios.get(`${this.url}?${urlParams}`);
 
-      return result.data as GeskoResponse;
-    } catch (error) {
-      // eslint-disable-next-line prefer-destructuring
-      const message = (error as Error).message;
-
-      if (isConnectionChecked) throw new Error(message);
-
-      const myIp = await getMyIp();
-
-      if (myIp) throw new Error(message);
-
-      await waitInternetConnection();
-
-      return await this.getGeskoPrices(true);
-    }
+    return result.data as GeskoResponse;
   }
 
   public async updatePrices() {
     logger.info(`updating token prices`);
 
-    const geskoPrices = await this.getGeskoPrices();
+    const wrapped = waitInternetConnectionWrapper(
+      this.getGeskoPrices.bind(this),
+    );
+
+    const geskoPrices = await wrapped();
 
     const prices = Object.keys(geskoPrices)
       .map((key) => ({ key, value: geskoPrices[key].usd }))
