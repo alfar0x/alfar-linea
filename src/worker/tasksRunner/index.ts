@@ -94,7 +94,7 @@ class TasksRunner {
         transaction,
         "success",
         resultMsg,
-        `tx price: $${gasPriceUsd}`,
+        `fee: $${gasPriceUsd}`,
         this.chain.getHashLink(hash),
       );
 
