@@ -44,7 +44,11 @@ class XyFinanceSwapAction extends SwapAction {
 
     const { data } = await axios.get<XyFinanceQuote>(url);
 
-    if (!data.success) throw new Error(data.errorMsg || String(data.errorCode));
+    if (!data.success)
+      throw new Error(
+        data.errorMsg ||
+          `unexpected error. xy finance api response is not success`,
+      );
 
     if (!data.routes.length) {
       throw new Error(`unexpected error. No routes available`);

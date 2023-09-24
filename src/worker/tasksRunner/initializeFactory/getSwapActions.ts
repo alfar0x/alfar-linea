@@ -61,11 +61,9 @@ const getProviderActions = (provider: Provider, pairs: Pairs): SwapAction[] => {
     case "XY_FINANCE": {
       return [
         new XyFinanceSwapAction(pairs.eth_usdc),
-        new XyFinanceSwapAction(pairs.eth_cebusd),
         new XyFinanceSwapAction(pairs.eth_usdt),
 
         new XyFinanceSwapAction(pairs.usdc_eth),
-        new XyFinanceSwapAction(pairs.cebusd_eth),
         new XyFinanceSwapAction(pairs.usdt_eth),
       ];
     }

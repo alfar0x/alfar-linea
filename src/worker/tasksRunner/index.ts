@@ -158,6 +158,8 @@ class TasksRunner {
         await this.creator.updateTask(task);
 
         await sleep(5);
+
+        break;
       }
     }
 

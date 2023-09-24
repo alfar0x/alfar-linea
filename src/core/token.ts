@@ -252,8 +252,10 @@ class Token {
     fromNormalizedAmount: Amount,
     slippagePercent: number,
   ) {
-    const fromReadableAmount =
-      await fromToken.toReadableAmount(fromNormalizedAmount);
+    const fromReadableAmount = await fromToken.toReadableAmount(
+      fromNormalizedAmount,
+      true,
+    );
 
     const minOutReadable = await this.getMinOutReadableAmount(
       fromToken,
