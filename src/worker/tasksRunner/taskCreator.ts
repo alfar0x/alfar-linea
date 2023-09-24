@@ -197,7 +197,7 @@ class TaskCreator {
     const task = this.tasks.at(randomIndex);
 
     if (!task) {
-      throw new Error(`unexpected error. task is undefined`);
+      throw new Error(`unexpected error. task is not defined`);
     }
 
     return task;
