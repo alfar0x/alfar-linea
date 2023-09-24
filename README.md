@@ -280,7 +280,7 @@ The `fixed` block encompasses static configuration details including:
 
   By enabling this setting, after the completion of the current task for an account, the account is moved to a random position in the queue. If there are many accounts, this account might have to wait for a significant time before being assigned a new task, allowing the system to naturally create new tasks over time. 
 
-  Caution: When this setting is enabled (`true`), the opportunity for each account to start decreases. Even with high frequency and time delay, some accounts may not initiate at all, as they are continuously being moved within the queue. Use it after all accounts transactions is 
+  Caution: When this setting is enabled (`true`), the opportunity for each account to start decreases. Even with high frequency and time delay, some accounts may not initiate at all, as they are continuously being moved within the queue. This setting was added for times when all accounts have met the requirements for active days and transactions. It helps to make their actions more unpredictable. With this setting on, some accounts might end up doing three tasks in a row, while others might not do any tasks at all. This ensures that tasks are assigned in a truly random way.
 
 - `providers`: List the service providers for this mode. To omit specific blocks, comment them out in the configuration file. For example, the following lines in the config file mean that OPEN_OCEAN will be used while DMAIL won't be:
   ```json

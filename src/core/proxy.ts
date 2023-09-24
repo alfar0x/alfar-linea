@@ -46,7 +46,7 @@ class Proxy {
     this.proxyList = [];
   }
 
-  private parseProxyStr(proxyStr: string, idx: number) {
+  private parseProxyStr(proxyStr: string, index: number) {
     const [host, port, username, password] = proxyStr.split(":");
 
     const proxyParsed = proxyItemSchema.safeParse({
@@ -60,7 +60,7 @@ class Proxy {
 
     const errorMessage = errorPrettify(proxyParsed.error.issues);
 
-    const indexOrd = formatOrdinals(idx + 1);
+    const indexOrd = formatOrdinals(index + 1);
 
     throw new Error(`${indexOrd} proxy is not valid. Details: ${errorMessage}`);
   }

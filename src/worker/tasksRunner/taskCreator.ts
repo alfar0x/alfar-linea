@@ -113,7 +113,7 @@ class TaskCreator {
       createMessage(account, `new steps created: ${task.stepsString()}`),
     );
 
-    const isFirstAccountRun = task.account.transactionsPerformed() === 0;
+    const isFirstAccountRun = account.transactionsPerformed() === 0;
 
     if (isFirstAccountRun) return true;
 
@@ -142,6 +142,11 @@ class TaskCreator {
 
     const [item] = this.tasks.splice(index, 1);
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (!item) {
+      throw new Error(`unexpected error. task is not defined`);
+    }
+
     this.tasks.splice(randomIndex, 0, item);
   }
 
@@ -150,6 +155,8 @@ class TaskCreator {
 
     try {
       await this.checkIsBalanceAllowed(account);
+
+      if (!task.isEmpty()) return true;
 
       return await this.updateTask(task);
     } catch (error) {
@@ -184,14 +191,22 @@ class TaskCreator {
     const maxIndexBaseOnOne = Math.min(this.tasks.length, maxParallelAccounts);
 
     const maxIndex = maxIndexBaseOnOne - 1;
+
     const randomIndex = randomInteger(0, maxIndex).toNumber();
 
-    return this.tasks[randomIndex];
+    const task = this.tasks.at(randomIndex);
+
+    if (!task) {
+      throw new Error(`unexpected error. task is undefined`);
+    }
+
+    return task;
   }
 
   public async getNextTask() {
     while (!this.isEmpty()) {
       const task = this.pickRandomTask();
+
       const isAllowed = await this.checkIsTaskAllowed(task);
 
       if (isAllowed) return task;

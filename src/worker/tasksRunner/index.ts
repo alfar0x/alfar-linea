@@ -123,7 +123,10 @@ class TasksRunner {
 
     const step = task.getNextStep();
 
-    if (!step || step.isEmpty()) return false;
+    if (!step || step.isEmpty()) {
+      await this.creator.updateTask(task);
+      return false;
+    }
 
     const { account } = task;
 

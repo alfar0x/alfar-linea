@@ -114,8 +114,8 @@ class PancakeSwapAction extends SwapAction {
       quoteExactInputSingleResult,
     );
 
-    const amountOut = quote[0];
-    const gasEstimate = quote[3];
+    const amountOut = quote.at(0);
+    const gasEstimate = quote.at(3);
 
     const amount = amountOut.toString();
     const slippageAmount = Big(amount).times(DEFAULT_SLIPPAGE_PERCENT).div(100);

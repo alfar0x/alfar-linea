@@ -73,10 +73,10 @@ class Account {
   }
 
   public toString() {
-    const idx = this.fileIndex + 1;
+    const index = this.fileIndex + 1;
     const txs = this._transactionsPerformed;
 
-    return `[${idx}] ${this.name} (txs:${txs})`;
+    return `[${index}] ${this.name} (txs:${txs})`;
   }
 
   public isEquals(account: Account) {

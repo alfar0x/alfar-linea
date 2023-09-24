@@ -9,7 +9,7 @@ const randomInteger = (min: Num, max: Num) => {
 
   if (Big(max).eq(min)) return Big(min);
 
-  const multiplier = Big(max).minus(min).plus(1);
+  const multiplier = Big(max).minus(min);
 
   return Big(Math.random()).times(multiplier).plus(min).round();
 };

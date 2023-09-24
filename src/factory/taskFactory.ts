@@ -10,6 +10,7 @@ import RandomRouter from "../router/random";
 import SupplyEthRouter from "../router/supplyEth";
 import SwapEthTokenEthRouter from "../router/swapEthTokenEth";
 import SwapSupplyTokenRouter from "../router/swapSupplyToken";
+import randomInteger from "../utils/random/randomInteger";
 
 type RouterId =
   | "RANDOM"
@@ -141,10 +142,10 @@ class TaskFactory {
   private async addRandomTypeSteps(account: Account, steps: Step[]) {
     const randomSteps = await this.randomRouter.getRandomSteps({ account });
 
-    const randomIdx = Math.floor(Math.random() * (steps.length + 1));
+    const randomIndex = randomInteger(0, steps.length - 1).toNumber();
 
-    const firstPart = steps.slice(0, randomIdx);
-    const secondPart = steps.slice(randomIdx);
+    const firstPart = steps.slice(0, randomIndex);
+    const secondPart = steps.slice(randomIndex);
 
     return [...firstPart, ...randomSteps, ...secondPart];
   }
