@@ -1,6 +1,7 @@
 import Account from "../../core/account";
 import Queue from "../../core/queue";
 import Step from "../../core/step";
+import createMessage from "../../utils/other/createMessage";
 
 class Task extends Queue<Step> {
   public readonly account: Account;
@@ -26,7 +27,7 @@ class Task extends Queue<Step> {
       ? this.stepsString()
       : "no steps have been created yet";
 
-    return `${account} / txs limit:${limit}: ${steps}`;
+    return createMessage(account, `min txs limit:${limit}`, steps);
   }
 
   public stepsString() {
