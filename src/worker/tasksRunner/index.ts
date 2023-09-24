@@ -8,6 +8,7 @@ import Step from "../../core/step";
 import createMessage from "../../utils/other/createMessage";
 import getMyIp from "../../utils/other/getMyIp";
 import logger from "../../utils/other/logger";
+import sleep from "../../utils/other/sleep";
 import waitInternetConnection from "../../utils/other/waitInternetConnection";
 
 import TasksRunnerConfig from "./config";
@@ -17,7 +18,6 @@ import initializeProxy from "./initializeProxy";
 import Task from "./task";
 import TaskCreator from "./taskCreator";
 import Waiter from "./waiter";
-import sleep from "../../utils/other/sleep";
 
 type PrevRun = {
   task: Task | null;
