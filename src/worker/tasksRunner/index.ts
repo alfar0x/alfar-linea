@@ -17,6 +17,7 @@ import initializeProxy from "./initializeProxy";
 import Task from "./task";
 import TaskCreator from "./taskCreator";
 import Waiter from "./waiter";
+import sleep from "../../utils/other/sleep";
 
 type PrevRun = {
   task: Task | null;
@@ -99,8 +100,6 @@ class TasksRunner {
 
       logger.info(createMessage(transaction.account, message));
 
-      await this.waiter.waitTransaction();
-
       return true;
     } catch (error) {
       const msg = `[${transaction}] ${(error as Error).message}`;
@@ -144,12 +143,18 @@ class TasksRunner {
     while (!step.isEmpty()) {
       try {
         const isRun = await this.runTransaction(step);
-        if (isRun) isTransactionsRun = true;
+        if (isRun) {
+          isTransactionsRun = true;
+
+          if (!step.isEmpty()) await this.waiter.waitTransaction();
+        }
       } catch (error) {
         logger.debug(String(error));
         logger.error((error as Error).message);
 
         await this.creator.updateTask(task);
+
+        await sleep(5);
       }
     }
 
