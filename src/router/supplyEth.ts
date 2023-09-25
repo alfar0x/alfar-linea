@@ -1,5 +1,6 @@
 import SupplyAction from "../action/supply/base";
 import Account from "../core/account";
+import Operation from "../core/operation";
 import Router from "../core/router";
 import sortStringsHelper from "../utils/other/sortStringsHelper";
 import randomChoice from "../utils/random/randomChoice";
@@ -35,6 +36,36 @@ class SupplyEthRouter extends Router {
 
   public size() {
     return this.possibleRoutes.length;
+  }
+
+  public async generateOperationList(params: {
+    account: Account;
+  }): Promise<Operation[]> {
+    const { account } = params;
+
+    const supplyRouter = randomChoice(this.possibleRoutes);
+
+    const supplyStep = await supplyRouter.supplyPercentStep({
+      account,
+      minWorkAmountPercent: this.minWorkAmountPercent,
+      maxWorkAmountPercent: this.maxWorkAmountPercent,
+    });
+
+    const redeemStep = supplyRouter.redeemAllStep({
+      account,
+    });
+
+    const supplyOperation = new Operation({
+      name: supplyStep.name,
+      steps: [supplyStep],
+    });
+
+    const redeemOperation = new Operation({
+      name: redeemStep.name,
+      steps: [redeemStep],
+    });
+
+    return [supplyOperation, redeemOperation];
   }
 
   public async generateSteps(params: { account: Account }) {

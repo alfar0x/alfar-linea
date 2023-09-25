@@ -42,13 +42,13 @@
       }
     ],
     "@typescript-eslint/require-array-sort-compare": "error",
-    "@typescript-eslint/sort-type-constituents": "error",
     "@typescript-eslint/switch-exhaustiveness-check": "error",
     "arrow-body-style": [
       "error",
       "as-needed"
     ],
     "camelcase": "error",
+    // "class-methods-use-this": "warn",
     "func-style": "error",
     "import/no-unresolved": "error",
     "import/order": [

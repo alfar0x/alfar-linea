@@ -1,20 +1,20 @@
 import Account from "../../core/account";
+import Operation from "../../core/operation";
 import Queue from "../../core/queue";
-import Step from "../../core/step";
 import createMessage from "../../utils/other/createMessage";
 
-class Task extends Queue<Step> {
+class Task extends Queue<Operation> {
   public readonly account: Account;
   public readonly minimumTransactionsLimit: number;
 
   public constructor(params: {
     account: Account;
     minimumTransactionsLimit: number;
-    steps?: Step[];
+    operations?: Operation[];
   }) {
-    const { account, minimumTransactionsLimit, steps } = params;
+    const { account, minimumTransactionsLimit, operations } = params;
 
-    super(steps);
+    super(operations);
 
     this.account = account;
     this.minimumTransactionsLimit = minimumTransactionsLimit;
@@ -23,19 +23,19 @@ class Task extends Queue<Step> {
   public infoStr() {
     const { account } = this;
     const limit = this.minimumTransactionsLimit;
-    const steps = this.storage.length
-      ? this.stepsString()
-      : "no steps have been created yet";
+    const operations = this.storage.length
+      ? this.operationsString()
+      : "no operations have been created yet";
 
-    return createMessage(account, `min txs limit:${limit}`, steps);
+    return createMessage(account, `min txs limit:${limit}`, operations);
   }
 
-  public stepsString() {
-    return this.storage.map((step) => `[${step}]`).join(" => ");
+  public operationsString() {
+    return this.storage.map((operation) => `[${operation}]`).join(" => ");
   }
 
   public toString() {
-    return `${this.account}: ${this.stepsString()}`;
+    return `${this.account}: ${this.operationsString()}`;
   }
 
   public isEquals(task: Task) {
@@ -48,7 +48,7 @@ class Task extends Queue<Step> {
     );
   }
 
-  public getNextStep() {
+  public getNextOperation() {
     return this.shift();
   }
 

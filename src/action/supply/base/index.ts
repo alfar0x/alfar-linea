@@ -154,7 +154,7 @@ abstract class SupplyAction extends Action {
     const createRedeemAllTransaction = () => this.redeemAll({ account });
 
     const redeemAllTransaction = new RunnableTransaction({
-      name: this.getTxName("REDEEM_ALL"),
+      name: this.getTxName("redeem-all"),
       chain: this.token.chain,
       account: account,
       createTransaction: createRedeemAllTransaction,

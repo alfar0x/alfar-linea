@@ -8,6 +8,10 @@ const getEnv = () => {
 
   const schema = z.object({
     NODE_ENV: z.union([z.literal("dev"), z.literal("prod")]),
+    WORKER_TEST: z
+      .string()
+      .optional()
+      .transform((str) => Boolean(str)),
   });
 
   const env = schema.safeParse(process.env);

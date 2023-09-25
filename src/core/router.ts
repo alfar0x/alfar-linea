@@ -1,5 +1,5 @@
 import Account from "./account";
-import Step from "./step";
+import Operation from "./operation";
 
 abstract class Router {
   protected minWorkAmountPercent: number;
@@ -17,7 +17,9 @@ abstract class Router {
   public abstract size(): number;
   public abstract possibleRoutesStrings(): string[];
   // eslint-disable-next-line no-unused-vars
-  public abstract generateSteps(params: { account: Account }): Promise<Step[]>;
+  public abstract generateOperationList(params: {
+    account: Account;
+  }): Promise<Operation[]>;
 }
 
 export default Router;

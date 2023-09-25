@@ -4,12 +4,13 @@ import RandomAction from "../action/random/base";
 import SupplyAction from "../action/supply/base";
 import SwapAction from "../action/swap/base";
 import Account from "../core/account";
+import Operation from "../core/operation";
 import Router from "../core/router";
-import Step from "../core/step";
 import RandomRouter from "../router/random";
 import SupplyEthRouter from "../router/supplyEth";
 import SwapEthTokenEthRouter from "../router/swapEthTokenEth";
 import SwapSupplyTokenRouter from "../router/swapSupplyToken";
+import randomElementWithWeight from "../utils/random/randomElementWithWeight";
 import randomInteger from "../utils/random/randomInteger";
 
 type RouterId =
@@ -18,16 +19,15 @@ type RouterId =
   | "SWAP_ETH_TOKEN_ETH"
   | "SWAP_SUPPLY_TOKEN";
 
-class TaskFactory {
-  private readonly swapEthTokenEthRouter: SwapEthTokenEthRouter;
-  private readonly supplyEthRouter: SupplyEthRouter;
-  private readonly swapSupplyTokenRouter: SwapSupplyTokenRouter;
-  private readonly randomRouter: RandomRouter;
+type RouterData = {
+  key: RouterId;
+  value: Router;
+  weight: number;
+};
 
-  private readonly routersData: Record<
-    RouterId,
-    { router: Router; weight: number }
-  >;
+class TaskFactory {
+  private readonly routers: RouterData[];
+  private readonly totalWeight: number;
 
   public constructor(params: {
     swapActions: SwapAction[];
@@ -44,129 +44,148 @@ class TaskFactory {
       maxWorkAmountPercent,
     } = params;
 
-    this.swapEthTokenEthRouter = new SwapEthTokenEthRouter({
+    this.routers = this.initializeRouters({
       swapActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-    });
-
-    this.supplyEthRouter = new SupplyEthRouter({
       supplyActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-    });
-
-    this.swapSupplyTokenRouter = new SwapSupplyTokenRouter({
-      supplyActions,
-      swapActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-    });
-
-    this.randomRouter = new RandomRouter({
       randomActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
     });
 
-    this.routersData = this.initializedWeights();
+    this.totalWeight = Object.values(this.routers)
+      .reduce((sum, { weight }) => sum.plus(weight), Big(0))
+      .toNumber();
   }
 
-  private initializedWeights() {
-    return {
-      // @TODO temporary hardcoded
-      SWAP_ETH_TOKEN_ETH: {
-        router: this.swapEthTokenEthRouter,
-        weight: this.swapEthTokenEthRouter.size() ? 70 : 0,
+  private initializeRouters(params: {
+    swapActions: SwapAction[];
+    supplyActions: SupplyAction[];
+    randomActions: RandomAction[];
+    minWorkAmountPercent: number;
+    maxWorkAmountPercent: number;
+  }) {
+    const {
+      swapActions,
+      supplyActions,
+      randomActions,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    } = params;
+
+    const swapEthTokenEthRouter = new SwapEthTokenEthRouter({
+      swapActions,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    });
+
+    const supplyEthRouter = new SupplyEthRouter({
+      supplyActions,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    });
+
+    const swapSupplyTokenRouter = new SwapSupplyTokenRouter({
+      supplyActions,
+      swapActions,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    });
+
+    const randomRouter = new RandomRouter({
+      randomActions,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    });
+
+    const data: RouterData[] = [
+      {
+        key: "SWAP_ETH_TOKEN_ETH",
+        value: swapEthTokenEthRouter,
+        weight: swapEthTokenEthRouter.size() ? 70 : 0,
       },
-      SUPPLY_ETH: {
-        router: this.supplyEthRouter,
-        weight: this.supplyEthRouter.size() ? 10 : 0,
+      {
+        key: "SUPPLY_ETH",
+        value: supplyEthRouter,
+        weight: supplyEthRouter.size() ? 10 : 0,
       },
-      SWAP_SUPPLY_TOKEN: {
-        router: this.swapSupplyTokenRouter,
-        weight: this.swapSupplyTokenRouter.size() ? 10 : 0,
+      {
+        key: "SWAP_SUPPLY_TOKEN",
+        value: swapSupplyTokenRouter,
+        weight: swapSupplyTokenRouter.size() ? 10 : 0,
       },
-      RANDOM: {
-        router: this.randomRouter,
-        weight: this.randomRouter.size() ? 10 : 0,
+      {
+        key: "RANDOM",
+        value: randomRouter,
+        weight: randomRouter.size() ? 10 : 0,
       },
-    };
+    ];
+
+    return data;
   }
 
-  private getTotalRoutersWeight() {
-    return Object.values(this.routersData).reduce(
-      (sum, { weight }) => sum + weight,
-      0,
-    );
-  }
-
-  private getRandomWeightedRouter() {
-    const totalWeight = this.getTotalRoutersWeight();
-
-    let randomValue = Math.random() * totalWeight;
-
-    for (const { router, weight } of Object.values(this.routersData)) {
-      randomValue -= weight;
-
-      if (randomValue <= 0) return router;
-    }
-
-    return null;
-  }
-
-  private async generateRandomSteps(params: { account: Account }) {
+  private async generateRandomOperations(params: { account: Account }) {
     const { account } = params;
 
-    const router = this.getRandomWeightedRouter();
+    const router = randomElementWithWeight(this.routers);
 
-    if (!router) {
-      throw new Error(`random router is not available: ${router}`);
-    }
-
-    const steps = await router.generateSteps({
+    const operations = await router.generateOperationList({
       account,
     });
 
-    return steps;
+    return operations;
   }
 
-  private shouldRandomTypeStepsBeAdded() {
-    const totalWeight = this.getTotalRoutersWeight();
+  private shouldRandomTypeOperationsBeAdded() {
+    const randomTypeRouterData = this.routers.find((r) => r.key === "RANDOM");
 
-    return Big(this.routersData.RANDOM.weight)
-      .div(totalWeight)
-      .gte(Math.random());
+    if (!randomTypeRouterData) return false;
+
+    const { value, weight } = randomTypeRouterData;
+
+    if (!value.size()) return false;
+
+    return Big(weight).div(this.totalWeight).gte(Math.random());
   }
 
-  private async addRandomTypeSteps(account: Account, steps: Step[]) {
-    const randomSteps = await this.randomRouter.getRandomSteps({ account });
+  private async addRandomTypeOperations(
+    account: Account,
+    operations: Operation[],
+  ) {
+    const randomTypeRouterData = this.routers.find((r) => r.key === "RANDOM");
 
-    const randomIndex = randomInteger(0, steps.length - 1).toNumber();
+    if (!randomTypeRouterData) return operations;
 
-    const firstPart = steps.slice(0, randomIndex);
-    const secondPart = steps.slice(randomIndex);
+    const { value } = randomTypeRouterData;
 
-    return [...firstPart, ...randomSteps, ...secondPart];
+    const randomOperations = await value.generateOperationList({
+      account,
+    });
+
+    const randomIndex = randomInteger(0, operations.length - 1).toNumber();
+
+    const firstPart = operations.slice(0, randomIndex);
+    const secondPart = operations.slice(randomIndex);
+
+    return [...firstPart, ...randomOperations, ...secondPart];
   }
 
-  public async getRandomSteps(params: { account: Account }) {
+  public async getRandomOperations(params: { account: Account }) {
     const { account } = params;
 
-    const steps = await this.generateRandomSteps({ account });
+    const steps = await this.generateRandomOperations({ account });
 
-    if (!this.shouldRandomTypeStepsBeAdded()) return steps;
+    if (!this.shouldRandomTypeOperationsBeAdded()) return steps;
 
-    return await this.addRandomTypeSteps(account, steps);
+    return await this.addRandomTypeOperations(account, steps);
   }
 
   public info(isFull = false) {
-    const routesInfo = Object.values(this.routersData).map(({ router }) => {
-      const short = `${router.description}: ${router.size()}`;
+    const routesInfo = this.routers.map(({ value }) => {
+      const short = `${value.description}: ${value.size()}`;
 
       if (!isFull) return short;
 
-      const possibleRoutesStrings = router.possibleRoutesStrings().join("\n");
+      const possibleRoutesStrings = value.possibleRoutesStrings().join("\n");
 
       return `${short}\n${possibleRoutesStrings}`;
     });

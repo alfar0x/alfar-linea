@@ -3,6 +3,7 @@ import { z } from "zod";
 import ACTION_PROVIDERS from "../../../constants/actionProviders";
 import createUnionSchema from "../../../utils/zod/createUnionSchema";
 import getFilenameRefine from "../../../utils/zod/getFilenameRefine";
+import env from "../../../utils/other/env";
 
 const minMaxRefine = [
   (schema: { min: number; max: number }) => schema.max >= schema.min,
@@ -12,13 +13,21 @@ const minMaxRefine = [
 const delaySecSchema = z.object({
   transaction: z
     .object({
-      min: z.number().multipleOf(1).positive().min(20),
+      min: z
+        .number()
+        .multipleOf(1)
+        .positive()
+        .min(env.WORKER_TEST ? 1 : 20),
       max: z.number().multipleOf(1).positive().max(10000),
     })
     .refine(...minMaxRefine),
   step: z
     .object({
-      min: z.number().multipleOf(1).positive().min(60),
+      min: z
+        .number()
+        .multipleOf(1)
+        .positive()
+        .min(env.WORKER_TEST ? 1 : 60),
       max: z.number().multipleOf(1).positive().max(10000),
     })
     .refine(...minMaxRefine),

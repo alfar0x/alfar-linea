@@ -42,7 +42,7 @@ abstract class SwapAction extends Action {
     this.initializeDefaultName({
       provider,
       actionType: "SWAP",
-      operation: `${this.fromToken}_${this.toToken}`,
+      operation: `${this.fromToken.name}_${this.toToken.name}`,
     });
   }
 

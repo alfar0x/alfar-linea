@@ -1,12 +1,18 @@
+import Big from "big.js";
+
 import SwapAction from "../action/swap/base";
 import Account from "../core/account";
+import Operation from "../core/operation";
 import Router from "../core/router";
+import Token from "../core/token";
 import sortStringsHelper from "../utils/other/sortStringsHelper";
-import randomChoice from "../utils/random/randomChoice";
+import randomElementWithWeight from "../utils/random/randomElementWithWeight";
+import randomShuffle from "../utils/random/randomShuffle";
 
 type PossibleRoute = {
-  buyAction: SwapAction;
-  sellAction: SwapAction;
+  token: Token;
+  buyActions: SwapAction[];
+  sellActions: SwapAction[];
 };
 
 class SwapEthTokenEthRouter extends Router {
@@ -26,53 +32,128 @@ class SwapEthTokenEthRouter extends Router {
     this.possibleRoutes = this.initializePossibleRoutes(swapActions);
   }
 
-  private initializePossibleRoutes(swapActions: SwapAction[]) {
-    const possibleRoutes = swapActions.reduce((acc, buyAction) => {
-      if (!buyAction.fromToken.isNative) return acc;
+  private getUniqueTokens(swapActions: SwapAction[]) {
+    const uniquesTokens: Token[] = [];
 
-      const sellPossibleRoutes = swapActions.filter((sellAction) =>
-        buyAction.toToken.isEquals(sellAction.fromToken),
+    for (const swapAction of swapActions) {
+      if (!swapAction.toToken.isNative) continue;
+
+      const isAdded = uniquesTokens.some((token) =>
+        token.isEquals(swapAction.fromToken),
       );
 
-      const directions = sellPossibleRoutes.map((sellAction) => ({
-        buyAction,
-        sellAction,
-      }));
+      if (!isAdded) uniquesTokens.push(swapAction.fromToken);
+    }
 
-      return [...acc, ...directions];
-    }, [] as PossibleRoute[]);
+    return uniquesTokens;
+  }
+
+  private initializePossibleRoutes(swapActions: SwapAction[]) {
+    const uniquesTokens = this.getUniqueTokens(swapActions);
+
+    const possibleRoutes = uniquesTokens.reduce<PossibleRoute[]>(
+      (acc, token) => {
+        const buyActions = swapActions.filter(
+          (swapAction) =>
+            swapAction.fromToken.isNative && swapAction.toToken.isEquals(token),
+        );
+
+        if (!buyActions.length) return acc;
+
+        const sellActions = swapActions.filter(
+          (swapAction) =>
+            swapAction.toToken.isNative && swapAction.fromToken.isEquals(token),
+        );
+
+        if (!sellActions.length) return acc;
+
+        const tokenPossibleRoute = {
+          token,
+          buyActions,
+          sellActions,
+        };
+
+        return [...acc, tokenPossibleRoute];
+      },
+      [],
+    );
+
     return possibleRoutes;
   }
 
   public possibleRoutesStrings() {
+    const depth = 2;
+
     return this.possibleRoutes
-      .map(
-        (possibleRoute) =>
-          `${possibleRoute.buyAction} -> ${possibleRoute.sellAction}`,
+      .map((possibleRoute) =>
+        possibleRoute.buyActions.map((butAction) =>
+          possibleRoute.sellActions.map(
+            (sellAction) => `${butAction} -> ${sellAction}`,
+          ),
+        ),
       )
+      .flat(depth)
       .sort(sortStringsHelper);
   }
 
   public size() {
-    return this.possibleRoutes.length;
+    return this.possibleRoutes
+      .reduce(
+        (acc, item) =>
+          Big(item.buyActions.length).times(item.sellActions.length).plus(acc),
+        Big(0),
+      )
+      .toNumber();
   }
 
-  public async generateSteps(params: { account: Account }) {
+  public async generateOperationList(params: { account: Account }) {
     const { account } = params;
 
-    const { buyAction, sellAction } = randomChoice(this.possibleRoutes);
+    const tokensWithWeights = this.possibleRoutes.map((possibleRoute) => {
+      const weight = Big(possibleRoute.buyActions.length)
+        .times(possibleRoute.sellActions.length)
+        .toNumber();
 
-    const buyStep = await buyAction.swapPercentStep({
-      account,
-      minWorkAmountPercent: this.minWorkAmountPercent,
-      maxWorkAmountPercent: this.maxWorkAmountPercent,
+      return { value: possibleRoute.token, weight };
     });
 
-    const sellStep = await sellAction.swapBalanceStep({
-      account,
+    const token = randomElementWithWeight(tokensWithWeights);
+
+    const possibleRoute = this.possibleRoutes.find((item) =>
+      item.token.isEquals(token),
+    );
+
+    if (!possibleRoute) {
+      throw new Error(
+        `unexpected error. possible route with token ${token} is not found`,
+      );
+    }
+
+    const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
+      token,
+      this.minWorkAmountPercent,
+      this.maxWorkAmountPercent,
+    );
+
+    const buyPossibleSteps = possibleRoute.buyActions.map((action) =>
+      action.swapAmountStep({ account, normalizedAmount }),
+    );
+
+    const buyOperation = new Operation({
+      name: `SWAP_ETH_${token.name}`,
+      steps: randomShuffle(buyPossibleSteps),
     });
 
-    return [buyStep, sellStep];
+    const sellPossibleSteps = possibleRoute.sellActions.map((action) =>
+      action.swapAmountStep({ account, normalizedAmount }),
+    );
+
+    const sellOperation = new Operation({
+      name: `SWAP_${token.name}_ETH`,
+      steps: randomShuffle(sellPossibleSteps),
+    });
+
+    return [buyOperation, sellOperation];
   }
 }
 

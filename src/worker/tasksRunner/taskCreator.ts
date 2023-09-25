@@ -105,14 +105,14 @@ class TaskCreator {
       return false;
     }
 
-    const steps = await this.factory.getRandomSteps({ account });
+    const operation = await this.factory.getRandomOperations({ account });
 
     task.clear();
 
-    task.pushMany(...steps);
+    task.pushMany(...operation);
 
     logger.info(
-      createMessage(account, `new steps created: ${task.stepsString()}`),
+      createMessage(account, `new steps created: ${task.operationsString()}`),
     );
 
     const isFirstAccountRun = account.transactionsPerformed() === 0;

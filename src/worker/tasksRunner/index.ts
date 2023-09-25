@@ -18,6 +18,9 @@ import initializeProxy from "./initializeProxy";
 import Task from "./task";
 import TaskCreator from "./taskCreator";
 import Waiter from "./waiter";
+import Operation from "../../core/operation";
+import Step from "../../core/step";
+import env from "../../utils/other/env";
 
 type PrevRun = {
   task: Task | null;
@@ -72,30 +75,75 @@ class TasksRunner {
   private async runTransaction(
     transaction: RunnableTransaction,
   ): Promise<boolean> {
-    const { maxTxFeeUsd } = this.config.dynamic();
+    try {
+      const { maxTxFeeUsd } = this.config.dynamic();
 
-    await this.waiter.waitGasLimit();
+      await this.waiter.waitGasLimit();
 
-    // worker test
-    // const txResult = { hash: "", resultMsg: "msg", gasPriceUsd: 0 };
+      // worker test
+      const txResult = env.WORKER_TEST
+        ? { hash: "", resultMsg: "msg", gasPriceUsd: "0" }
+        : await transaction.run({ maxTxFeeUsd });
 
-    const txResult = await transaction.run({ maxTxFeeUsd });
+      if (!txResult) return false;
 
-    if (!txResult) return false;
+      const { hash, resultMsg, gasPriceUsd } = txResult;
 
-    const { hash, resultMsg, gasPriceUsd } = txResult;
+      const message = createMessage(
+        transaction,
+        "success",
+        resultMsg,
+        `fee: $${gasPriceUsd}`,
+        this.chain.getHashLink(hash),
+      );
 
-    const message = createMessage(
-      transaction,
-      "success",
-      resultMsg,
-      `fee: $${gasPriceUsd}`,
-      this.chain.getHashLink(hash),
-    );
+      logger.info(createMessage(transaction.account, message));
 
-    logger.info(createMessage(transaction.account, message));
+      return true;
+    } catch (error) {
+      throw new Error(createMessage(transaction, (error as Error).message));
+    }
+  }
 
-    return true;
+  private async runStep(step: Step) {
+    let isTransactionsRun = false;
+
+    while (!step.isEmpty()) {
+      const transaction = step.getNextTransaction();
+
+      if (!transaction) break;
+
+      const wrapped = waitInternetConnectionWrapper(
+        this.runTransaction.bind(this),
+      );
+
+      const isRun = await wrapped(transaction);
+
+      if (isRun) {
+        isTransactionsRun = true;
+
+        if (!step.isEmpty()) await this.waiter.waitTransaction();
+      }
+    }
+
+    return isTransactionsRun;
+  }
+
+  private async runOperation(operation: Operation) {
+    while (!operation.isEmpty()) {
+      const step = operation.getNextStep();
+
+      if (!step) break;
+
+      try {
+        return await this.runStep(step);
+      } catch (error) {
+        logger.error(createMessage(step, `step failed`, `generating new step`));
+        logger.debug(error as Error);
+      }
+    }
+
+    throw new Error(createMessage(operation, `all operation steps failed`));
   }
 
   private async runTask() {
@@ -114,46 +162,26 @@ class TasksRunner {
 
     if (this.prevRun.isTransactionsRun) await this.waiter.waitStep();
 
-    const step = task.getNextStep();
+    const operation = task.getNextOperation();
 
-    if (!step || step.isEmpty()) {
+    if (!operation || operation.isEmpty()) {
       await this.creator.updateTask(task);
       return false;
     }
 
-    logger.debug(createMessage(account, `step start: ${step}`));
+    logger.debug(createMessage(account, `step start: ${operation}`));
 
     let isTransactionsRun = false;
 
-    while (!step.isEmpty()) {
-      const transaction = step.getNextTransaction();
+    try {
+      isTransactionsRun = await this.runOperation(operation);
+    } catch (error) {
+      logger.error((error as Error).message);
+      logger.debug(prettifyError.render(error as Error));
 
-      if (!transaction) break;
+      await this.creator.updateTask(task);
 
-      try {
-        const wrapped = waitInternetConnectionWrapper(
-          this.runTransaction.bind(this),
-        );
-
-        const isRun = await wrapped(transaction);
-
-        if (isRun) {
-          isTransactionsRun = true;
-
-          if (!step.isEmpty()) await this.waiter.waitTransaction();
-        }
-      } catch (error) {
-        logger.error(
-          createMessage(account, transaction, (error as Error).message),
-        );
-        logger.debug(prettifyError.render(error as Error));
-
-        await this.creator.updateTask(task);
-
-        await sleep(5);
-
-        break;
-      }
+      await sleep(5);
     }
 
     this.prevRun.task = task;
