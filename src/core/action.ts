@@ -50,7 +50,7 @@ abstract class Action {
     return `${this.name}-${name}`;
   }
 
-  protected async getDefaultApproveTransaction(params: {
+  protected static async getDefaultApproveTransaction(params: {
     account: Account;
     token: Token;
     spenderAddress: string;
@@ -68,7 +68,7 @@ abstract class Action {
     return { tx, resultMsg: `${readableAmount} ${token} approved` };
   }
 
-  protected getDefaultContractAddress(params: {
+  protected static getDefaultContractAddress(params: {
     contractName: string;
     chain: Chain;
   }) {

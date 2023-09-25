@@ -29,10 +29,11 @@ class SwapEthTokenEthRouter extends Router {
 
     super({ minWorkAmountPercent, maxWorkAmountPercent });
 
-    this.possibleRoutes = this.initializePossibleRoutes(swapActions);
+    this.possibleRoutes =
+      SwapEthTokenEthRouter.initializePossibleRoutes(swapActions);
   }
 
-  private getUniqueTokens(swapActions: SwapAction[]) {
+  private static getUniqueTokens(swapActions: SwapAction[]) {
     const uniquesTokens: Token[] = [];
 
     for (const swapAction of swapActions) {
@@ -48,8 +49,8 @@ class SwapEthTokenEthRouter extends Router {
     return uniquesTokens;
   }
 
-  private initializePossibleRoutes(swapActions: SwapAction[]) {
-    const uniquesTokens = this.getUniqueTokens(swapActions);
+  private static initializePossibleRoutes(swapActions: SwapAction[]) {
+    const uniquesTokens = SwapEthTokenEthRouter.getUniqueTokens(swapActions);
 
     const possibleRoutes = uniquesTokens.reduce<PossibleRoute[]>(
       (acc, token) => {

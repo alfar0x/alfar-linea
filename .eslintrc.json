@@ -48,7 +48,7 @@
       "as-needed"
     ],
     "camelcase": "error",
-    // "class-methods-use-this": "warn",
+    "class-methods-use-this": "warn",
     "func-style": "error",
     "import/no-unresolved": "error",
     "import/order": [

@@ -20,6 +20,14 @@ abstract class Router {
   public abstract generateOperationList(params: {
     account: Account;
   }): Promise<Operation[]>;
+
+  protected static stepsToOperations(steps: Step[]) {
+    const operations = steps.map(
+      (step) => new Operation({ name: step.name, steps: [step] }),
+    );
+
+    return operations;
+  }
 }
 
 export default Router;

@@ -1,8 +1,6 @@
 import RandomAction from "../action/random/base";
 import Account from "../core/account";
-import Operation from "../core/operation";
 import Router from "../core/router";
-import Step from "../core/step";
 import sortStringsHelper from "../utils/other/sortStringsHelper";
 import randomChoice from "../utils/random/randomChoice";
 
@@ -25,11 +23,7 @@ class RandomRouter extends Router {
     super({ minWorkAmountPercent, maxWorkAmountPercent });
 
     this.randomActions = randomActions;
-    this.possibleRoutes = this.initializePossibleRoutes(randomActions);
-  }
-
-  public initializePossibleRoutes(randomActions: RandomAction[]) {
-    return randomActions;
+    this.possibleRoutes = randomActions;
   }
 
   public possibleRoutesStrings() {
@@ -40,14 +34,6 @@ class RandomRouter extends Router {
 
   public size() {
     return this.possibleRoutes.length;
-  }
-
-  private stepsToOperations(steps: Step[]) {
-    const operations = steps.map(
-      (step) => new Operation({ name: step.name, steps: [step] }),
-    );
-
-    return operations;
   }
 
   public async generateOperationList(params: { account: Account }) {
@@ -61,7 +47,7 @@ class RandomRouter extends Router {
       maxWorkAmountPercent: this.maxWorkAmountPercent,
     });
 
-    return this.stepsToOperations(steps);
+    return Router.stepsToOperations(steps);
   }
 
   public async getRandomOperationList(params: { account: Account }) {

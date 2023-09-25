@@ -97,7 +97,7 @@ class Account {
     return await w3.eth.accounts.signTransaction(tx, this.privateKey);
   }
 
-  private async sendSignedTransaction(w3: Web3, rawTx: string) {
+  private static async sendSignedTransaction(w3: Web3, rawTx: string) {
     return await w3.eth.sendSignedTransaction(rawTx);
   }
 
@@ -111,7 +111,7 @@ class Account {
       throw new Error("transaction was not generated in blockchain");
     }
 
-    const sendResult = await this.sendSignedTransaction(
+    const sendResult = await Account.sendSignedTransaction(
       chain.w3,
       signResult.rawTransaction,
     );

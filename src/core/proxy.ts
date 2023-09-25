@@ -45,7 +45,7 @@ class Proxy {
     this.proxyList = [];
   }
 
-  private parseProxyStr(proxyStr: string, index: number) {
+  private static parseProxyStr(proxyStr: string, index: number) {
     const [host, port, username, password] = proxyStr.split(":");
 
     const proxyParsed = proxyItemSchema.safeParse({
@@ -71,7 +71,7 @@ class Proxy {
 
     const fileData = allFileData.map((v) => v.trim()).filter(Boolean);
 
-    const proxyList = fileData.map((p, i) => this.parseProxyStr(p, i));
+    const proxyList = fileData.map((p, i) => Proxy.parseProxyStr(p, i));
 
     switch (this.type) {
       case "mobile": {

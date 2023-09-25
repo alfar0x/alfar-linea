@@ -1,4 +1,5 @@
 import Big from "big.js";
+import { Transaction } from "ethers";
 import Web3, { Transaction } from "web3";
 
 import logger from "../utils/other/logger";
@@ -40,7 +41,7 @@ class RunnableTransaction {
     this.createTransaction = createTransaction;
   }
 
-  private increaseGas(tx: Transaction, gasMultiplier: number) {
+  private static increaseGas(tx: Transaction, gasMultiplier: number) {
     if (tx.gas) {
       tx.gas = Big(tx.gas.toString()).times(gasMultiplier).round().toString();
     }
@@ -95,7 +96,7 @@ class RunnableTransaction {
 
       if (!isTxReverted && !isNullableError) throw error;
 
-      const nextTx = this.increaseGas(tx, gasMultiplier);
+      const nextTx = RunnableTransaction.increaseGas(tx, gasMultiplier);
 
       logger.debug(
         `Retrying to resend tx: ${retryTimes} times | ${tx.gas} gas`,

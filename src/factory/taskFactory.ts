@@ -44,7 +44,7 @@ class TaskFactory {
       maxWorkAmountPercent,
     } = params;
 
-    this.routers = this.initializeRouters({
+    this.routers = TaskFactory.initializeRouters({
       swapActions,
       supplyActions,
       randomActions,
@@ -57,7 +57,7 @@ class TaskFactory {
       .toNumber();
   }
 
-  private initializeRouters(params: {
+  private static initializeRouters(params: {
     swapActions: SwapAction[];
     supplyActions: SupplyAction[];
     randomActions: RandomAction[];

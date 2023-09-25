@@ -64,7 +64,7 @@ class Chain {
     );
   }
 
-  private initializeContracts(contacts: Contracts) {
+  private static initializeContracts(contacts: Contracts) {
     return Object.keys(contacts).reduce(
       (acc, key) => ({
         ...acc,

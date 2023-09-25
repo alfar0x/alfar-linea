@@ -21,10 +21,11 @@ class SupplyEthRouter extends Router {
 
     super({ minWorkAmountPercent, maxWorkAmountPercent });
 
-    this.possibleRoutes = this.initializePossibleRoutes(supplyActions);
+    this.possibleRoutes =
+      SupplyEthRouter.initializePossibleRoutes(supplyActions);
   }
 
-  private initializePossibleRoutes(supplyActions: SupplyAction[]) {
+  private static initializePossibleRoutes(supplyActions: SupplyAction[]) {
     return supplyActions.filter((supplyAction) => supplyAction.token.isNative);
   }
 

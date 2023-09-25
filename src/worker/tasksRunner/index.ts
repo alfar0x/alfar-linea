@@ -3,9 +3,12 @@ import readline from "readline";
 import Linea from "../../chain/linea";
 import Account from "../../core/account";
 import Chain from "../../core/chain";
+import Operation from "../../core/operation";
 import Proxy from "../../core/proxy";
+import Step from "../../core/step";
 import RunnableTransaction from "../../core/transaction";
 import createMessage from "../../utils/other/createMessage";
+import env from "../../utils/other/env";
 import logger from "../../utils/other/logger";
 import prettifyError from "../../utils/other/prettifyError";
 import sleep from "../../utils/other/sleep";
@@ -18,9 +21,6 @@ import initializeProxy from "./initializeProxy";
 import Task from "./task";
 import TaskCreator from "./taskCreator";
 import Waiter from "./waiter";
-import Operation from "../../core/operation";
-import Step from "../../core/step";
-import env from "../../utils/other/env";
 
 type PrevRun = {
   task: Task | null;
