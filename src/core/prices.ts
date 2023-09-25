@@ -59,7 +59,7 @@ class Prices {
   }
 
   public async updatePrices() {
-    logger.info(`updating token prices`);
+    logger.debug(`updating token prices`);
 
     const wrapped = waitInternetConnectionWrapper(
       this.getGeskoPrices.bind(this),

@@ -121,7 +121,7 @@ class TasksRunner {
       return false;
     }
 
-    logger.info(createMessage(account, `step start: ${step}`));
+    logger.debug(createMessage(account, `step start: ${step}`));
 
     let isTransactionsRun = false;
 
@@ -158,7 +158,7 @@ class TasksRunner {
 
     this.prevRun.task = task;
 
-    logger.info(createMessage(account, `step finish`));
+    logger.debug(createMessage(account, `step finish`));
 
     return isTransactionsRun;
   }

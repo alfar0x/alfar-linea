@@ -17,6 +17,7 @@ import SwapAction from "../base";
 import {
   FEE,
   INITIAL_GAS_MULTIPLIER,
+  MIN_OUT_SLIPPAGE_PERCENT,
   RESEND_TX_TIMES,
   SQRT_PRICE_LIMIT_X96,
   UNWRAP_ETH_ADDRESS,
@@ -104,10 +105,25 @@ class PancakeSwapAction extends SwapAction {
 
     const amount = amountOut.toString();
     const slippageAmount = Big(amount).times(DEFAULT_SLIPPAGE_PERCENT).div(100);
-    const minOutNormalizedAmount = Big(amount)
+    const contractMinOutNormalizedAmount = Big(amount)
       .minus(slippageAmount)
       .round()
       .toString();
+
+    const defaultMinOutNormalizedAmount =
+      await this.toToken.getMinOutNormalizedAmount(
+        this.fromToken,
+        normalizedAmount,
+        MIN_OUT_SLIPPAGE_PERCENT,
+      );
+
+    const isContractLess = Big(contractMinOutNormalizedAmount).lt(
+      defaultMinOutNormalizedAmount,
+    );
+
+    const minOutNormalizedAmount = isContractLess
+      ? contractMinOutNormalizedAmount
+      : defaultMinOutNormalizedAmount;
 
     const estimatedGas = Big(gasEstimate.toString())
       .times(INITIAL_GAS_MULTIPLIER)
