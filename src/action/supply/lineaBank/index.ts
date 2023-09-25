@@ -72,7 +72,7 @@ class LineaBankSupply extends SupplyAction {
   }) {
     const { account, normalizedAmount } = params;
 
-    return await this.getDefaultApproveTransaction({
+    return await LineaBankSupply.getDefaultApproveTransaction({
       account,
       token: this.token,
       spenderAddress: this.marketAddress,

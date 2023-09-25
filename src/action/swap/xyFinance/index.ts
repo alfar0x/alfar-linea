@@ -130,7 +130,7 @@ class XyFinanceSwapAction extends SwapAction {
   }) {
     const { account, normalizedAmount } = params;
 
-    return await this.getDefaultApproveTransaction({
+    return await XyFinanceSwapAction.getDefaultApproveTransaction({
       account,
       token: this.fromToken,
       spenderAddress: this.contractAddress,

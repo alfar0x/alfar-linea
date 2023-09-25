@@ -76,7 +76,7 @@ class EchoDexSwapAction extends SwapAction {
   }) {
     const { account, normalizedAmount } = params;
 
-    return await this.getDefaultApproveTransaction({
+    return await EchoDexSwapAction.getDefaultApproveTransaction({
       account,
       token: this.fromToken,
       spenderAddress: this.contractAddress,

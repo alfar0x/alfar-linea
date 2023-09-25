@@ -101,7 +101,7 @@ class OpenOceanSwapAction extends SwapAction {
   }) {
     const { account, normalizedAmount } = params;
 
-    return await this.getDefaultApproveTransaction({
+    return await OpenOceanSwapAction.getDefaultApproveTransaction({
       account,
       token: this.fromToken,
       spenderAddress: this.contractAddress,

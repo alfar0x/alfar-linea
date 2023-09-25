@@ -63,7 +63,7 @@ abstract class SwapAction extends Action {
   protected getContractAddress(params: { contractName: string }) {
     const { contractName } = params;
 
-    return this.getDefaultContractAddress({
+    return SwapAction.getDefaultContractAddress({
       contractName,
       chain: this.fromToken.chain,
     });

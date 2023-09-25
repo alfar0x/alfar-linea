@@ -108,6 +108,8 @@ class VelocoreSwapAction extends SwapAction {
       [poolId, tokenInformationList, emptyPool],
     ]);
 
+    console.log(JSON.stringify(swapCall, null, 2));
+
     return swapCall;
   }
 
@@ -117,7 +119,7 @@ class VelocoreSwapAction extends SwapAction {
   }) {
     const { account, normalizedAmount } = params;
 
-    return await this.getDefaultApproveTransaction({
+    return await VelocoreSwapAction.getDefaultApproveTransaction({
       account,
       token: this.fromToken,
       spenderAddress: this.vaultContractAddress,

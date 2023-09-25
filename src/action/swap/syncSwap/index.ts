@@ -112,7 +112,7 @@ class SyncswapSwapAction extends SwapAction {
   }) {
     const { account, normalizedAmount } = params;
 
-    return await this.getDefaultApproveTransaction({
+    return await SyncswapSwapAction.getDefaultApproveTransaction({
       account,
       token: this.fromToken,
       spenderAddress: this.routerContractAddress,
