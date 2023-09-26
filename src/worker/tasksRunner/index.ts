@@ -89,9 +89,8 @@ class TasksRunner {
 
       const message = createMessage(
         transaction,
-        "success",
         resultMsg,
-        `fee: $${gasPriceUsd}`,
+        `fee:$${gasPriceUsd}`,
         this.chain.getHashLink(hash),
       );
 
