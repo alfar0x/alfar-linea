@@ -81,17 +81,9 @@ class TasksRunner {
 
       await this.waiter.waitGasLimit();
 
-      // worker test
-      // const txResult = env.WORKER_TEST
-      //   ? { hash: "", resultMsg: "msg", gasPriceUsd: "0" }
-      //   : await transaction.run({ maxTxFeeUsd });
-      // if (!txResult) return false;
+      const txResult = await transaction.run({ maxTxFeeUsd });
 
-      // @TODO
-      if (Math.random() > 0.5) throw new Error("FFFF");
-      transaction.account.incrementTransactionsPerformed();
-
-      const txResult = { hash: "", resultMsg: "msg", gasPriceUsd: "0" };
+      if (!txResult) return false;
 
       const { hash, resultMsg, gasPriceUsd } = txResult;
 

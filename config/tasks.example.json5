@@ -27,8 +27,8 @@
       "XY_FINANCE",
     ],
     proxy: {
-      type: "mobile",
-      mobileIpChangeUrl: "https://api.mproxy.top/change_ip/rampath_62416",
+      type: "none",
+      mobileIpChangeUrl: "",
       serverIsRandom: true,
     },
     rpc: {

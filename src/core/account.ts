@@ -124,8 +124,7 @@ class Account {
     return hash;
   }
 
-  // @TODO
-  public incrementTransactionsPerformed() {
+  private incrementTransactionsPerformed() {
     this._transactionsPerformed = this._transactionsPerformed + 1;
   }
 
