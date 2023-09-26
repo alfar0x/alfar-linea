@@ -28,12 +28,12 @@ const initializeFactory = (params: {
   const factoryTokens = getFactoryTokens(chain);
   const factoryPairs = getFactoryPairs(factoryTokens);
 
-  const supplyActions = getLendActions(activeProviders, factoryTokens);
+  const lendActions = getLendActions(activeProviders, factoryTokens);
   const swapActions = getSwapActions(activeProviders, factoryPairs);
   const randomActions = getRandomActions(activeProviders, chain);
 
   const factory = new Factory({
-    supplyActions,
+    lendActions,
     swapActions,
     randomActions,
     minWorkAmountPercent,

@@ -6,6 +6,7 @@ import Task, { TaskStatus } from "./task";
 type Row = {
   idx: number;
   name: string;
+  address: string;
   status: TaskStatus;
   txs: string;
   operations: string;
@@ -22,13 +23,14 @@ const colors: Record<TaskStatus, string> = {
 const transform = (task: Task): readonly [Row, RowOptionsRaw] => {
   const { account, status, minimumTransactionsLimit } = task;
 
-  const { name, fileIndex, transactionsPerformed } = account;
+  const { name, address, fileIndex, transactionsPerformed } = account;
 
   const operations = task.size() ? task.operationsString() : "no operations";
 
   const row: Row = {
     idx: fileIndex + 1,
     name,
+    address,
     status,
     txs: `${transactionsPerformed}/${minimumTransactionsLimit}`,
     operations,
@@ -49,6 +51,7 @@ const printTasks = (tasks: readonly Task[]) => {
       { name: "status", alignment: "left" },
       { name: "txs", alignment: "left" },
       { name: "operations", alignment: "left", title: "current operations" },
+      { name: "address", alignment: "left" },
     ],
   });
 
