@@ -108,8 +108,6 @@ class VelocoreSwapAction extends SwapAction {
       [poolId, tokenInformationList, emptyPool],
     ]);
 
-    console.log(JSON.stringify(swapCall, null, 2));
-
     return swapCall;
   }
 

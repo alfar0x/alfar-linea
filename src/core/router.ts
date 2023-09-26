@@ -1,5 +1,6 @@
 import Account from "./account";
 import Operation from "./operation";
+import Step from "./step";
 
 abstract class Router {
   protected minWorkAmountPercent: number;

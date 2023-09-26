@@ -68,24 +68,6 @@ class SupplyEthRouter extends Router {
 
     return [supplyOperation, redeemOperation];
   }
-
-  public async generateSteps(params: { account: Account }) {
-    const { account } = params;
-
-    const supplyRouter = randomChoice(this.possibleRoutes);
-
-    const supplyStep = await supplyRouter.supplyPercentStep({
-      account,
-      minWorkAmountPercent: this.minWorkAmountPercent,
-      maxWorkAmountPercent: this.maxWorkAmountPercent,
-    });
-
-    const redeemStep = supplyRouter.redeemAllStep({
-      account,
-    });
-
-    return [supplyStep, redeemStep];
-  }
 }
 
 export default SupplyEthRouter;

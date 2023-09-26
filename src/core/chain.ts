@@ -45,7 +45,7 @@ class Chain {
     this.explorer = explorer;
     this.w3 = new Web3(new HttpProvider(this.rpc));
     this.tokens = this.initializeTokens(rawTokens);
-    this.contracts = this.initializeContracts(contracts);
+    this.contracts = Chain.initializeContracts(contracts);
     this.native = null;
     this.wrappedNative = null;
   }

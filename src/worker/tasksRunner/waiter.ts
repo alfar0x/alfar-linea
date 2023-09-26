@@ -60,18 +60,13 @@ class Waiter {
 
       const isGasLimitValid = currentFeePerGasGweiBig.lte(maxGwei);
 
+      if (isGasLimitValid) return;
+
       const msg = [
         `gas ${currentFeePerGasGweiBig.toString()}`,
         `limit ${maxGwei}`,
+        `next check ${formatIntervalSec(WAIT_GAS_SEC)}`,
       ];
-
-      if (isGasLimitValid) {
-        msg.push(`is ok`);
-        logger.info(createMessage(...msg));
-        return;
-      }
-
-      msg.push(`next check ${formatIntervalSec(WAIT_GAS_SEC)}`);
 
       logger.warn(createMessage(...msg));
 

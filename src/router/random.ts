@@ -59,7 +59,7 @@ class RandomRouter extends Router {
       maxWorkAmountPercent: this.maxWorkAmountPercent,
     });
 
-    return this.stepsToOperations(steps);
+    return Router.stepsToOperations(steps);
   }
 }
 

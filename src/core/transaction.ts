@@ -1,5 +1,4 @@
 import Big from "big.js";
-import { Transaction } from "ethers";
 import Web3, { Transaction } from "web3";
 
 import logger from "../utils/other/logger";

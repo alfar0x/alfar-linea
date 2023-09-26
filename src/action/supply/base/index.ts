@@ -50,7 +50,7 @@ abstract class SupplyAction extends Action {
   protected getContractAddress(params: { contractName: string }) {
     const { contractName } = params;
 
-    return this.getDefaultContractAddress({
+    return SupplyAction.getDefaultContractAddress({
       contractName,
       chain: this.token.chain,
     });
