@@ -1,28 +1,30 @@
-import Big from "big.js";
-
 import Account from "../../core/account";
 import Chain from "../../core/chain";
+import Token from "../../core/token";
 import TaskFactory from "../../factory/taskFactory";
 import createMessage from "../../utils/other/createMessage";
 import logger from "../../utils/other/logger";
-import prettifyError from "../../utils/other/prettifyError";
+import randomChoice from "../../utils/random/randomChoice";
 import randomInteger from "../../utils/random/randomInteger";
+import randomShuffle from "../../utils/random/randomShuffle";
 
 import TasksRunnerConfig from "./config";
 import initializeFactory from "./initializeFactory";
-import Task from "./task";
+import Task, { TaskStatus } from "./task";
 
 class TaskCreator {
   private readonly config: TasksRunnerConfig;
-  private tasks: Task[];
-  private readonly factory: TaskFactory;
   private readonly chain: Chain;
+  private readonly native: Token;
+  private readonly factory: TaskFactory;
+  private tasks: Task[];
 
   public constructor(params: { chain: Chain; config: TasksRunnerConfig }) {
     const { chain, config } = params;
 
     this.config = config;
     this.chain = chain;
+    this.native = chain.getNative();
 
     const { providers, workingAmountPercent } = this.config.fixed;
 
@@ -36,78 +38,154 @@ class TaskCreator {
     this.tasks = [];
   }
 
-  private async checkIsBalanceAllowed(account: Account) {
-    const native = this.chain.getNative();
-    const { minEthBalance } = this.config.dynamic();
-
-    const minEthNormalizedBalance =
-      await native.toNormalizedAmount(minEthBalance);
-
-    const normalizedBalance = await native.normalizedBalanceOf(account.address);
-
-    const isAllowed = Big(normalizedBalance).gte(minEthNormalizedBalance);
-
-    if (!isAllowed) {
-      const readableBalance = await native.toReadableAmount(normalizedBalance);
-      throw new Error(
-        createMessage(
-          `insufficient native balance`,
-          `${readableBalance} < ${minEthBalance}`,
-        ),
-      );
-    }
+  public getTasks(): readonly Task[] {
+    return this.tasks;
   }
 
   private async initializeTask(account: Account) {
-    const { transactionsLimit, isCheckBalanceOnStart } = this.config.fixed;
-
-    if (isCheckBalanceOnStart) {
-      await this.checkIsBalanceAllowed(account);
-    }
+    const { minEthBalance, transactionsLimit } = this.config.fixed;
 
     const minimumTransactionsLimit = randomInteger(
       transactionsLimit.min,
       transactionsLimit.max,
     ).toNumber();
 
-    return new Task({ account, minimumTransactionsLimit });
+    const { isAllowed, readableBalance } = await account.isBalanceGteReadable({
+      token: this.native,
+      minReadableAmount: minEthBalance,
+    });
+
+    if (isAllowed) return new Task({ account, minimumTransactionsLimit });
+
+    logger.error(
+      createMessage(
+        account,
+        `insufficient balance ${readableBalance} < ${minEthBalance}`,
+        `deposit to create tasks`,
+      ),
+    );
+
+    return new Task({
+      account,
+      minimumTransactionsLimit,
+      status: "INSUFFICIENT_BALANCE",
+    });
   }
 
   public async initializeTasks(accounts: Account[]) {
     for (const account of accounts) {
-      try {
-        const task = await this.initializeTask(account);
-        this.tasks.push(task);
-      } catch (error) {
-        logger.error(createMessage(account, (error as Error).message));
-        logger.debug(prettifyError.render(error as Error));
-      }
+      const task = await this.initializeTask(account);
+      this.tasks.push(task);
     }
   }
 
-  public isEmpty() {
-    return !this.tasks.length;
+  private getTasksByStatuses(...statuses: TaskStatus[]) {
+    return this.tasks.filter((t) => statuses.includes(t.status));
   }
 
-  public async updateTask(task: Task) {
-    const { isShuffleAccountOnStepsEnd } = this.config.fixed;
+  public isEmpty() {
+    return this.tasks.every((t) =>
+      ["DONE", "INSUFFICIENT_BALANCE"].includes(t.status),
+    );
+  }
+
+  public async onTaskOperationEnd(task: Task, opts?: { isForce?: boolean }) {
+    const { isForce = false } = opts || {};
+
+    const { minEthBalance, onCurrentTaskEnd } = this.config.fixed;
 
     const { account } = task;
 
     if (task.isMinimumTransactionsLimitReached()) {
-      logger.info(
-        createMessage(
-          account,
-          `txs limit reached: ${task.minimumTransactionsLimit}`,
-        ),
-      );
-      this.removeTask(task);
-      return false;
+      task.changeStatus("DONE");
+      task.clear();
+      const { minimumTransactionsLimit } = task;
+      const { transactionsPerformed } = account;
+
+      const txs = `${transactionsPerformed}/${minimumTransactionsLimit}`;
+      logger.info(createMessage(account, `txs done ${txs}`));
+      return;
     }
 
-    const operation = await this.factory.getRandomOperations({ account });
+    const { isAllowed, readableBalance } = await account.isBalanceGteReadable({
+      token: this.native,
+      minReadableAmount: minEthBalance,
+    });
+
+    if (!isAllowed) {
+      logger.error(
+        createMessage(
+          account,
+          `insufficient balance ${readableBalance} < ${minEthBalance}`,
+          `deposit to create tasks`,
+        ),
+      );
+
+      task.changeStatus("INSUFFICIENT_BALANCE");
+      this.moveTaskToEnd(task);
+      return;
+    }
+
+    const shouldChangeStatus = isForce || task.isEmpty();
+
+    if (!shouldChangeStatus) return;
 
     task.clear();
+
+    switch (onCurrentTaskEnd) {
+      case "CREATE_NEXT_TASK": {
+        await this.addOperationsAndSetInProgress(task);
+        break;
+      }
+      case "WAIT_OTHERS": {
+        task.changeStatus("WAITING");
+        this.moveTaskToEnd(task);
+
+        logger.info(createMessage(account, `iteration done, moved to end`));
+        break;
+      }
+      case "MOVE_TO_RANDOM_PLACE": {
+        task.changeStatus("TODO");
+        this.moveTaskRandomly(task);
+
+        logger.info(createMessage(account, `moved randomly`));
+      }
+    }
+  }
+
+  private removeTask(task: Task) {
+    const index = this.tasks.findIndex((t) => t.isEquals(task));
+
+    if (index === -1) {
+      throw new Error(`unexpected error. task ${task} is not defined`);
+    }
+
+    this.tasks.splice(index, 1);
+  }
+
+  private moveTaskToEnd(task: Task) {
+    this.removeTask(task);
+    this.tasks.push(task);
+  }
+
+  private moveTaskRandomly(task: Task) {
+    const randomIndex = randomInteger(0, this.tasks.length - 1).toNumber();
+
+    this.removeTask(task);
+
+    this.tasks.splice(randomIndex, 0, task);
+  }
+
+  public getFactoryInfoStr() {
+    return this.factory.info().join("\n");
+  }
+
+  private async addOperationsAndSetInProgress(task: Task) {
+    const { account } = task;
+
+    task.clear();
+
+    const operation = await this.factory.getRandomOperations({ account });
 
     task.pushMany(...operation);
 
@@ -115,109 +193,88 @@ class TaskCreator {
       createMessage(account, `new steps created: ${task.operationsString()}`),
     );
 
-    const isFirstAccountRun = account.transactionsPerformed() === 0;
-
-    if (isFirstAccountRun) return true;
-
-    if (!isShuffleAccountOnStepsEnd) return true;
-
-    this.moveTaskRandomly(task);
-
-    return false;
+    task.changeStatus("IN_PROGRESS");
   }
 
-  private moveTaskRandomly(task: Task) {
-    const { maxParallelAccounts } = this.config.dynamic();
+  private async pickNextToDoTask() {
+    const { minEthBalance } = this.config.fixed;
 
-    const index = this.tasks.findIndex((t) => t.isEquals(task));
-
-    if (index === -1) {
-      throw new Error(`unexpected error. task ${task} is not defined`);
-    }
-
-    const minIndex =
-      this.tasks.length > maxParallelAccounts ? maxParallelAccounts : 0;
-
-    const maxIndex = this.tasks.length - 1;
-
-    const randomIndex = randomInteger(minIndex, maxIndex).toNumber();
-
-    const [item] = this.tasks.splice(index, 1) as (Task | undefined)[];
-
-    if (!item) {
-      throw new Error(`unexpected error. task is not defined`);
-    }
-
-    this.tasks.splice(randomIndex, 0, item);
-  }
-
-  private async checkIsTaskAllowed(task: Task) {
-    const { account } = task;
-
-    try {
-      await this.checkIsBalanceAllowed(account);
-
-      if (!task.isEmpty()) return true;
-
-      return await this.updateTask(task);
-    } catch (error) {
-      logger.error(createMessage(account, (error as Error).message));
-      logger.debug(prettifyError.render(error as Error));
-
-      this.removeTask(task);
-      return false;
-    }
-  }
-
-  private removeTask(task: Task) {
-    this.tasks = this.tasks.filter((taskItem) => !taskItem.isEquals(task));
-
-    logger.info(
-      createMessage(
-        `${task.account}`,
-        `account was removed from list`,
-        `tasks left: ${this.tasks.length}`,
-      ),
+    const workableTasks = this.getTasksByStatuses(
+      "INSUFFICIENT_BALANCE",
+      "TODO",
     );
-  }
 
-  public getFactoryInfoStr() {
-    return this.factory.info().join("\n");
-  }
+    for (const task of workableTasks) {
+      const { account } = task;
 
-  private pickRandomTask() {
-    const { maxParallelAccounts } = this.config.dynamic();
+      if (task.status === "TODO") return task;
 
-    const maxIndexBaseOnOne = Math.min(this.tasks.length, maxParallelAccounts);
+      if (task.status !== "INSUFFICIENT_BALANCE") {
+        throw new Error(
+          `unexpected error. task status is not allowed here: ${task.status}`,
+        );
+      }
 
-    const maxIndex = maxIndexBaseOnOne - 1;
-
-    const randomIndex = randomInteger(0, maxIndex).toNumber();
-
-    const task = this.tasks.at(randomIndex);
-
-    if (!task) {
-      throw new Error(`unexpected error. task is not defined`);
-    }
-
-    return task;
-  }
-
-  public async getNextTask() {
-    while (!this.isEmpty()) {
-      const task = this.pickRandomTask();
-
-      const isAllowed = await this.checkIsTaskAllowed(task);
+      const { isAllowed, readableBalance } = await account.isBalanceGteReadable(
+        {
+          token: this.native,
+          minReadableAmount: minEthBalance,
+        },
+      );
 
       if (isAllowed) return task;
+
+      logger.error(
+        createMessage(
+          account,
+          `insufficient balance ${readableBalance} < ${minEthBalance}`,
+          `deposit to create tasks`,
+        ),
+      );
     }
 
-    return null;
+    const iterationDoneTasks = this.getTasksByStatuses("WAITING");
+
+    if (!iterationDoneTasks.length) return null;
+
+    for (const iterationDoneTask of iterationDoneTasks) {
+      iterationDoneTask.changeStatus("TODO");
+    }
+
+    this.tasks = randomShuffle(this.tasks);
+
+    logger.info("iteration end");
+
+    const firstTodoTask = this.tasks.find((t) => t.status === "TODO");
+
+    if (!firstTodoTask) {
+      throw new Error(`todo task is not found`);
+    }
+
+    return firstTodoTask;
   }
 
-  public getAllTasksInfoStr() {
-    const data = this.tasks.map((task) => task.infoStr()).join("\n");
-    return `Current tasks:\n${data}`;
+  public async getNextInProgressTask(): Promise<Task | null> {
+    if (this.isEmpty()) return null;
+
+    const { maxParallelAccounts } = this.config.dynamic();
+
+    const inProgressTasks = this.getTasksByStatuses("IN_PROGRESS");
+
+    if (inProgressTasks.length >= maxParallelAccounts) {
+      return randomChoice(inProgressTasks);
+    }
+
+    const task = await this.pickNextToDoTask();
+
+    if (task) {
+      await this.addOperationsAndSetInProgress(task);
+      return task;
+    }
+
+    if (inProgressTasks.length) return randomChoice(inProgressTasks);
+
+    return null;
   }
 }
 

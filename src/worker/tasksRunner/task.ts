@@ -1,33 +1,45 @@
 import Account from "../../core/account";
 import Operation from "../../core/operation";
 import Queue from "../../core/queue";
-import createMessage from "../../utils/other/createMessage";
+
+export type TaskStatus =
+  | "TODO"
+  | "IN_PROGRESS"
+  | "INSUFFICIENT_BALANCE"
+  | "WAITING"
+  | "DONE";
 
 class Task extends Queue<Operation> {
   public readonly account: Account;
   public readonly minimumTransactionsLimit: number;
+  private _status: TaskStatus;
 
   public constructor(params: {
     account: Account;
     minimumTransactionsLimit: number;
+    status?: TaskStatus;
     operations?: Operation[];
   }) {
-    const { account, minimumTransactionsLimit, operations } = params;
+    const {
+      account,
+      minimumTransactionsLimit,
+      status = "TODO",
+      operations,
+    } = params;
 
     super(operations);
 
     this.account = account;
     this.minimumTransactionsLimit = minimumTransactionsLimit;
+    this._status = status;
   }
 
-  public infoStr() {
-    const { account } = this;
-    const limit = this.minimumTransactionsLimit;
-    const operations = this.storage.length
-      ? this.operationsString()
-      : "no operations have been created yet";
+  public changeStatus(status: TaskStatus) {
+    this._status = status;
+  }
 
-    return createMessage(account, `min txs limit:${limit}`, operations);
+  public get status() {
+    return this._status;
   }
 
   public operationsString() {
@@ -35,7 +47,7 @@ class Task extends Queue<Operation> {
   }
 
   public toString() {
-    return `${this.account}: ${this.operationsString()}`;
+    return `${this.account} [${this.status}]: ${this.operationsString()}`;
   }
 
   public isEquals(task: Task) {
@@ -43,9 +55,7 @@ class Task extends Queue<Operation> {
   }
 
   public isMinimumTransactionsLimitReached() {
-    return (
-      this.account.transactionsPerformed() >= this.minimumTransactionsLimit
-    );
+    return this.account.transactionsPerformed >= this.minimumTransactionsLimit;
   }
 
   public getNextOperation() {

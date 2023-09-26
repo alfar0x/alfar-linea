@@ -45,7 +45,6 @@ export const dynamicSchema = z.object({
   maxLineaGwei: z.number().multipleOf(0.05).positive().max(10000),
   maxParallelAccounts: maxParallelAccountsSchema,
   maxTxFeeUsd: z.number().multipleOf(0.1).positive().max(10000),
-  minEthBalance: z.number().multipleOf(0.0001).min(0.0005),
 });
 
 const providersSchema = z.array(createUnionSchema(ACTION_PROVIDERS)).min(1);
@@ -79,11 +78,16 @@ const workingAmountPercentSchema = z
   })
   .refine(...minMaxRefine);
 
+const onCurrentTaskEndSchema = z.union([
+  z.literal("CREATE_NEXT_TASK"),
+  z.literal("WAIT_OTHERS"),
+  z.literal("MOVE_TO_RANDOM_PLACE"),
+]);
+
 export const fixedSchema = z.object({
   files: filesSchema,
-  isAccountsShuffle: z.boolean(),
-  isCheckBalanceOnStart: z.boolean(),
-  isShuffleAccountOnStepsEnd: z.boolean(),
+  minEthBalance: z.number().multipleOf(0.0001).min(0.0005),
+  onCurrentTaskEnd: onCurrentTaskEndSchema,
   providers: providersSchema,
   proxy: proxySchema,
   rpc: rpcSchema,

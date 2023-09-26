@@ -1,12 +1,8 @@
 import Account from "../../core/account";
 import readFileAndEncryptByLine from "../../utils/file/readFileAndEncryptByLine";
-import randomShuffle from "../../utils/random/randomShuffle";
 
-const initializeAccounts = async (params: {
-  baseFileName: string;
-  isShuffle: boolean;
-}) => {
-  const { baseFileName, isShuffle } = params;
+const initializeAccounts = async (params: { baseFileName: string }) => {
+  const { baseFileName } = params;
 
   const fileName = `./assets/${baseFileName}`;
 
@@ -18,7 +14,7 @@ const initializeAccounts = async (params: {
     return new Account({ privateKey, name, fileIndex });
   });
 
-  return isShuffle ? randomShuffle(accounts) : accounts;
+  return accounts;
 };
 
 export default initializeAccounts;

@@ -13,7 +13,7 @@ class Step extends Queue<RunnableTransaction> {
   }
 
   public toString() {
-    return this.storage.map(String).join(" -> ");
+    return this.name;
   }
 
   public getNextTransaction() {

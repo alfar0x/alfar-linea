@@ -73,10 +73,7 @@ class Account {
   }
 
   public toString() {
-    const index = this.fileIndex + 1;
-    const txs = this._transactionsPerformed;
-
-    return `[${index}] ${this.name} (txs:${txs})`;
+    return this.name;
   }
 
   public isEquals(account: Account) {
@@ -127,11 +124,12 @@ class Account {
     return hash;
   }
 
-  private incrementTransactionsPerformed() {
+  // @TODO
+  public incrementTransactionsPerformed() {
     this._transactionsPerformed = this._transactionsPerformed + 1;
   }
 
-  public transactionsPerformed() {
+  public get transactionsPerformed() {
     return this._transactionsPerformed;
   }
 
@@ -165,6 +163,25 @@ class Account {
     ).toString();
 
     return randomNormalizedAmount;
+  }
+
+  public async isBalanceGteReadable(params: {
+    token: Token;
+    minReadableAmount: number;
+  }) {
+    const { token, minReadableAmount } = params;
+
+    const normalizedAmount = await token.toNormalizedAmount(minReadableAmount);
+
+    const normalizedBalance = await token.normalizedBalanceOf(this.address);
+
+    const isAllowed = Big(normalizedBalance).gte(normalizedAmount);
+
+    if (isAllowed) return { isAllowed };
+
+    const readableBalance = await token.toReadableAmount(normalizedBalance);
+
+    return { isAllowed, readableBalance };
   }
 }
 

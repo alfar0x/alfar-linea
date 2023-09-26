@@ -8,16 +8,17 @@ import Proxy from "../../core/proxy";
 import Step from "../../core/step";
 import RunnableTransaction from "../../core/transaction";
 import createMessage from "../../utils/other/createMessage";
-import env from "../../utils/other/env";
 import logger from "../../utils/other/logger";
 import prettifyError from "../../utils/other/prettifyError";
 import sleep from "../../utils/other/sleep";
 import waitInternetConnectionWrapper from "../../utils/other/waitInternetConnectionWrapper";
+import randomShuffle from "../../utils/random/randomShuffle";
 
 import TasksRunnerConfig from "./config";
 import confirmRun from "./confirmRun";
 import initializeAccounts from "./initializeAccounts";
 import initializeProxy from "./initializeProxy";
+import printTasks from "./printTasks";
 import Task from "./task";
 import TaskCreator from "./taskCreator";
 import Waiter from "./waiter";
@@ -81,11 +82,16 @@ class TasksRunner {
       await this.waiter.waitGasLimit();
 
       // worker test
-      const txResult = env.WORKER_TEST
-        ? { hash: "", resultMsg: "msg", gasPriceUsd: "0" }
-        : await transaction.run({ maxTxFeeUsd });
+      // const txResult = env.WORKER_TEST
+      //   ? { hash: "", resultMsg: "msg", gasPriceUsd: "0" }
+      //   : await transaction.run({ maxTxFeeUsd });
+      // if (!txResult) return false;
 
-      if (!txResult) return false;
+      // @TODO
+      if (Math.random() > 0.5) throw new Error("FFFF");
+      transaction.account.incrementTransactionsPerformed();
+
+      const txResult = { hash: "", resultMsg: "msg", gasPriceUsd: "0" };
 
       const { hash, resultMsg, gasPriceUsd } = txResult;
 
@@ -129,34 +135,60 @@ class TasksRunner {
     return isTransactionsRun;
   }
 
-  private async runOperation(operation: Operation) {
+  private async runOperation(operation: Operation, account: Account) {
+    let isTransactionsRun = false;
+
+    const isSupportStepsAvailable = operation.size() > 1;
+
     while (!operation.isEmpty()) {
       const step = operation.getNextStep();
 
-      if (!step) break;
+      if (!step) {
+        throw new Error(`step is not found`);
+      }
+
+      if (step.isEmpty()) {
+        throw new Error(`step is empty`);
+      }
 
       try {
-        return await this.runStep(step);
+        isTransactionsRun = await this.runStep(step);
+
+        return { isTransactionsRun, isOperationFailed: false };
       } catch (error) {
-        logger.error(createMessage(step, `step failed`, `generating new step`));
-        logger.debug(error as Error);
+        if (isSupportStepsAvailable) {
+          logger.warn(
+            createMessage(account, `${step} failed`, `getting support step`),
+          );
+        } else {
+          logger.error(createMessage(account, `${step} failed`));
+        }
+        logger.debug(prettifyError.render(error as Error));
       }
+
+      await sleep(10);
     }
 
-    throw new Error(createMessage(operation, `all operation steps failed`));
+    if (isSupportStepsAvailable) {
+      logger.error(`all operation steps failed`);
+    }
+
+    return { isTransactionsRun, isOperationFailed: true };
   }
 
   private async runTask() {
-    const task = await this.creator.getNextTask();
+    const task = await this.creator.getNextInProgressTask();
 
-    if (!task) return false;
+    if (!task) {
+      throw new Error(`in progress task is not found`);
+    }
 
     const { account } = task;
 
-    const isDifferentTaskNow =
-      this.prevRun.task === null || !this.prevRun.task.isEquals(task);
+    const isSameTask =
+      this.prevRun.task !== null && this.prevRun.task.isEquals(task);
 
-    if (isDifferentTaskNow) {
+    if (!isSameTask) {
       await this.changeChainProvider(account);
     }
 
@@ -164,29 +196,26 @@ class TasksRunner {
 
     const operation = task.getNextOperation();
 
-    if (!operation || operation.isEmpty()) {
-      await this.creator.updateTask(task);
-      return false;
+    if (!operation) {
+      throw new Error(`operation is not found`);
     }
 
-    logger.debug(createMessage(account, `step start: ${operation}`));
-
-    let isTransactionsRun = false;
-
-    try {
-      isTransactionsRun = await this.runOperation(operation);
-    } catch (error) {
-      logger.error((error as Error).message);
-      logger.debug(prettifyError.render(error as Error));
-
-      await this.creator.updateTask(task);
-
-      await sleep(5);
+    if (operation.isEmpty()) {
+      throw new Error(`operation is empty`);
     }
+
+    logger.debug(createMessage(account, `operation start: ${operation}`));
+
+    const { isTransactionsRun, isOperationFailed } = await this.runOperation(
+      operation,
+      account,
+    );
 
     this.prevRun.task = task;
 
-    logger.debug(createMessage(account, `step finish`));
+    logger.debug(createMessage(account, `operation finish`));
+
+    await this.creator.onTaskOperationEnd(task, { isForce: isOperationFailed });
 
     return isTransactionsRun;
   }
@@ -214,8 +243,7 @@ class TasksRunner {
   private rlCommands(cmd: string) {
     switch (cmd) {
       case "status": {
-        // eslint-disable-next-line no-console
-        console.info(this.creator.getAllTasksInfoStr());
+        printTasks(this.creator.getTasks());
         break;
       }
       case "exit": {
@@ -230,11 +258,10 @@ class TasksRunner {
   }
 
   public async run() {
-    const { files, isAccountsShuffle, proxy } = this.config.fixed;
+    const { files, proxy } = this.config.fixed;
 
     const accounts = await initializeAccounts({
       baseFileName: files.privateKeys,
-      isShuffle: isAccountsShuffle,
     });
 
     this._proxy = await initializeProxy({
@@ -245,13 +272,13 @@ class TasksRunner {
 
     logger.info(`accounts found: ${accounts.length}`);
 
-    await this.creator.initializeTasks(accounts);
-
     const factoryInfoStr = this.creator.getFactoryInfoStr();
 
     logger.info(`possible routes:\n${factoryInfoStr}`);
 
     await confirmRun();
+
+    await this.creator.initializeTasks(randomShuffle(accounts));
 
     this.initCommandListener();
 
@@ -261,6 +288,8 @@ class TasksRunner {
     }
 
     logger.info("all tasks finished");
+    printTasks(this.creator.getTasks());
+
     process.exit();
   }
 }
