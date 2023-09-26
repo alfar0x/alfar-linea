@@ -1,6 +1,6 @@
 import Big from "big.js";
 
-import SupplyAction from "../action/supply/base";
+import LendAction from "../action/lend/base";
 import SwapAction from "../action/swap/base";
 import Account from "../core/account";
 import Operation from "../core/operation";
@@ -14,7 +14,7 @@ import randomShuffle from "../utils/random/randomShuffle";
 type PossibleRoute = {
   token: Token;
   buyActions: SwapAction[];
-  supplyActions: SupplyAction[];
+  lendActions: LendAction[];
   sellActions: SwapAction[];
 };
 
@@ -24,7 +24,7 @@ class SwapSupplyTokenRouter extends Router {
 
   public constructor(params: {
     swapActions: SwapAction[];
-    supplyActions: SupplyAction[];
+    lendActions: LendAction[];
     minWorkAmountPercent: number;
     maxWorkAmountPercent: number;
     minApproveMultiplier: number;
@@ -32,7 +32,7 @@ class SwapSupplyTokenRouter extends Router {
   }) {
     const {
       swapActions,
-      supplyActions,
+      lendActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
       minApproveMultiplier,
@@ -48,19 +48,19 @@ class SwapSupplyTokenRouter extends Router {
 
     this.possibleRoutes = SwapSupplyTokenRouter.initializePossibleRoutes(
       swapActions,
-      supplyActions,
+      lendActions,
     );
   }
 
-  private static getUniqueTokens(supplyActions: SupplyAction[]) {
+  private static getUniqueTokens(lendActions: LendAction[]) {
     const uniquesTokens: Token[] = [];
 
-    for (const supplyAction of supplyActions) {
+    for (const lendAction of lendActions) {
       const isAdded = uniquesTokens.some((token) =>
-        token.isEquals(supplyAction.token),
+        token.isEquals(lendAction.token),
       );
 
-      if (!isAdded) uniquesTokens.push(supplyAction.token);
+      if (!isAdded) uniquesTokens.push(lendAction.token);
     }
 
     return uniquesTokens;
@@ -68,14 +68,14 @@ class SwapSupplyTokenRouter extends Router {
 
   private static initializePossibleRoutes(
     swapActions: SwapAction[],
-    supplyActions: SupplyAction[],
+    lendActions: LendAction[],
   ) {
-    const uniquesTokens = SwapSupplyTokenRouter.getUniqueTokens(supplyActions);
+    const uniquesTokens = SwapSupplyTokenRouter.getUniqueTokens(lendActions);
 
     const possibleRoutes = uniquesTokens.reduce<PossibleRoute[]>(
       (acc, token) => {
-        const supplyTokenActions = supplyActions.filter((supplyAction) =>
-          supplyAction.token.isEquals(token),
+        const supplyTokenActions = lendActions.filter((lendAction) =>
+          lendAction.token.isEquals(token),
         );
 
         if (!supplyTokenActions.length) return acc;
@@ -97,7 +97,7 @@ class SwapSupplyTokenRouter extends Router {
         const tokenPossibleRoute = {
           token,
           buyActions,
-          supplyActions: supplyTokenActions,
+          lendActions: supplyTokenActions,
           sellActions,
         };
 
@@ -114,10 +114,9 @@ class SwapSupplyTokenRouter extends Router {
     return this.possibleRoutes
       .flatMap((possibleRoute) =>
         possibleRoute.buyActions.map((buyAction) =>
-          possibleRoute.supplyActions.map((supplyAction) =>
+          possibleRoute.lendActions.map((lendAction) =>
             possibleRoute.sellActions.map(
-              (sellAction) =>
-                `${buyAction} -> ${supplyAction} -> ${sellAction}`,
+              (sellAction) => `${buyAction} -> ${lendAction} -> ${sellAction}`,
             ),
           ),
         ),
@@ -131,7 +130,7 @@ class SwapSupplyTokenRouter extends Router {
       .reduce(
         (acc, item) =>
           Big(item.buyActions.length)
-            .times(item.supplyActions.length)
+            .times(item.lendActions.length)
             .times(item.sellActions.length)
             .plus(acc),
         Big(0),
@@ -144,7 +143,7 @@ class SwapSupplyTokenRouter extends Router {
 
     const tokensWithWeights = this.possibleRoutes.map((possibleRoute) => {
       const weight = Big(possibleRoute.buyActions.length)
-        .times(possibleRoute.supplyActions.length)
+        .times(possibleRoute.lendActions.length)
         .times(possibleRoute.sellActions.length)
         .toNumber();
 
@@ -185,7 +184,7 @@ class SwapSupplyTokenRouter extends Router {
       steps: randomShuffle(buyPossibleSteps),
     });
 
-    const supplyTokenAction = randomChoice(possibleRoute.supplyActions);
+    const supplyTokenAction = randomChoice(possibleRoute.lendActions);
 
     const supplyStep = supplyTokenAction.supplyStep({
       account,

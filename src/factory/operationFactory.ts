@@ -1,7 +1,7 @@
 import Big from "big.js";
 
+import LendAction from "../action/lend/base";
 import RandomAction from "../action/random/base";
-import SupplyAction from "../action/supply/base";
 import SwapAction from "../action/swap/base";
 import Account from "../core/account";
 import Operation from "../core/operation";
@@ -31,7 +31,7 @@ class OperationFactory {
 
   public constructor(params: {
     swapActions: SwapAction[];
-    supplyActions: SupplyAction[];
+    lendActions: LendAction[];
     randomActions: RandomAction[];
     minWorkAmountPercent: number;
     maxWorkAmountPercent: number;
@@ -40,7 +40,7 @@ class OperationFactory {
   }) {
     const {
       swapActions,
-      supplyActions,
+      lendActions,
       randomActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
@@ -50,7 +50,7 @@ class OperationFactory {
 
     this.routers = OperationFactory.initializeRouters({
       swapActions,
-      supplyActions,
+      lendActions,
       randomActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
@@ -65,7 +65,7 @@ class OperationFactory {
 
   private static initializeRouters(params: {
     swapActions: SwapAction[];
-    supplyActions: SupplyAction[];
+    lendActions: LendAction[];
     randomActions: RandomAction[];
     minWorkAmountPercent: number;
     maxWorkAmountPercent: number;
@@ -74,7 +74,7 @@ class OperationFactory {
   }) {
     const {
       swapActions,
-      supplyActions,
+      lendActions,
       randomActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
@@ -91,7 +91,7 @@ class OperationFactory {
     });
 
     const supplyEthRouter = new SupplyEthRouter({
-      supplyActions,
+      lendActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
       minApproveMultiplier,
@@ -99,7 +99,7 @@ class OperationFactory {
     });
 
     const swapSupplyTokenRouter = new SwapSupplyTokenRouter({
-      supplyActions,
+      lendActions,
       swapActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,

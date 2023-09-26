@@ -10,11 +10,11 @@ import Account from "../../../core/account";
 import Chain from "../../../core/chain";
 import Token from "../../../core/token";
 import { Amount } from "../../../types";
-import SupplyAction from "../base";
+import LendAction from "../base";
 
 import { CHAINS_DATA } from "./constants";
 
-class LineaBankSupply extends SupplyAction {
+class LineaBankLend extends LendAction {
   private readonly coreContractAddress: string;
   private readonly distributorContractAddress: string;
   private readonly marketAddress: string;
@@ -72,7 +72,7 @@ class LineaBankSupply extends SupplyAction {
   }) {
     const { account, normalizedAmount } = params;
 
-    return await LineaBankSupply.getDefaultApproveTransaction({
+    return await LineaBankLend.getDefaultApproveTransaction({
       account,
       token: this.token,
       spenderAddress: this.marketAddress,
@@ -177,4 +177,4 @@ class LineaBankSupply extends SupplyAction {
   }
 }
 
-export default LineaBankSupply;
+export default LineaBankLend;

@@ -1,25 +1,25 @@
-import SupplyAction from "../action/supply/base";
+import LendAction from "../action/lend/base";
 import Account from "../core/account";
 import Operation from "../core/operation";
 import Router from "../core/router";
 import sortStringsHelper from "../utils/other/sortStringsHelper";
 import randomChoice from "../utils/random/randomChoice";
 
-type PossibleRoute = SupplyAction;
+type PossibleRoute = LendAction;
 
 class SupplyEthRouter extends Router {
   private readonly possibleRoutes: PossibleRoute[];
   public readonly description = "supply -> redeem eth";
 
   public constructor(params: {
-    supplyActions: SupplyAction[];
+    lendActions: LendAction[];
     minWorkAmountPercent: number;
     maxWorkAmountPercent: number;
     minApproveMultiplier: number;
     maxApproveMultiplier: number;
   }) {
     const {
-      supplyActions,
+      lendActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
       minApproveMultiplier,
@@ -33,12 +33,11 @@ class SupplyEthRouter extends Router {
       maxApproveMultiplier,
     });
 
-    this.possibleRoutes =
-      SupplyEthRouter.initializePossibleRoutes(supplyActions);
+    this.possibleRoutes = SupplyEthRouter.initializePossibleRoutes(lendActions);
   }
 
-  private static initializePossibleRoutes(supplyActions: SupplyAction[]) {
-    return supplyActions.filter((supplyAction) => supplyAction.token.isNative);
+  private static initializePossibleRoutes(lendActions: LendAction[]) {
+    return lendActions.filter((supplyAction) => supplyAction.token.isNative);
   }
 
   public possibleRoutesStrings() {

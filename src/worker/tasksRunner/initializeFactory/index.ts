@@ -4,8 +4,8 @@ import Factory from "../../../factory/operationFactory";
 
 import getFactoryPairs from "./getFactoryPairs";
 import getFactoryTokens from "./getFactoryTokens";
+import getLendActions from "./getLendActions";
 import getRandomActions from "./getRandomActions";
-import getSupplyActions from "./getSupplyActions";
 import getSwapActions from "./getSwapActions";
 
 const initializeFactory = (params: {
@@ -28,7 +28,7 @@ const initializeFactory = (params: {
   const factoryTokens = getFactoryTokens(chain);
   const factoryPairs = getFactoryPairs(factoryTokens);
 
-  const supplyActions = getSupplyActions(activeProviders, factoryTokens);
+  const supplyActions = getLendActions(activeProviders, factoryTokens);
   const swapActions = getSwapActions(activeProviders, factoryPairs);
   const randomActions = getRandomActions(activeProviders, chain);
 

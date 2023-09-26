@@ -11,7 +11,7 @@ import RunnableTransaction from "../../../core/transaction";
 import { Amount } from "../../../types";
 import randomInteger from "../../../utils/random/randomInteger";
 
-abstract class SupplyAction extends Action {
+abstract class LendAction extends Action {
   public readonly token: Token;
 
   public constructor(params: { token: Token }) {
@@ -26,7 +26,7 @@ abstract class SupplyAction extends Action {
     const { provider } = params;
     this.initializeDefaultName({
       provider,
-      actionType: "SUPPLY",
+      actionType: "LEND",
       operation: `${this.token}`,
     });
   }
@@ -51,7 +51,7 @@ abstract class SupplyAction extends Action {
   protected getContractAddress(params: { contractName: string }) {
     const { contractName } = params;
 
-    return SupplyAction.getDefaultContractAddress({
+    return LendAction.getDefaultContractAddress({
       contractName,
       chain: this.token.chain,
     });
@@ -154,7 +154,7 @@ abstract class SupplyAction extends Action {
       maxApproveMultiplier,
     } = params;
 
-    const step = new Step({ name: this.name });
+    const step = new Step({ name: `${this.name}_SUPPLY` });
 
     if (!this.token.isNative) {
       const createTransaction = this.getCreateApproveTransaction({
@@ -203,7 +203,7 @@ abstract class SupplyAction extends Action {
   public redeemAllStep(params: { account: Account }) {
     const { account } = params;
 
-    const step = new Step({ name: this.name });
+    const step = new Step({ name: `${this.name}_REDEEM_ALL` });
 
     const createTransaction = this.getCreateRedeemAllTransaction({ account });
 
@@ -245,4 +245,4 @@ abstract class SupplyAction extends Action {
   }
 }
 
-export default SupplyAction;
+export default LendAction;
