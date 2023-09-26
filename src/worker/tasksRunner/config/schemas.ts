@@ -42,16 +42,16 @@ const maxParallelAccountsSchema = z
 
 export const dynamicSchema = z.object({
   delaySec: delaySecSchema,
-  maxLineaGwei: z.number().multipleOf(0.05).positive().max(10000),
+  maxLineaGwei: z.number().multipleOf(0.05).positive().max(1000),
   maxParallelAccounts: maxParallelAccountsSchema,
-  maxTxFeeUsd: z.number().multipleOf(0.1).positive().max(10000),
+  maxTxFeeUsd: z.number().multipleOf(0.1).positive().max(100),
 });
 
 const providersSchema = z.array(createUnionSchema(ACTION_PROVIDERS)).min(1);
 
 const transactionsLimitSchema = z
   .object({
-    min: z.number().multipleOf(1).positive().min(1).max(10000),
+    min: z.number().multipleOf(1).positive().min(1),
     max: z.number().multipleOf(1).positive().max(10000),
   })
   .refine(...minMaxRefine);
@@ -84,9 +84,17 @@ const onCurrentTaskEndSchema = z.union([
   z.literal("MOVE_TO_RANDOM_PLACE"),
 ]);
 
+const approveMultiplierSchema = z
+  .object({
+    min: z.number().multipleOf(1).positive().min(1),
+    max: z.number().multipleOf(1).positive().max(100),
+  })
+  .refine(...minMaxRefine);
+
 export const fixedSchema = z.object({
+  approveMultiplier: approveMultiplierSchema,
   files: filesSchema,
-  minEthBalance: z.number().multipleOf(0.0001).min(0.0005),
+  minEthBalance: z.number().multipleOf(0.0001).min(0.002),
   onCurrentTaskEnd: onCurrentTaskEndSchema,
   providers: providersSchema,
   proxy: proxySchema,

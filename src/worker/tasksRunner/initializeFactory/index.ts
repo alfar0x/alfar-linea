@@ -1,6 +1,6 @@
 import { Provider } from "../../../core/action";
 import Chain from "../../../core/chain";
-import Factory from "../../../factory/taskFactory";
+import Factory from "../../../factory/operationFactory";
 
 import getFactoryPairs from "./getFactoryPairs";
 import getFactoryTokens from "./getFactoryTokens";
@@ -13,9 +13,17 @@ const initializeFactory = (params: {
   activeProviders: Provider[];
   minWorkAmountPercent: number;
   maxWorkAmountPercent: number;
+  minApproveMultiplier: number;
+  maxApproveMultiplier: number;
 }) => {
-  const { chain, activeProviders, minWorkAmountPercent, maxWorkAmountPercent } =
-    params;
+  const {
+    chain,
+    activeProviders,
+    minWorkAmountPercent,
+    maxWorkAmountPercent,
+    minApproveMultiplier,
+    maxApproveMultiplier,
+  } = params;
 
   const factoryTokens = getFactoryTokens(chain);
   const factoryPairs = getFactoryPairs(factoryTokens);
@@ -30,6 +38,8 @@ const initializeFactory = (params: {
     randomActions,
     minWorkAmountPercent,
     maxWorkAmountPercent,
+    minApproveMultiplier,
+    maxApproveMultiplier,
   });
 
   return factory;

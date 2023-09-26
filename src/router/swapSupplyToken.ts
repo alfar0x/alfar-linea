@@ -27,15 +27,24 @@ class SwapSupplyTokenRouter extends Router {
     supplyActions: SupplyAction[];
     minWorkAmountPercent: number;
     maxWorkAmountPercent: number;
+    minApproveMultiplier: number;
+    maxApproveMultiplier: number;
   }) {
     const {
       swapActions,
       supplyActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
     } = params;
 
-    super({ minWorkAmountPercent, maxWorkAmountPercent });
+    super({
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
+    });
 
     this.possibleRoutes = SwapSupplyTokenRouter.initializePossibleRoutes(
       swapActions,
@@ -130,7 +139,7 @@ class SwapSupplyTokenRouter extends Router {
       .toNumber();
   }
 
-  public async generateOperationList(params: { account: Account }) {
+  public generateOperationList(params: { account: Account }) {
     const { account } = params;
 
     const tokensWithWeights = this.possibleRoutes.map((possibleRoute) => {
@@ -154,14 +163,21 @@ class SwapSupplyTokenRouter extends Router {
       );
     }
 
-    const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
-      token,
-      this.minWorkAmountPercent,
-      this.maxWorkAmountPercent,
-    );
+    const {
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
+    } = this;
 
     const buyPossibleSteps = possibleRoute.buyActions.map((action) =>
-      action.swapAmountStep({ account, normalizedAmount }),
+      action.swapStep({
+        account,
+        minWorkAmountPercent,
+        maxWorkAmountPercent,
+        minApproveMultiplier,
+        maxApproveMultiplier,
+      }),
     );
 
     const buyOperation = new Operation({
@@ -171,8 +187,12 @@ class SwapSupplyTokenRouter extends Router {
 
     const supplyTokenAction = randomChoice(possibleRoute.supplyActions);
 
-    const supplyStep = await supplyTokenAction.supplyBalanceStep({
+    const supplyStep = supplyTokenAction.supplyStep({
       account,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
     });
 
     const supplyOperation = new Operation({
@@ -190,7 +210,13 @@ class SwapSupplyTokenRouter extends Router {
     });
 
     const sellPossibleSteps = possibleRoute.sellActions.map((action) =>
-      action.swapAmountStep({ account, normalizedAmount }),
+      action.swapStep({
+        account,
+        minWorkAmountPercent: 100,
+        maxWorkAmountPercent: 100,
+        minApproveMultiplier,
+        maxApproveMultiplier,
+      }),
     );
 
     const sellOperation = new Operation({

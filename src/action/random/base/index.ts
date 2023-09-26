@@ -19,6 +19,8 @@ abstract class RandomAction extends Action {
     account: Account;
     minWorkAmountPercent: number;
     maxWorkAmountPercent: number;
+    minApproveMultiplier: number;
+    maxApproveMultiplier: number;
   }): Promise<Step[]> | Step[];
 
   protected initializeName(params: { provider: Provider; operation: string }) {

@@ -25,7 +25,7 @@ type RouterData = {
   weight: number;
 };
 
-class TaskFactory {
+class OperationFactory {
   private readonly routers: RouterData[];
   private readonly totalWeight: number;
 
@@ -35,6 +35,8 @@ class TaskFactory {
     randomActions: RandomAction[];
     minWorkAmountPercent: number;
     maxWorkAmountPercent: number;
+    minApproveMultiplier: number;
+    maxApproveMultiplier: number;
   }) {
     const {
       swapActions,
@@ -42,14 +44,18 @@ class TaskFactory {
       randomActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
     } = params;
 
-    this.routers = TaskFactory.initializeRouters({
+    this.routers = OperationFactory.initializeRouters({
       swapActions,
       supplyActions,
       randomActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
     });
 
     this.totalWeight = Object.values(this.routers)
@@ -63,6 +69,8 @@ class TaskFactory {
     randomActions: RandomAction[];
     minWorkAmountPercent: number;
     maxWorkAmountPercent: number;
+    minApproveMultiplier: number;
+    maxApproveMultiplier: number;
   }) {
     const {
       swapActions,
@@ -70,18 +78,24 @@ class TaskFactory {
       randomActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
     } = params;
 
     const swapEthTokenEthRouter = new SwapEthTokenEthRouter({
       swapActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
     });
 
     const supplyEthRouter = new SupplyEthRouter({
       supplyActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
     });
 
     const swapSupplyTokenRouter = new SwapSupplyTokenRouter({
@@ -89,12 +103,16 @@ class TaskFactory {
       swapActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
     });
 
     const randomRouter = new RandomRouter({
       randomActions,
       minWorkAmountPercent,
       maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
     });
 
     const data: RouterData[] = [
@@ -194,4 +212,4 @@ class TaskFactory {
   }
 }
 
-export default TaskFactory;
+export default OperationFactory;

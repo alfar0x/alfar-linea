@@ -9,6 +9,7 @@ import Step from "../../../core/step";
 import Token from "../../../core/token";
 import RunnableTransaction from "../../../core/transaction";
 import { Amount } from "../../../types";
+import randomInteger from "../../../utils/random/randomInteger";
 
 abstract class SwapAction extends Action {
   public readonly fromToken: Token;
@@ -94,70 +95,116 @@ abstract class SwapAction extends Action {
     );
   }
 
-  public swapAmountStep(params: {
+  private getCreateApproveTransaction(params: {
     account: Account;
-    normalizedAmount: Amount;
+    minWorkAmountPercent: number;
+    maxWorkAmountPercent: number;
+    minApproveMultiplier: number;
+    maxApproveMultiplier: number;
   }) {
-    const { account, normalizedAmount } = params;
+    const {
+      account,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
+    } = params;
 
-    const step = new Step({ name: this.name });
+    const createApproveTransaction = async () => {
+      const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
+        this.fromToken,
+        minWorkAmountPercent,
+        maxWorkAmountPercent,
+      );
 
-    if (!this.fromToken.isNative) {
-      const createApproveTransaction = () =>
-        this.approve({
-          account,
-          normalizedAmount,
-        });
+      const minAmount = Big(normalizedAmount).times(minApproveMultiplier);
+      const maxAmount = Big(normalizedAmount).times(maxApproveMultiplier);
 
-      const approveTransaction = new RunnableTransaction({
-        name: this.getTxName("approve"),
-        chain: this.fromToken.chain,
-        account: account,
-        createTransaction: createApproveTransaction,
+      const randomNormalizedAmount = randomInteger(
+        minAmount,
+        maxAmount,
+      ).toString();
+
+      return this.approve({
+        account,
+        normalizedAmount: randomNormalizedAmount,
       });
+    };
 
-      step.push(approveTransaction);
-    }
-
-    const createSwapTransaction = () =>
-      this.swap({ account, normalizedAmount });
-
-    const swapTransaction = new RunnableTransaction({
-      name: this.getTxName("swap"),
-      chain: this.fromToken.chain,
-      account: account,
-      createTransaction: createSwapTransaction,
-    });
-
-    step.push(swapTransaction);
-
-    return step;
+    return createApproveTransaction;
   }
 
-  public async swapBalanceStep(params: { account: Account }) {
-    const { account } = params;
-
-    const normalizedAmount = await this.fromToken.normalizedBalanceOf(
-      account.address,
-    );
-
-    return this.swapAmountStep({ account, normalizedAmount });
-  }
-
-  public async swapPercentStep(params: {
+  private getCreateSwapTransaction(params: {
     account: Account;
     minWorkAmountPercent: number;
     maxWorkAmountPercent: number;
   }) {
     const { account, minWorkAmountPercent, maxWorkAmountPercent } = params;
 
-    const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
-      this.fromToken,
+    const createSwapTransaction = async () => {
+      const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
+        this.fromToken,
+        minWorkAmountPercent,
+        maxWorkAmountPercent,
+      );
+      return await this.swap({ account, normalizedAmount });
+    };
+
+    return createSwapTransaction;
+  }
+
+  public swapStep(params: {
+    account: Account;
+    minWorkAmountPercent: number;
+    maxWorkAmountPercent: number;
+    minApproveMultiplier: number;
+    maxApproveMultiplier: number;
+  }) {
+    const {
+      account,
       minWorkAmountPercent,
       maxWorkAmountPercent,
-    );
+      minApproveMultiplier,
+      maxApproveMultiplier,
+    } = params;
 
-    return this.swapAmountStep({ account, normalizedAmount });
+    const step = new Step({ name: this.name });
+
+    if (!this.fromToken.isNative) {
+      const createTransaction = this.getCreateApproveTransaction({
+        account,
+        minWorkAmountPercent,
+        maxWorkAmountPercent,
+        minApproveMultiplier,
+        maxApproveMultiplier,
+      });
+
+      const approveTransaction = new RunnableTransaction({
+        name: this.getTxName("approve"),
+        chain: this.fromToken.chain,
+        account: account,
+        createTransaction,
+      });
+
+      step.push(approveTransaction);
+    }
+
+    const createTransaction = this.getCreateSwapTransaction({
+      account,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    });
+
+    const swapTransaction = new RunnableTransaction({
+      name: this.getTxName("swap"),
+      chain: this.fromToken.chain,
+      account: account,
+      createTransaction,
+    });
+
+    step.push(swapTransaction);
+
+    return step;
   }
 
   protected async getDefaultSwapResultMsg(params: {

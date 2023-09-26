@@ -15,11 +15,23 @@ class SupplyEthRouter extends Router {
     supplyActions: SupplyAction[];
     minWorkAmountPercent: number;
     maxWorkAmountPercent: number;
+    minApproveMultiplier: number;
+    maxApproveMultiplier: number;
   }) {
-    const { supplyActions, minWorkAmountPercent, maxWorkAmountPercent } =
-      params;
+    const {
+      supplyActions,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
+    } = params;
 
-    super({ minWorkAmountPercent, maxWorkAmountPercent });
+    super({
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
+    });
 
     this.possibleRoutes =
       SupplyEthRouter.initializePossibleRoutes(supplyActions);
@@ -39,17 +51,17 @@ class SupplyEthRouter extends Router {
     return this.possibleRoutes.length;
   }
 
-  public async generateOperationList(params: {
-    account: Account;
-  }): Promise<Operation[]> {
+  public generateOperationList(params: { account: Account }) {
     const { account } = params;
 
     const supplyRouter = randomChoice(this.possibleRoutes);
 
-    const supplyStep = await supplyRouter.supplyPercentStep({
+    const supplyStep = supplyRouter.supplyStep({
       account,
       minWorkAmountPercent: this.minWorkAmountPercent,
       maxWorkAmountPercent: this.maxWorkAmountPercent,
+      minApproveMultiplier: this.minApproveMultiplier,
+      maxApproveMultiplier: this.maxApproveMultiplier,
     });
 
     const redeemStep = supplyRouter.redeemAllStep({

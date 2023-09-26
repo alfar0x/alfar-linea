@@ -9,6 +9,7 @@ import Step from "../../../core/step";
 import Token from "../../../core/token";
 import RunnableTransaction from "../../../core/transaction";
 import { Amount } from "../../../types";
+import randomInteger from "../../../utils/random/randomInteger";
 
 abstract class SupplyAction extends Action {
   public readonly token: Token;
@@ -80,39 +81,111 @@ abstract class SupplyAction extends Action {
     );
   }
 
-  public supplyAmountStep(params: {
+  private getCreateApproveTransaction(params: {
     account: Account;
-    normalizedAmount: Amount;
+    minWorkAmountPercent: number;
+    maxWorkAmountPercent: number;
+    minApproveMultiplier: number;
+    maxApproveMultiplier: number;
   }) {
-    const { account, normalizedAmount } = params;
+    const {
+      account,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
+    } = params;
+
+    const createApproveSupplyTransaction = async () => {
+      const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
+        this.token,
+        minWorkAmountPercent,
+        maxWorkAmountPercent,
+      );
+
+      const minAmount = Big(normalizedAmount).times(minApproveMultiplier);
+      const maxAmount = Big(normalizedAmount).times(maxApproveMultiplier);
+
+      const randomNormalizedAmount = randomInteger(
+        minAmount,
+        maxAmount,
+      ).toString();
+
+      return this.approveSupply({
+        account,
+        normalizedAmount: randomNormalizedAmount,
+      });
+    };
+
+    return createApproveSupplyTransaction;
+  }
+
+  private getCreateSupplyTransaction(params: {
+    account: Account;
+    minWorkAmountPercent: number;
+    maxWorkAmountPercent: number;
+  }) {
+    const { account, minWorkAmountPercent, maxWorkAmountPercent } = params;
+
+    const createSupplyTransaction = async () => {
+      const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
+        this.token,
+        minWorkAmountPercent,
+        maxWorkAmountPercent,
+      );
+      return await this.supply({ account, normalizedAmount });
+    };
+
+    return createSupplyTransaction;
+  }
+
+  public supplyStep(params: {
+    account: Account;
+    minWorkAmountPercent: number;
+    maxWorkAmountPercent: number;
+    minApproveMultiplier: number;
+    maxApproveMultiplier: number;
+  }) {
+    const {
+      account,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
+    } = params;
 
     const step = new Step({ name: this.name });
 
     if (!this.token.isNative) {
-      const createApproveTransaction = () =>
-        this.approveSupply({
-          account,
-          normalizedAmount,
-        });
+      const createTransaction = this.getCreateApproveTransaction({
+        account,
+        minWorkAmountPercent,
+        maxWorkAmountPercent,
+        minApproveMultiplier,
+        maxApproveMultiplier,
+      });
 
       const approveTransaction = new RunnableTransaction({
         name: this.getTxName("approve"),
         chain: this.token.chain,
         account: account,
-        createTransaction: createApproveTransaction,
+        createTransaction,
       });
 
       step.push(approveTransaction);
     }
 
-    const createSupplyTransaction = () =>
-      this.supply({ account, normalizedAmount });
+    const createTransaction = this.getCreateSupplyTransaction({
+      account,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+    });
 
     const supplyTransaction = new RunnableTransaction({
       name: this.getTxName("supply"),
       chain: this.token.chain,
       account: account,
-      createTransaction: createSupplyTransaction,
+      createTransaction,
     });
 
     step.push(supplyTransaction);
@@ -120,44 +193,25 @@ abstract class SupplyAction extends Action {
     return step;
   }
 
-  public async supplyBalanceStep(params: { account: Account }) {
+  public getCreateRedeemAllTransaction = (params: { account: Account }) => {
     const { account } = params;
-
-    const normalizedAmount = await this.token.normalizedBalanceOf(
-      account.address,
-    );
-
-    return this.supplyAmountStep({ account, normalizedAmount });
-  }
-
-  public async supplyPercentStep(params: {
-    account: Account;
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
-  }) {
-    const { account, minWorkAmountPercent, maxWorkAmountPercent } = params;
-
-    const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
-      this.token,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-    );
-
-    return this.supplyAmountStep({ account, normalizedAmount });
-  }
+    return async () => {
+      return await this.redeemAll({ account });
+    };
+  };
 
   public redeemAllStep(params: { account: Account }) {
     const { account } = params;
 
     const step = new Step({ name: this.name });
 
-    const createRedeemAllTransaction = () => this.redeemAll({ account });
+    const createTransaction = this.getCreateRedeemAllTransaction({ account });
 
     const redeemAllTransaction = new RunnableTransaction({
       name: this.getTxName("redeem-all"),
       chain: this.token.chain,
       account: account,
-      createTransaction: createRedeemAllTransaction,
+      createTransaction,
     });
 
     step.push(redeemAllTransaction);

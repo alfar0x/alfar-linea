@@ -16,11 +16,23 @@ class RandomRouter extends Router {
     randomActions: RandomAction[];
     minWorkAmountPercent: number;
     maxWorkAmountPercent: number;
+    minApproveMultiplier: number;
+    maxApproveMultiplier: number;
   }) {
-    const { randomActions, minWorkAmountPercent, maxWorkAmountPercent } =
-      params;
+    const {
+      randomActions,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
+    } = params;
 
-    super({ minWorkAmountPercent, maxWorkAmountPercent });
+    super({
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
+    });
 
     this.randomActions = randomActions;
     this.possibleRoutes = randomActions;
@@ -45,6 +57,8 @@ class RandomRouter extends Router {
       account,
       minWorkAmountPercent: this.minWorkAmountPercent,
       maxWorkAmountPercent: this.maxWorkAmountPercent,
+      minApproveMultiplier: this.minApproveMultiplier,
+      maxApproveMultiplier: this.maxApproveMultiplier,
     });
 
     return Router.stepsToOperations(steps);
@@ -57,6 +71,8 @@ class RandomRouter extends Router {
       account,
       minWorkAmountPercent: this.minWorkAmountPercent,
       maxWorkAmountPercent: this.maxWorkAmountPercent,
+      minApproveMultiplier: this.minApproveMultiplier,
+      maxApproveMultiplier: this.maxApproveMultiplier,
     });
 
     return Router.stepsToOperations(steps);

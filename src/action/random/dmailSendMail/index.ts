@@ -63,18 +63,28 @@ class DmailSendMailAction extends RandomAction {
     return { tx, resultMsg: "email sent" };
   }
 
+  private getCreateSendMailTransaction(params: { account: Account }) {
+    const { account } = params;
+
+    const createSendMailTransaction = async () => {
+      return await this.sendMail({ account });
+    };
+
+    return createSendMailTransaction;
+  }
+
   public steps(params: { account: Account }) {
     const { account } = params;
 
     const step = new Step({ name: this.name });
 
-    const createSendMailTransaction = () => this.sendMail({ account });
+    const createTransaction = this.getCreateSendMailTransaction({ account });
 
     const sendMailTransaction = new RunnableTransaction({
       name: this.getTxName("SEND"),
       chain: this.chain,
       account: account,
-      createTransaction: createSendMailTransaction,
+      createTransaction,
     });
 
     step.push(sendMailTransaction);

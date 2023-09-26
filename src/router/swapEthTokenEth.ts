@@ -24,10 +24,23 @@ class SwapEthTokenEthRouter extends Router {
     swapActions: SwapAction[];
     minWorkAmountPercent: number;
     maxWorkAmountPercent: number;
+    minApproveMultiplier: number;
+    maxApproveMultiplier: number;
   }) {
-    const { swapActions, minWorkAmountPercent, maxWorkAmountPercent } = params;
+    const {
+      swapActions,
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
+    } = params;
 
-    super({ minWorkAmountPercent, maxWorkAmountPercent });
+    super({
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
+    });
 
     this.possibleRoutes =
       SwapEthTokenEthRouter.initializePossibleRoutes(swapActions);
@@ -107,7 +120,7 @@ class SwapEthTokenEthRouter extends Router {
       .toNumber();
   }
 
-  public async generateOperationList(params: { account: Account }) {
+  public generateOperationList(params: { account: Account }) {
     const { account } = params;
 
     const tokensWithWeights = this.possibleRoutes.map((possibleRoute) => {
@@ -130,14 +143,21 @@ class SwapEthTokenEthRouter extends Router {
       );
     }
 
-    const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
-      token,
-      this.minWorkAmountPercent,
-      this.maxWorkAmountPercent,
-    );
+    const {
+      minWorkAmountPercent,
+      maxWorkAmountPercent,
+      minApproveMultiplier,
+      maxApproveMultiplier,
+    } = this;
 
     const buyPossibleSteps = possibleRoute.buyActions.map((action) =>
-      action.swapAmountStep({ account, normalizedAmount }),
+      action.swapStep({
+        account,
+        minWorkAmountPercent,
+        maxWorkAmountPercent,
+        minApproveMultiplier,
+        maxApproveMultiplier,
+      }),
     );
 
     const buyOperation = new Operation({
@@ -146,7 +166,13 @@ class SwapEthTokenEthRouter extends Router {
     });
 
     const sellPossibleSteps = possibleRoute.sellActions.map((action) =>
-      action.swapAmountStep({ account, normalizedAmount }),
+      action.swapStep({
+        account,
+        minWorkAmountPercent: 100,
+        maxWorkAmountPercent: 100,
+        minApproveMultiplier,
+        maxApproveMultiplier,
+      }),
     );
 
     const sellOperation = new Operation({

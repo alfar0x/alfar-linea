@@ -1,7 +1,7 @@
 import Account from "../../core/account";
 import Chain from "../../core/chain";
 import Token from "../../core/token";
-import TaskFactory from "../../factory/taskFactory";
+import OperationFactory from "../../factory/operationFactory";
 import createMessage from "../../utils/other/createMessage";
 import logger from "../../utils/other/logger";
 import randomChoice from "../../utils/random/randomChoice";
@@ -16,7 +16,7 @@ class TaskCreator {
   private readonly config: TasksRunnerConfig;
   private readonly chain: Chain;
   private readonly native: Token;
-  private readonly factory: TaskFactory;
+  private readonly factory: OperationFactory;
   private tasks: Task[];
 
   public constructor(params: { chain: Chain; config: TasksRunnerConfig }) {
@@ -26,13 +26,16 @@ class TaskCreator {
     this.chain = chain;
     this.native = chain.getNative();
 
-    const { providers, workingAmountPercent } = this.config.fixed;
+    const { providers, workingAmountPercent, approveMultiplier } =
+      this.config.fixed;
 
     this.factory = initializeFactory({
       chain: this.chain,
       activeProviders: providers,
       minWorkAmountPercent: workingAmountPercent.min,
       maxWorkAmountPercent: workingAmountPercent.max,
+      minApproveMultiplier: approveMultiplier.min,
+      maxApproveMultiplier: approveMultiplier.max,
     });
 
     this.tasks = [];

@@ -1,22 +1,21 @@
 {
   dynamic: {
     delaySec: {
-      step: { min: 300, max: 3600 },
-      transaction: { min: 30, max: 240 },
+      step: { min: 3000, max: 6000 },
+      transaction: { min: 120, max: 600 },
     },
-    maxLineaGwei: 1.2,
+    maxLineaGwei: 1,
     maxParallelAccounts: 3,
-    maxTxFeeUsd: 3,
-    minEthBalance: 0.002,
+    maxTxFeeUsd: 1,
   },
   fixed: {
+    approveMultiplier: { min: 10, max: 100 },
     files: {
       privateKeys: "private_keys.txt",
       proxies: "proxies.txt",
     },
-    isAccountsShuffle: true,
-    isCheckBalanceOnStart: false,
-    isShuffleAccountOnStepsEnd: false,
+    minEthBalance: 0.002,
+    onCurrentTaskEnd: "WAIT_OTHERS",
     providers: [
       "DMAIL",
       "LINEA_BANK",
@@ -28,14 +27,14 @@
       "XY_FINANCE",
     ],
     proxy: {
-      type: "none",
-      mobileIpChangeUrl: "",
+      type: "mobile",
+      mobileIpChangeUrl: "https://api.mproxy.top/change_ip/rampath_62416",
       serverIsRandom: true,
     },
     rpc: {
       linea: "https://1rpc.io/linea",
     },
-    transactionsLimit: { min: 4, max: 20 },
-    workingAmountPercent: { min: 1, max: 7 },
+    transactionsLimit: { min: 10, max: 20 },
+    workingAmountPercent: { min: 1, max: 4 },
   },
 }
