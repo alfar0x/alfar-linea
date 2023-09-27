@@ -8,7 +8,7 @@ Check for updates here: [alfar](https://t.me/+FozX3VZA0RIyNWY6)
 
 Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 
-### Main Features:
+## Overview:
 
 - **Simple Setup**: Get started easily without hassle.
 - **Wide Interaction**: Engage with various services like syncswap, velocore, dmail, open ocean, xy finance, pancake, woofi, linea bank and more.
@@ -55,6 +55,7 @@ Currently there are 90+ different tasks using 8 web3 services
 - **Task Runner:** The core script for generating and executing transactions.
 - **Checker:** Use this to see your accounts' details like transactions and balances.
 - **Encrypter:** Use this to make your asset files (private keys, addresses, proxies) safe for using the Task Runner on a server.
+
 ## Suggestions
 
 - Don't change the **example** files. Make copies of the files you need and change those copies. There may be updates in the future for example files.
@@ -126,8 +127,8 @@ Before embarking on the first run, ensure the creation of essential files:
   - Optionally, if utilizing a proxy, establish a file (e.g., `proxies.txt`) and populate with proxy data in this format: `host:port:username:password`.
   - **Note**: Opt for the [Encrypter](#encrypter) mode to encrypt any file within the `assets` folder.
 
-2. **Access the `config` folder**:
-  - Duplicate the necessary config file (e.g., `tasks.example.json5`) for this mode. Guidance for modifications is detailed below.
+2. **Navigate to the `config` folder**:
+  - Duplicate config example file `tasks.example.json5`. Guidance for modifications is detailed below.
    
 ## Config
 
@@ -274,8 +275,8 @@ Before the first run, you must create the following files:
   - If using addresses, create a file for addresses (e.g., `addresses.txt`). Enter each address on a new line, starting with `0x`. Optionally, specify the account name as in the private keys file.
   - **Note**: Opt for the [Encrypter](#encrypter) mode to encrypt any file within the `assets` folder.
 
-2. **Access the `config` folder**:
-  - Duplicate the necessary config file (e.g., `checker.example.json5`) for this mode. Guidance for modifications is detailed below.
+2. **Navigate to the `config` folder**:
+  - Duplicate config example file `checker.example.json5`. Guidance for modifications is detailed below.
 
 ### Config:
 
@@ -294,12 +295,12 @@ Before the first run, you must create the following files:
     - **`maxParallelAccounts`**: 
       - **Description**: Set the maximum number of parallel accounts to check.
     - **`delayBetweenChunkSec`**: 
-      - **Description**: Set the delay between parallel accounts' requests.
+      - **Description**: Set the delay between accounts chunks.
     - **`hideBalanceLessThanUsd`**: 
       - **Description**: Set the USD value of tokens that can be hidden.
       - **Note**: Set to `-1` to see all tokens.
     - **`rpc`**: 
-      - **Description**: Holds the Linea RPC details in the `linea` field.
+      - **Description**: Holds the Linea RPC url in the `linea` field.
 
 ## Encrypter
 

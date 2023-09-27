@@ -26,7 +26,7 @@ class Proxy {
   private readonly type: ProxyType;
   private readonly isRandom?: boolean;
   private readonly ipChangeUrl?: string;
-  private readonly proxyList: ProxyItem[];
+  private proxyList: ProxyItem[];
   private readonly onIpChangeErrorSleepSec = 30;
   private readonly onIpChangeErrorRepeatTimes = 3;
   private readonly pauseAfterIpChange = 5;
@@ -71,24 +71,24 @@ class Proxy {
 
     const fileData = allFileData.map((v) => v.trim()).filter(Boolean);
 
-    const proxyList = fileData.map((p, i) => Proxy.parseProxyStr(p, i));
+    this.proxyList = fileData.map((p, i) => Proxy.parseProxyStr(p, i));
 
     switch (this.type) {
       case "mobile": {
-        if (proxyList.length !== 1) {
+        if (this.proxyList.length !== 1) {
           throw new Error(
             `exactly 1 proxy must be in ${fileName} for ${this.type} proxy type`,
           );
         }
-        return proxyList;
+        return;
       }
       case "server": {
-        if (!proxyList.length) {
+        if (!this.proxyList.length) {
           throw new Error(
             `at least 1 proxy must be in ${fileName} for ${this.type} proxy type`,
           );
         }
-        return proxyList;
+        return;
       }
       default: {
         throw new Error(`proxy type ${this.type} is not allowed`);
