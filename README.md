@@ -33,8 +33,6 @@ Check for updates here: [alfar](https://t.me/+FozX3VZA0RIyNWY6)
 
 Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 
-![Console Screenshot](./img/screenshot.png)
-
 <details>
   <summary> Click here to see all current possible tasks (if all providers are turned on) </summary>
 
