@@ -12,13 +12,13 @@ const minMaxRefine = [
 const delaySecSchema = z.object({
   transaction: z
     .object({
-      min: z.number().multipleOf(1).positive().min(1),
+      min: z.number().multipleOf(1).positive().min(20),
       max: z.number().multipleOf(1).positive().max(10000),
     })
     .refine(...minMaxRefine),
   step: z
     .object({
-      min: z.number().multipleOf(1).positive().min(1),
+      min: z.number().multipleOf(1).positive().min(60),
       max: z.number().multipleOf(1).positive().max(10000),
     })
     .refine(...minMaxRefine),
