@@ -152,7 +152,7 @@ class TasksRunner {
     while (!operation.isEmpty()) {
       try {
         await this.runStep();
-        break;
+        return;
       } catch (error) {
         await this.onStepFailed({
           isSupportStepsAvailable,

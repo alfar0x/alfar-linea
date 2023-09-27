@@ -14,6 +14,7 @@
       privateKeys: "private_keys.txt",
       proxies: "proxies.txt",
     },
+    maxAccountFeeUsd: 20,
     minEthBalance: 0.002,
     onCurrentTaskEnd: "WAIT_OTHERS",
     providers: [
