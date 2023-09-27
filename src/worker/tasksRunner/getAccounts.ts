@@ -1,7 +1,7 @@
 import Account from "../../core/account";
 import readFileAndEncryptByLine from "../../utils/file/readFileAndEncryptByLine";
 
-const initializeAccounts = async (params: { baseFileName: string }) => {
+const getAccounts = async (params: { baseFileName: string }) => {
   const { baseFileName } = params;
 
   const fileName = `./assets/${baseFileName}`;
@@ -17,4 +17,4 @@ const initializeAccounts = async (params: { baseFileName: string }) => {
   return accounts;
 };
 
-export default initializeAccounts;
+export default getAccounts;

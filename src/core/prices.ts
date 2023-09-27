@@ -3,7 +3,7 @@ import Big from "big.js";
 
 import rawTokens from "../chain/linea/rawTokens";
 import logger from "../utils/other/logger";
-import waitInternetConnectionWrapper from "../utils/other/waitInternetConnectionWrapper";
+import waitInternetConnection from "../utils/other/waitInternetConnection";
 
 type TokenId = string;
 
@@ -47,6 +47,7 @@ class Prices {
     return Date.now() - updatePricesIntervalMillis;
   }
 
+  @waitInternetConnection()
   private async getGeskoPrices(): Promise<GeskoResponse> {
     // eslint-disable-next-line camelcase
     const params = { ids: this.geskoIds.join(","), vs_currencies: "usd" };
@@ -61,11 +62,7 @@ class Prices {
   public async updatePrices() {
     logger.debug(`updating token prices`);
 
-    const wrapped = waitInternetConnectionWrapper(
-      this.getGeskoPrices.bind(this),
-    );
-
-    const geskoPrices = await wrapped();
+    const geskoPrices = await this.getGeskoPrices();
 
     const prices = Object.keys(geskoPrices)
       .map((key) => ({ key, value: geskoPrices[key].usd }))

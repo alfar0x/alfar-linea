@@ -2,7 +2,6 @@ import axios from "axios";
 import tunnel from "tunnel";
 import { z } from "zod";
 
-import readFileAndEncryptByLine from "../utils/file/readFileAndEncryptByLine";
 import createMessage from "../utils/other/createMessage";
 import formatOrdinals from "../utils/other/formatOrdinals";
 import logger from "../utils/other/logger";
@@ -15,7 +14,10 @@ type ProxyType = "mobile" | "none" | "server";
 
 const proxyItemSchema = z.object({
   host: ipOrDomainSchema,
-  port: z.string().transform((str) => Number(str)),
+  port: z
+    .string()
+    .regex(/\d+/, "Must be a number")
+    .transform((str) => Number(str)),
   username: z.string(),
   password: z.string(),
 });
@@ -26,7 +28,7 @@ class Proxy {
   private readonly type: ProxyType;
   private readonly isRandom?: boolean;
   private readonly ipChangeUrl?: string;
-  private proxyList: ProxyItem[];
+  private readonly proxyList: ProxyItem[];
   private readonly onIpChangeErrorSleepSec = 30;
   private readonly onIpChangeErrorRepeatTimes = 3;
   private readonly pauseAfterIpChange = 5;
@@ -35,14 +37,19 @@ class Proxy {
     type: ProxyType;
     isRandom?: boolean;
     ipChangeUrl?: string;
+    proxies: string[];
   }) {
-    const { type, isRandom, ipChangeUrl } = params;
+    const { type, isRandom, ipChangeUrl, proxies } = params;
 
     this.type = type;
     this.isRandom = isRandom;
     this.ipChangeUrl = ipChangeUrl;
 
-    this.proxyList = [];
+    if (this.type === "mobile" && !this.ipChangeUrl) {
+      throw new Error(`ip change url is required for ${this.type} proxy type`);
+    }
+
+    this.proxyList = this.parseProxies(proxies);
   }
 
   private static parseProxyStr(proxyStr: string, index: number) {
@@ -64,36 +71,16 @@ class Proxy {
     throw new Error(`${indexOrd} proxy is not valid. Details: ${errorMessage}`);
   }
 
-  public async initializeProxy(fileName: string) {
-    if (this.type === "none") return [];
-
-    const allFileData = await readFileAndEncryptByLine(fileName);
-
-    const fileData = allFileData.map((v) => v.trim()).filter(Boolean);
-
-    this.proxyList = fileData.map((p, i) => Proxy.parseProxyStr(p, i));
-
-    switch (this.type) {
-      case "mobile": {
-        if (this.proxyList.length !== 1) {
-          throw new Error(
-            `exactly 1 proxy must be in ${fileName} for ${this.type} proxy type`,
-          );
-        }
-        return;
-      }
-      case "server": {
-        if (!this.proxyList.length) {
-          throw new Error(
-            `at least 1 proxy must be in ${fileName} for ${this.type} proxy type`,
-          );
-        }
-        return;
-      }
-      default: {
-        throw new Error(`proxy type ${this.type} is not allowed`);
-      }
+  private parseProxies(proxies: string[]) {
+    if (this.type === "mobile" && proxies.length !== 1) {
+      throw new Error(`mobile proxy type must have exactly 1 proxy`);
     }
+
+    if (this.type === "server" && !proxies.length) {
+      throw new Error(`server proxy type must have at least 1 proxy`);
+    }
+
+    return proxies.map((p, i) => Proxy.parseProxyStr(p, i));
   }
 
   public getHttpsTunnelByIndex(index: number) {
@@ -111,25 +98,19 @@ class Proxy {
   }
 
   private getProxyItemByIndex(index: number) {
-    switch (this.type) {
-      case "none": {
-        return null;
-      }
-      case "mobile": {
-        return this.proxyList[0];
-      }
-      case "server": {
-        if (this.isRandom) return randomChoice(this.proxyList);
+    if (this.type === "none") return null;
 
-        const proxyItem = this.proxyList.at(index);
+    if (this.type === "mobile") return this.proxyList[0];
 
-        if (!proxyItem) {
-          throw new Error(`unexpected error: no proxy on ${index} index`);
-        }
+    if (this.isRandom) return randomChoice(this.proxyList);
 
-        return proxyItem;
-      }
+    const proxyItem = this.proxyList.at(index);
+
+    if (!proxyItem) {
+      throw new Error(`unexpected error: no proxy on ${index} index`);
     }
+
+    return proxyItem;
   }
 
   public async onProviderChange() {
@@ -143,8 +124,9 @@ class Proxy {
       try {
         const { status } = await axios.get(this.ipChangeUrl);
 
-        if (status !== 200)
+        if (status !== 200) {
           throw new Error(`ip change response status is ${status}`);
+        }
 
         logger.info(createMessage(`ip change success`));
 
@@ -166,14 +148,6 @@ class Proxy {
     }
 
     throw new Error(`ip change failed. check ip change url`);
-  }
-
-  public isServerRandom() {
-    return this.type === "server" && !this.isRandom;
-  }
-
-  public count() {
-    return this.proxyList.length;
   }
 }
 

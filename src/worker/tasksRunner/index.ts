@@ -8,13 +8,13 @@ import createMessage from "../../utils/other/createMessage";
 import logger from "../../utils/other/logger";
 import prettifyError from "../../utils/other/prettifyError";
 import sleep from "../../utils/other/sleep";
-import waitInternetConnectionWrapper from "../../utils/other/waitInternetConnectionWrapper";
+import waitInternetConnection from "../../utils/other/waitInternetConnection";
 import randomShuffle from "../../utils/random/randomShuffle";
 
 import TasksRunnerConfig from "./config";
 import confirmRun from "./confirmRun";
-import initializeAccounts from "./initializeAccounts";
-import initializeProxy from "./initializeProxy";
+import getAccounts from "./getAccounts";
+import getProxies from "./getProxies";
 import printTasks from "./printTasks";
 import TaskCreator from "./taskCreator";
 import Waiter from "./waiter";
@@ -59,6 +59,7 @@ class TasksRunner {
     await this.proxy.onProviderChange();
   }
 
+  @waitInternetConnection()
   private runTestTransaction() {
     const { transaction, account, task } = this.state;
 
@@ -76,6 +77,7 @@ class TasksRunner {
     task.onTransactionSuccess(0.5);
   }
 
+  @waitInternetConnection()
   private async runTransaction() {
     const { transaction, account, task } = this.state;
 
@@ -108,12 +110,9 @@ class TasksRunner {
     const { step } = this.state;
 
     while (!step.isEmpty()) {
-      const wrappedRunner = waitInternetConnectionWrapper(
-        this.runTransaction.bind(this),
-      );
-      await wrappedRunner();
+      // await this.runTransaction();
 
-      // this.runTestTransaction();
+      this.runTestTransaction();
 
       if (this.state.isTxRun && !step.isEmpty()) {
         await this.waiter.waitTransaction();
@@ -226,23 +225,24 @@ class TasksRunner {
     }
   }
 
-  public async run() {
+  private async initialize() {
     const { files, proxy } = this.config.fixed;
 
-    const accounts = await initializeAccounts({
+    const accounts = await getAccounts({
       baseFileName: files.privateKeys,
     });
 
-    this._proxy = await initializeProxy({
-      proxyConfig: proxy,
+    const proxies = await getProxies({
       baseFileName: files.proxies,
       accountsLength: accounts.length,
+      isServerRandom: proxy.type === "server" && proxy.serverIsRandom,
     });
 
-    logger.info(`accounts found: ${accounts.length}`);
+    this._proxy = new Proxy({ ...proxy, proxies });
 
     const factoryInfoStr = this.creator.getFactoryInfoStr();
 
+    logger.info(`accounts found: ${accounts.length}`);
     logger.info(`possible routes:\n${factoryInfoStr}`);
 
     await confirmRun();
@@ -250,6 +250,10 @@ class TasksRunner {
     await this.creator.initializeTasks(randomShuffle(accounts));
 
     this.initCommandListener();
+  }
+
+  public async run() {
+    await this.initialize();
 
     while (!this.creator.isEmpty()) await this.runTask();
 
