@@ -38,8 +38,6 @@ Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 - [Encrypter](#encrypter)
   - [Create Files](#create-files-2)
   - [Config](#config-2)
-- [Eth Returner](#eth-returner)
-- [Depositor](#depositor)
 - [Running](#running)
 - [Additional Links](#additional-links)
 
@@ -57,9 +55,6 @@ Currently there are 90+ different tasks using 8 web3 services
 - **Task Runner:** The core script for generating and executing transactions.
 - **Checker:** Use this to see your accounts' details like transactions and balances.
 - **Encrypter:** Use this to make your asset files (private keys, addresses, proxies) safe for using the Task Runner on a server.
-- **Eth Returner:** This part changes all tokens used by the main script back to ETH and takes out all liquidity. This is a backup in case there are errors in the Task Runner mode.
-- **Depositor:** This part makes it easy to put deposits into Linea accounts.
-
 ## Suggestions
 
 - Don't change the **example** files. Make copies of the files you need and change those copies. There may be updates in the future for example files.
@@ -140,64 +135,131 @@ The configuration is categorized into two primary sections: `dynamic` and `fixed
 
 ### Dynamic Configuration Values
 
-The `dynamic` block contains values that can be altered in real-time during program execution. It includes the following fields:
+The `dynamic` block encompasses values that can be modified in real-time during program execution. It includes:
 
-- `delaySec`: Manages delays in two areas:
-  - `step`: Determines the minimum and maximum delay, in seconds, between steps (minimum value is 20 seconds).
-  - `transaction`: Sets the minimum and maximum delay, in seconds, between transactions (minimum value is 60 seconds).
-- `maxLineaGwei`: Specifies the upper limit for Linea Gwei. The system verifies this limit before executing each transaction.
-- `maxParallelAccounts`: Designates the highest number of accounts that can operate concurrently.
-- `maxTxFeeUsd`: Establishes the maximum permissible transaction cost in USD for gas fees. If the cost exceeds this value, an error is triggered, and the ongoing account task steps are terminated. If you're not concerned about the transaction cost, set this value to `100` so system will then ignore this setting until the transaction cost reaches $100.
+- **`delaySec`**: 
+  - **Description**: Manages delays in two distinct areas.
+  - **Sub-settings**:
+    - **`step`**: 
+      - **Description**: Determines the minimum and maximum delay, in seconds, between steps.
+      - **Note**: Minimum value is 20 seconds.
+    - **`transaction`**: 
+      - **Description**: Sets the minimum and maximum delay, in seconds, between transactions.
+      - **Note**: Minimum value is 60 seconds.
+
+- **`maxLineaGwei`**: 
+  - **Description**: Specifies the upper limit for Linea Gwei. 
+  - **Function**: The system verifies this limit before executing each transaction.
+
+- **`maxParallelAccounts`**: 
+  - **Description**: Designates the highest number of accounts that can operate concurrently.
+
+- **`maxTxFeeUsd`**: 
+  - **Description**: Establishes the maximum permissible transaction cost in USD for gas fees. 
+  - **Function**: Triggers an error and terminates ongoing account task steps if the cost exceeds this value.
+  - **Note**: Set to `100` to have the system ignore this setting until the transaction cost reaches $100, if not concerned about transaction cost.
 
 ### Fixed Configuration Values
 
 The `fixed` block encompasses static configuration details including:
-- `approveMultiplier` - responsible for increasing the value of each approval to avoid making additional transactions each time the software uses the service.
-- `files`: Ensure the filenames within the `assets` folder are correctly formatted (e.g., `private_keys.txt` is correct, `private_keys` is not). Include the following:
-  - `privateKeys`: Denote the filename in the `assets` folder containing private keys.
-  - `proxies`: Designate the filename in the `assets` folder holding proxies. It can be an empty string for `none` proxy type.
-- `maxAccountFeeUsd` - Maximum gas limit for all transactions. If the account uses the entire limit, tasks will stop being generated. You can set `1000` if you set right `transactionsLimit` and `maxTxFeeUsd`.
-- `minEthBalance`: Indicates the minimum ETH balance required in the account for start step. If account has less than minimum native and there are some tasks in work you can deposit manually on accounts with insufficient balance to continue. 
-- `onCurrentTaskEnd` - Determines what should system do with the account after the completion of the current task. This parameter has more significance if the software is launched with a large number of accounts and/or transactions or a long pause between steps. Options:
-  - `CREATE_NEXT_TASK`: Create and execute a new task. This is suitable for quickly increasing the number of transactions on each account, as the task will remain in the queue for execution until the transaction limit is reached.
-  - `WAIT_OTHERS`: Wait until all accounts have completed their tasks and then create a new one. This option is suitable to increase the number of active days, as new tasks will not be created while there are still accounts in the process of execution.
-  - `MOVE_RANDOMLY`: Move the account to a random place in the queue. This option is for cases when the accounts are already satisfactory in active days and transactions overall. It adds randomness to the actions. Some accounts may reach the queue several times more often than others.
-- `providers`: List the service providers for this mode. To omit specific blocks, comment them out in the configuration file. For example, the following lines in the config file mean that OPEN_OCEAN will be used while DMAIL won't be:
-  ```json
-  "OPEN_OCEAN",
-  // "DMAIL",
-  ```
-- `proxy`: Includes proxy settings such as:
-  - `type`: Determines the proxy type (`none`, `mobile`, or `server`).
-  - `mobileIpChangeUrl`: If using a mobile proxy, specify the rotation URL here.
-  - `serverIsRandom`: This configuration option is a boolean setting (`true` or `false`) associated with the use of server proxies. 
-    - When set to `true`, the system will allocate a random proxy from your proxy list to each account for every task. This setting ensures that the same account does not use the same proxy repeatedly, enhancing anonymity and reducing the likelihood of the account getting flagged or banned by networks or services due to consistent access from the same proxy. But you can use 10 proxies for 50 accounts for example.
-    - If set to `false`, each account will be assigned a dedicated proxy from the proxy list, and will use this same proxy for all its operations and transactions. In this configuration, the number of proxies in your proxy list should be equal to or more than the number of accounts to ensure each account has a proxy assigned to it.
-    This configuration setting allows users to manage the proxy allocation strategy for accounts, providing a balance between anonymity and consistent proxy assignment.
-- `rpc`: Holds the Linea RPC details in the `linea` field.
-- `transactionsLimit`: This setting controls the minimum and maximum number of transactions that will be generated for each account. 
-  - The value is set as a range (e.g., `1-5`). 
-  - The system will randomly select a limit within this range for each account. For example, if the `transactionsLimit` is set to `3-5`, one account might have a limit of 4 transactions, while another might have a limit of 5.
-  - This limit represents the total number of transactions an account will perform before it stops generating new tasks. If this limit is reached, the account will not generate any more tasks. If the limit is not reached, a new task will be created for the account, ensuring that the account continues to operate until it hits the transaction limit.
-  - This configuration provides control over the workload allocated to each account, allowing for balanced distribution and preventing overuse of individual accounts.
-- `workingAmountPercent`: Set the minimum and maximum working amount in percentage.
+
+- **`approveMultiplier`**: 
+  - **Description**: Responsible for increasing the value of each approval to avoid making additional transactions each time the software uses the service.
+
+- **`files`**: 
+  - **Description**: Ensure the filenames within the `assets` folder are correctly formatted (e.g., `private_keys.txt` is correct; `private_keys` is not).
+    - **`privateKeys`**: 
+      - **Description**: Denote the filename in the `assets` folder containing private keys.
+    - **`proxies`**: 
+      - **Description**: Designate the filename in the `assets` folder holding proxies. It can be an empty string for `none` proxy type.
+
+- **`maxAccountFeeUsd`**: 
+  - **Description**: Maximum gas limit for all transactions. 
+  - **Note**: If the account uses the entire limit, tasks will stop being generated. You can set `1000` if you set the right `transactionsLimit` and `maxTxFeeUsd`.
+
+- **`minEthBalance`**: 
+  - **Description**: Indicates the minimum ETH balance required in the account for the start step. 
+  - **Note**: If an account has less than the minimum balance and tasks are in progress, you can manually deposit into accounts with insufficient balance to continue.
+
+- **`onCurrentTaskEnd`**: 
+  - **Description**: Determines what the system should do with the account after the completion of the current task. 
+  - **Options**:
+    - **`CREATE_NEXT_TASK`**: 
+      - **Description**: Create and execute a new task. Suitable for quickly increasing the number of transactions on each account, as the task will remain in the queue for execution until the transaction limit is reached.
+    - **`WAIT_OTHERS`**: 
+      - **Description**: Wait until all accounts have completed their tasks and then create a new one. Suitable to increase the number of active days, as new tasks will not be created while there are still accounts in the process of execution.
+    - **`MOVE_RANDOMLY`**: 
+      - **Description**: Move the account to a random place in the queue, adding randomness to the actions. Some accounts may reach the queue several times more often than others.
+
+- **`providers`**: 
+  - **Description**: Lists the service providers for this mode. 
+  - **Note**: To omit specific blocks, comment them out in the configuration file. 
+  - **Example**: Below lines in the config file mean that `OPEN_OCEAN` will be used while `DMAIL` won't be:
+    ```json
+    "OPEN_OCEAN",
+    // "DMAIL",
+    ```
+
+- **`proxy`**: 
+  - **Description**: Includes proxy settings.
+  - **Sub-settings**:
+    - **`type`**: 
+      - **Description**: Determines the proxy type (`none`, `mobile`, or `server`).
+    - **`mobileIpChangeUrl`**: 
+      - **Description**: If using a mobile proxy, specify the rotation URL here.
+    - **`serverIsRandom`**: 
+      - **Description**: A boolean setting (`true` or `false`) associated with the use of server proxies.
+      - **Details**: 
+        - If `true`, the system will allocate a random proxy from your proxy list to each account for every task. This setting ensures enhanced anonymity and reduced likelihood of account flagging.
+        - If `false`, each account will use a dedicated proxy for all its operations. Ensure the number of proxies is equal to or more than the number of accounts.
+
+- **`rpc`**: 
+  - **Description**: Holds the Linea RPC url in the `linea` field.
+
+- **`transactionsLimit`**: 
+  - **Description**: Controls the minimum and maximum number of transactions that will be generated for each account. 
+  - **Format**: Set as a range (e.g., `1-5`). The system will randomly select a limit within this range for each account.
+  - **Function**: Determines the total number of transactions an account will perform before stopping task generation.
+
+- **`workingAmountPercent`**: 
+  - **Description**: Set the minimum and maximum working amount in percentage.
+  - **Purpose**: Provides control over the workload allocated to each account, allowing for balanced distribution and preventing overuse.
 
 Ensure your config and assets files are prepared, then proceed to run the script as outlined [below](#running).
 
 ### Available Commands
 
-During this mode you can write commands directly in terminal:
-- **status**: check accounts state
-- **exit**: force stop program
+During this mode, you can enter commands directly in the terminal:
+- **`status`**: 
+  - **Description**: Check the accounts' state.
+- **`exit`**: 
+  - **Description**: Force stop the program.
 
-### Account statuses
+### Account Statuses
 
-- `TODO` - waiting in queue to generate task and execute it
-- `IN_PROGRESS` - account in queue to execute task
-- `INSUFFICIENT_BALANCE` - account native balance is less than `minEthBalance` value. If account has less than minimum native and there are some tasks in work you can deposit manually on accounts with insufficient balance to continue. 
-- `WAITING` - if you selected `WAIT_OTHERS` value in `onCurrentTaskEnd` account will use this status to wait other accounts to execute tasks
-- `DONE` - account min transactions limit reached
-- `FEE_LIMIT` - account total fees was reached `maxAccountFeeUsd` value
+This section outlines the various statuses an account can hold and their implications.
+
+- **`TODO`**: 
+  - **Description**: Account is in the queue, awaiting task generation and execution.
+  
+- **`IN_PROGRESS`**:
+  - **Description**: Account is in the queue for task execution.
+  
+- **`INSUFFICIENT_BALANCE`**: 
+  - **Description**: Account's native balance is lower than the `minEthBalance` value.
+  - **Note**: Manually deposit funds into accounts with insufficient balance to continue task execution if there are tasks in progress.
+  
+- **`WAITING`**: 
+  - **Description**: Account is waiting for other accounts to execute tasks.
+  - **Condition**: This status is active if `WAIT_OTHERS` value is selected in `onCurrentTaskEnd`.
+  
+- **`DONE`**: 
+  - **Description**: Account has reached the minimum transactions limit.
+  
+- **`FEE_LIMIT`**: 
+  - **Description**: Account has reached the `maxAccountFeeUsd` value, signaling the total fee limit.
+  
+Each status offers a glimpse into the account’s present condition, aiding in effective account management and understanding.
 
 ## Checker
 
@@ -217,15 +279,27 @@ Before the first run, you must create the following files:
 
 ### Config:
 
-- `dynamic`: This is just an empty block, no configuration is needed here.
-- `fixed`:
-  - `files`:
-    - `addresses`: Specify the filename in the `assets` folder containing addresses.
-    - `privateKeys`: Specify the filename in the `assets` folder containing private keys (e.g., `private_keys.txt`). Either private_keys or addresses must be filled in. You can fill both of them and add to config. It will check accounts from both files and show in one table.
-  - `maxParallelAccounts` - Set the maximum number of parallel accounts to check.
-  - `delayBetweenChunkSec` - Set the delay between parallel accounts' requests.
-  - `hideBalanceLessThanUsd` - Set the USD value of tokens that can be hidden. Set `-1` to see all tokens.
-  - `rpc`: Holds the Linea RPC details in the `linea` field.
+- **`dynamic`**:
+  - **Description**: This is just an empty block, no configuration is needed here.
+
+- **`fixed`**:
+  - **Sub-settings**:
+    - **`files`**: 
+      - **Sub-settings**:
+        - **`addresses`**: 
+          - **Description**: Specify the filename in the `assets` folder containing addresses.
+        - **`privateKeys`**: 
+          - **Description**: Specify the filename in the `assets` folder containing private keys (e.g., `private_keys.txt`).
+          - **Note**: Either `privateKeys` or `addresses` must be filled in. Filling both will check accounts from both files and display in one table.
+    - **`maxParallelAccounts`**: 
+      - **Description**: Set the maximum number of parallel accounts to check.
+    - **`delayBetweenChunkSec`**: 
+      - **Description**: Set the delay between parallel accounts' requests.
+    - **`hideBalanceLessThanUsd`**: 
+      - **Description**: Set the USD value of tokens that can be hidden.
+      - **Note**: Set to `-1` to see all tokens.
+    - **`rpc`**: 
+      - **Description**: Holds the Linea RPC details in the `linea` field.
 
 ## Encrypter
 
@@ -240,17 +314,14 @@ Before the first run, perform the following steps:
 
 ### Config
 
-- `dynamic`: This is just an empty block, no configuration is needed here.
-- `fixed`:
-    - `encryptedFileName`: Specify the name of the file in the `assets` folder containing decrypted data. The software will create a new file in the `assets` folder with encrypted data.
-    
-## Eth Returner
+- **`dynamic`**:
+  - **Description**: This is just an empty block, no configuration is needed here.
 
-**Disabled for now until it is implemented.**
-
-## Depositor
-
-**Disabled for now until it is implemented.**
+- **`fixed`**:
+  - **Sub-settings**:
+    - **`encryptedFileName`**: 
+      - **Description**: Specify the name of the file in the `assets` folder containing decrypted data.
+      - **Note**: The software will create a new file in the `assets` folder with encrypted data.
 
 ## Running
 
