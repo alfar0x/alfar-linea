@@ -14,9 +14,9 @@
       privateKeys: "private_keys.txt",
       proxies: "proxies.txt",
     },
-    maxAccountFeeUsd: 20,
+    maxAccountFeeUsd: 1000,
     minEthBalance: 0.002,
-    onCurrentTaskEnd: "WAIT_OTHERS",
+    onCurrentTaskEnd: "CREATE_NEXT_TASK",
     providers: [
       "DMAIL",
       "LINEA_BANK",

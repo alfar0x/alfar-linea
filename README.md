@@ -2,9 +2,11 @@
 
 This software is designed to manage Linea accounts by simulating user activity through random transactions.
 
-## Overview
-
 **_It is crucial to read the instructions carefully to fully understand how the software works before running it._**
+
+Check for updates here: [alfar](https://t.me/+FozX3VZA0RIyNWY6)
+
+Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
 
 ### Main Features:
 
@@ -20,133 +22,8 @@ This software is designed to manage Linea accounts by simulating user activity t
 
 **_Note: The Linea mainnet may occasionally encounter errors and cease to function unexpectedly. It's advised to avoid making large transactions using this software, as it primarily aims to increase the transaction count. It is considered safe to add $20 to an account and set the working volume to 1-7%._**
 
-## How It Works
-
-In the main mode `task-runner`, the software creates a `task` for each account, comprising various `steps`, which in turn consist of a list of `transactions`.
-
-### Transaction Workflow:
-
-1. **Step**: Represents transactions sent by real users within 1-2 minutes (e.g., `[approve -> swap]`). Each step can currently include 1-3 transactions.
-2. **Task**: Encompasses steps executable by real users within hours/days (e.g., `[swap ETH to USDC] --> [approve USDC -> add USDC to liquidity pool] --> [remove liquidity] --> [approve USDC -> swap to ETH]`). Here, 1 task = 4 steps = 6 transactions. Each task concludes by returning all tokens/liquidity to ETH.
-
-Check for updates here: [alfar](https://t.me/+FozX3VZA0RIyNWY6)
-
-Donate: `0xeb3F3e28F5c83FCaF28ccFC08429cCDD58Fd571D`
-
-<details>
-  <summary> Click here to see all current possible tasks (if all providers are turned on) </summary>
-
-```
-Swap eth -> token -> eth: 55
-OPEN_OCEAN_SWAP_ETH_IUSD -> OPEN_OCEAN_SWAP_IUSD_ETH
-OPEN_OCEAN_SWAP_ETH_IZI -> OPEN_OCEAN_SWAP_IZI_ETH
-OPEN_OCEAN_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-OPEN_OCEAN_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
-OPEN_OCEAN_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
-OPEN_OCEAN_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
-OPEN_OCEAN_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
-OPEN_OCEAN_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
-OPEN_OCEAN_SWAP_ETH_WBTC -> OPEN_OCEAN_SWAP_WBTC_ETH
-OPEN_OCEAN_SWAP_ETH_WBTC -> SYNCSWAP_SWAP_WBTC_ETH
-OPEN_OCEAN_SWAP_ETH_wAVAX -> OPEN_OCEAN_SWAP_wAVAX_ETH
-OPEN_OCEAN_SWAP_ETH_wBNB -> OPEN_OCEAN_SWAP_wBNB_ETH
-OPEN_OCEAN_SWAP_ETH_wMATIC -> OPEN_OCEAN_SWAP_wMATIC_ETH
-PANCAKE_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-PANCAKE_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
-PANCAKE_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
-PANCAKE_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
-PANCAKE_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
-PANCAKE_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_WBTC -> OPEN_OCEAN_SWAP_WBTC_ETH
-SYNCSWAP_SWAP_ETH_WBTC -> SYNCSWAP_SWAP_WBTC_ETH
-SYNCSWAP_SWAP_ETH_ceBUSD -> SYNCSWAP_SWAP_ceBUSD_ETH
-SYNCSWAP_SWAP_ETH_ceBUSD -> VELOCORE_SWAP_ceBUSD_ETH
-SYNCSWAP_SWAP_ETH_ceBUSD -> XY_FINANCE_SWAP_ceBUSD_ETH
-VELOCORE_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-VELOCORE_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
-VELOCORE_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
-VELOCORE_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
-VELOCORE_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
-VELOCORE_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
-VELOCORE_SWAP_ETH_ceBUSD -> SYNCSWAP_SWAP_ceBUSD_ETH
-VELOCORE_SWAP_ETH_ceBUSD -> VELOCORE_SWAP_ceBUSD_ETH
-VELOCORE_SWAP_ETH_ceBUSD -> XY_FINANCE_SWAP_ceBUSD_ETH
-WOOFI_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-WOOFI_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
-WOOFI_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
-WOOFI_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
-WOOFI_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
-WOOFI_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
-XY_FINANCE_SWAP_ETH_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-XY_FINANCE_SWAP_ETH_USDC -> PANCAKE_SWAP_USDC_ETH
-XY_FINANCE_SWAP_ETH_USDC -> SYNCSWAP_SWAP_USDC_ETH
-XY_FINANCE_SWAP_ETH_USDC -> VELOCORE_SWAP_USDC_ETH
-XY_FINANCE_SWAP_ETH_USDC -> WOOFI_SWAP_USDC_ETH
-XY_FINANCE_SWAP_ETH_USDC -> XY_FINANCE_SWAP_USDC_ETH
-XY_FINANCE_SWAP_ETH_USDT -> XY_FINANCE_SWAP_USDT_ETH
-XY_FINANCE_SWAP_ETH_ceBUSD -> SYNCSWAP_SWAP_ceBUSD_ETH
-XY_FINANCE_SWAP_ETH_ceBUSD -> VELOCORE_SWAP_ceBUSD_ETH
-XY_FINANCE_SWAP_ETH_ceBUSD -> XY_FINANCE_SWAP_ceBUSD_ETH
-
-Supply -> redeem eth: 1
-LINEA_BANK_SUPPLY_ETH
-
-Swap eth -> token -> supply -> redeem -> eth: 40
-OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
-OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
-OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
-OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
-OPEN_OCEAN_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
-OPEN_OCEAN_SWAP_ETH_WBTC -> LINEA_BANK_SUPPLY_WBTC -> OPEN_OCEAN_SWAP_WBTC_ETH
-OPEN_OCEAN_SWAP_ETH_WBTC -> LINEA_BANK_SUPPLY_WBTC -> SYNCSWAP_SWAP_WBTC_ETH
-PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
-PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
-PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
-PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
-PANCAKE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
-SYNCSWAP_SWAP_ETH_WBTC -> LINEA_BANK_SUPPLY_WBTC -> OPEN_OCEAN_SWAP_WBTC_ETH
-SYNCSWAP_SWAP_ETH_WBTC -> LINEA_BANK_SUPPLY_WBTC -> SYNCSWAP_SWAP_WBTC_ETH
-VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
-VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
-VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
-VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
-VELOCORE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
-WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
-WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
-WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
-WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
-WOOFI_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
-XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> OPEN_OCEAN_SWAP_USDC_ETH
-XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> PANCAKE_SWAP_USDC_ETH
-XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> SYNCSWAP_SWAP_USDC_ETH
-XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> VELOCORE_SWAP_USDC_ETH
-XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> WOOFI_SWAP_USDC_ETH
-XY_FINANCE_SWAP_ETH_USDC -> LINEA_BANK_SUPPLY_USDC -> XY_FINANCE_SWAP_USDC_ETH
-
-Random: 1
-DMAIL_SEND_MAIL
-```
-
-</details>
-
 ## Table of Contents
-
+- [How it works](#how-it-works)
 - [Modes](#modes)
 - [Suggestions](#suggestions)
 - [Installation](#installation)
@@ -154,7 +31,7 @@ DMAIL_SEND_MAIL
   - [Create Files](#create-files)
   - [Config](#config)
   - [Available Commands](#available-commands)
-  - [Example](#example)
+  - [Account statuses](#account-statuses)
 - [Checker](#checker)
   - [Create Files](#create-files-1)
   - [Config](#config-1)
@@ -165,6 +42,15 @@ DMAIL_SEND_MAIL
 - [Depositor](#depositor)
 - [Running](#running)
 - [Additional Links](#additional-links)
+
+## How It Works
+
+In the main mode `task-runner`, the software creates a `task` for each account, comprising various `steps`, which in turn consist of a list of `transactions`
+
+1. **Step**: Represents transactions sent by real users within 1-2 minutes (e.g., `[approve -> swap]`). Each step can currently include 1-3 transactions.
+2. **Task**: Encompasses steps executable by real users within hours/days (e.g., `[swap ETH to USDC] --> [approve USDC -> add USDC to liquidity pool] --> [remove liquidity] --> [approve USDC -> swap to ETH]`). Here, 1 task = 4 steps = 6 transactions. Each task concludes by returning all tokens/liquidity to ETH.
+
+Currently there are 90+ different tasks using 8 web3 services
 
 ## Modes
 
@@ -262,23 +148,20 @@ The `dynamic` block contains values that can be altered in real-time during prog
 - `maxLineaGwei`: Specifies the upper limit for Linea Gwei. The system verifies this limit before executing each transaction.
 - `maxParallelAccounts`: Designates the highest number of accounts that can operate concurrently.
 - `maxTxFeeUsd`: Establishes the maximum permissible transaction cost in USD for gas fees. If the cost exceeds this value, an error is triggered, and the ongoing account task steps are terminated. If you're not concerned about the transaction cost, set this value to `100` so system will then ignore this setting until the transaction cost reaches $100.
-- `minEthBalance`: Indicates the minimum ETH balance required in the account for start task. To halt the script abruptly, assign a value of `100`.
 
 ### Fixed Configuration Values
 
 The `fixed` block encompasses static configuration details including:
-
+- `approveMultiplier` - responsible for increasing the value of each approval to avoid making additional transactions each time the software uses the service.
 - `files`: Ensure the filenames within the `assets` folder are correctly formatted (e.g., `private_keys.txt` is correct, `private_keys` is not). Include the following:
   - `privateKeys`: Denote the filename in the `assets` folder containing private keys.
   - `proxies`: Designate the filename in the `assets` folder holding proxies. It can be an empty string for `none` proxy type.
-- `isAccountsShuffle`: A boolean value (`true` or `false`) determining whether to shuffle the private keys file.
-- `isCheckBalanceOnStart`: A boolean value deciding whether to examine the balance before the onset of work, based on `minEthBalance`. Note: balances will be checked before each task in any case.
-- `isShuffleAccountOnStepsEnd`: This is a boolean parameter (`true` or `false`). When set to `true`, it ensures that an account that has completed its current task is placed back in a random position within the queue for further tasks. This setting can be useful for running the program indefinitely, especially when a high number of transactions (`transactionsLimit`) is specified. 
-
-  By enabling this setting, after the completion of the current task for an account, the account is moved to a random position in the queue. If there are many accounts, this account might have to wait for a significant time before being assigned a new task, allowing the system to naturally create new tasks over time. 
-
-  Caution: When this setting is enabled (`true`), the opportunity for each account to start decreases. Even with high frequency and time delay, some accounts may not initiate at all, as they are continuously being moved within the queue. This setting was added for times when all accounts have met the requirements for active days and transactions. It helps to make their actions more unpredictable. With this setting on, some accounts might end up doing three tasks in a row, while others might not do any tasks at all. This ensures that tasks are assigned in a truly random way.
-
+- `maxAccountFeeUsd` - Maximum gas limit for all transactions. If the account uses the entire limit, tasks will stop being generated. You can set `1000` if you set right `transactionsLimit` and `maxTxFeeUsd`.
+- `minEthBalance`: Indicates the minimum ETH balance required in the account for start step. If account has less than minimum native and there are some tasks in work you can deposit manually on accounts with insufficient balance to continue. 
+- `onCurrentTaskEnd` - Determines what should system do with the account after the completion of the current task. This parameter has more significance if the software is launched with a large number of accounts and/or transactions or a long pause between steps. Options:
+  - `CREATE_NEXT_TASK`: Create and execute a new task. This is suitable for quickly increasing the number of transactions on each account, as the task will remain in the queue for execution until the transaction limit is reached.
+  - `WAIT_OTHERS`: Wait until all accounts have completed their tasks and then create a new one. This option is suitable to increase the number of active days, as new tasks will not be created while there are still accounts in the process of execution.
+  - `MOVE_RANDOMLY`: Move the account to a random place in the queue. This option is for cases when the accounts are already satisfactory in active days and transactions overall. It adds randomness to the actions. Some accounts may reach the queue several times more often than others.
 - `providers`: List the service providers for this mode. To omit specific blocks, comment them out in the configuration file. For example, the following lines in the config file mean that OPEN_OCEAN will be used while DMAIL won't be:
   ```json
   "OPEN_OCEAN",
@@ -304,62 +187,17 @@ Ensure your config and assets files are prepared, then proceed to run the script
 ### Available Commands
 
 During this mode you can write commands directly in terminal:
-- **status**: check current tasks
+- **status**: check accounts state
 - **exit**: force stop program
 
-### Example
+### Account statuses
 
-<details>
-  <summary>Click here to see a run example</summary>
-
-Assume the following configurations are set:
-
-- **Maximum Parallel Accounts**: 2
-- **Minimum/Maximum Step Delay**: 300/3600 seconds
-- **Minimum/Maximum Transaction Delay**: 30/240 seconds
-- **Minimum/Maximum Transactions Limit**: 2/10
-- **Total Accounts Added**: 4 
-- **isShuffleAccountOnStepsEnd**: false
-
-Given these settings, the system will initially generate tasks for the first two accounts.
-
-**First Iteration:**
-- acc1 (min tx limit = 8) - [step1, step2, step3]; (working account)
-- acc2 (min tx limit = 2) - [step1, step2]; (working account)
-- acc3 (min tx limit = 6) - []; (waiting)
-- acc4 (min tx limit = 5) - []; (waiting)
-
-**Next Iteration (acc2 was run):**
-- acc1 (min tx limit = 8) - [step1, step2, step3]; (working account)
-- acc2 (min tx limit = 2) - [step2]; (working account)
-- acc3 (min tx limit = 6) - []; (waiting)
-- acc4 (min tx limit = 5) - []; (waiting)
-
-**Next Iteration (acc1 was run):**
-- acc1 (min tx limit = 8) - [step2, step3]; (working account)
-- acc2 (min tx limit = 2) - [step2]; (working account)
-- acc3 (min tx limit = 6) - []; (waiting)
-- acc4 (min tx limit = 5) - []; (waiting)
-
-**Next Iteration (acc2 was run):**
-- acc1 (min tx limit = 8) - [step3]; (working account)
-- acc2 (min tx limit = 2) - []; (done, removed from queue)
-- acc3 (min tx limit = 6) - [step1, step2]; (new working account)
-- acc4 (min tx limit = 5) - []; (waiting)
-
-**Next Iteration (acc1 was run):**
-- acc1 (min tx limit = 8) - [step3]; (working account)
-- acc3 (min tx limit = 6) - [step2]; (working account)
-- acc4 (min tx limit = 5) - []; (waiting)
-
-**Next Iteration (acc1 was run):**
-- acc1 (min tx limit = 8) - [step4, step5, step6]; (new steps generated, working account)
-- acc3 (min tx limit = 6) - [step2]; (working account)
-- acc4 (min tx limit = 5) - []; (waiting)
-
-...and so on. The process continues to cycle through the accounts, executing steps and transactions, generating new steps as needed, and introducing new accounts into the task list as others complete their minimum transaction limit and are removed from the queue.
-
-</details>
+- `TODO` - waiting in queue to generate task and execute it
+- `IN_PROGRESS` - account in queue to execute task
+- `INSUFFICIENT_BALANCE` - account native balance is less than `minEthBalance` value. If account has less than minimum native and there are some tasks in work you can deposit manually on accounts with insufficient balance to continue. 
+- `WAITING` - if you selected `WAIT_OTHERS` value in `onCurrentTaskEnd` account will use this status to wait other accounts to execute tasks
+- `DONE` - account min transactions limit reached
+- `FEE_LIMIT` - account total fees was reached `maxAccountFeeUsd` value
 
 ## Checker
 
