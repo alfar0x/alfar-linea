@@ -3,37 +3,54 @@ import { RowOptionsRaw } from "console-table-printer/dist/src/utils/table-helper
 
 import Task, { TaskStatus } from "./task";
 
-type Row = {
-  idx: number;
-  name: string;
-  address: string;
-  status: TaskStatus;
-  txs: string;
-  operations: string;
+type ColumnId =
+  | "idx"
+  | "name"
+  | "status"
+  | "txs"
+  | "fee"
+  | "operations"
+  | "address";
+
+type Column = {
+  name: ColumnId;
+  title?: string;
 };
+
+const columns: Column[] = [
+  { name: "idx" },
+  { name: "name" },
+  { name: "status" },
+  { name: "txs" },
+  { name: "fee" },
+  { name: "operations", title: "current operations" },
+  { name: "address" },
+];
+
+type Row = Record<ColumnId, string>;
 
 const colors: Record<TaskStatus, string> = {
   TODO: "cyan",
   IN_PROGRESS: "yellow",
-  INSUFFICIENT_BALANCE: "red",
   WAITING: "blue",
+  INSUFFICIENT_BALANCE: "red",
+  FEE_LIMIT: "red",
   DONE: "green",
 };
 
 const transform = (task: Task): readonly [Row, RowOptionsRaw] => {
-  const { account, status, minimumTransactionsLimit } = task;
+  const { account, status, txsDone, totalFeeStr } = task;
 
-  const { name, address, fileIndex, transactionsPerformed } = account;
-
-  const operations = task.size() ? task.operationsString() : "no operations";
+  const { name, address, fileIndex } = account;
 
   const row: Row = {
-    idx: fileIndex + 1,
+    idx: String(fileIndex + 1),
     name,
-    address,
     status,
-    txs: `${transactionsPerformed}/${minimumTransactionsLimit}`,
-    operations,
+    txs: txsDone,
+    fee: totalFeeStr,
+    operations: task.operationsString(true),
+    address,
   };
 
   const opts: RowOptionsRaw = {
@@ -44,16 +61,12 @@ const transform = (task: Task): readonly [Row, RowOptionsRaw] => {
 };
 
 const printTasks = (tasks: readonly Task[]) => {
-  const p = new Table({
-    columns: [
-      { name: "idx", alignment: "left" },
-      { name: "name", alignment: "left" },
-      { name: "status", alignment: "left" },
-      { name: "txs", alignment: "left" },
-      { name: "operations", alignment: "left", title: "current operations" },
-      { name: "address", alignment: "left" },
-    ],
-  });
+  const alignedColumns = columns.map((column) => ({
+    alignment: "left",
+    ...column,
+  }));
+
+  const p = new Table({ columns: alignedColumns });
 
   for (const task of tasks) {
     const [row, opts] = transform(task);

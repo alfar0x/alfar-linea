@@ -12,7 +12,21 @@ class Operation extends Queue<Step> {
   }
 
   public getNextStep() {
-    return this.shift();
+    if (this.isEmpty()) {
+      throw new Error("operation is empty");
+    }
+
+    const step = this.shift();
+
+    if (!step) {
+      throw new Error(`step is not found`);
+    }
+
+    if (step.isEmpty()) {
+      throw new Error(`step is empty`);
+    }
+
+    return step;
   }
 
   public toString() {

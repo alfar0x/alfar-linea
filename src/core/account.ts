@@ -19,7 +19,6 @@ class Account {
   public readonly name: string;
 
   private readonly _privateKey?: string;
-  private _transactionsPerformed: number;
 
   public constructor(params: {
     name?: string;
@@ -39,7 +38,6 @@ class Account {
       throw new Error("Either private key or address must be provided.");
     }
     this.name = name || getShortString(this.address);
-    this._transactionsPerformed = 0;
   }
 
   private initializeAddressFromGiven(address: string) {
@@ -119,17 +117,7 @@ class Account {
 
     await chain.waitTxReceipt(hash);
 
-    this.incrementTransactionsPerformed();
-
     return hash;
-  }
-
-  private incrementTransactionsPerformed() {
-    this._transactionsPerformed = this._transactionsPerformed + 1;
-  }
-
-  public get transactionsPerformed() {
-    return this._transactionsPerformed;
   }
 
   public async nonce(w3: Web3) {

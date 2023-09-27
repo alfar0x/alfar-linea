@@ -12,13 +12,13 @@ const minMaxRefine = [
 const delaySecSchema = z.object({
   transaction: z
     .object({
-      min: z.number().multipleOf(1).positive().min(20),
+      min: z.number().multipleOf(1).positive().min(1),
       max: z.number().multipleOf(1).positive().max(10000),
     })
     .refine(...minMaxRefine),
   step: z
     .object({
-      min: z.number().multipleOf(1).positive().min(60),
+      min: z.number().multipleOf(1).positive().min(1),
       max: z.number().multipleOf(1).positive().max(10000),
     })
     .refine(...minMaxRefine),
@@ -72,7 +72,7 @@ const workingAmountPercentSchema = z
 const onCurrentTaskEndSchema = z.union([
   z.literal("CREATE_NEXT_TASK"),
   z.literal("WAIT_OTHERS"),
-  z.literal("MOVE_TO_RANDOM_PLACE"),
+  z.literal("MOVE_RANDOMLY"),
 ]);
 
 const approveMultiplierSchema = z
@@ -85,6 +85,7 @@ const approveMultiplierSchema = z
 export const fixedSchema = z.object({
   approveMultiplier: approveMultiplierSchema,
   files: filesSchema,
+  maxAccountFeeUsd: z.number().multipleOf(0.1).positive().max(1000),
   minEthBalance: z.number().multipleOf(0.0001).min(0.002),
   onCurrentTaskEnd: onCurrentTaskEndSchema,
   providers: providersSchema,

@@ -17,7 +17,17 @@ class Step extends Queue<RunnableTransaction> {
   }
 
   public getNextTransaction() {
-    return this.shift();
+    if (this.isEmpty()) {
+      throw new Error("step is empty");
+    }
+
+    const transaction = this.shift();
+
+    if (!transaction) {
+      throw new Error(`transaction is not found`);
+    }
+
+    return transaction;
   }
 }
 

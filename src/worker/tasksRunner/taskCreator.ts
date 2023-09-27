@@ -88,25 +88,26 @@ class TaskCreator {
 
   public isEmpty() {
     return this.tasks.every((t) =>
-      ["DONE", "INSUFFICIENT_BALANCE"].includes(t.status),
+      ["DONE", "INSUFFICIENT_BALANCE", "FEE_LIMIT"].includes(t.status),
     );
   }
 
-  public async onTaskOperationEnd(task: Task, opts?: { isForce?: boolean }) {
-    const { isForce = false } = opts || {};
+  public async onTaskOperationEnd(task: Task, isFailed: boolean) {
+    if (isFailed) task.clear();
 
-    const { minEthBalance, onCurrentTaskEnd } = this.config.fixed;
+    const { minEthBalance, onCurrentTaskEnd, maxAccountFeeUsd } =
+      this.config.fixed;
 
     const { account } = task;
 
     if (task.isMinimumTransactionsLimitReached()) {
       task.changeStatus("DONE");
       task.clear();
-      const { minimumTransactionsLimit } = task;
-      const { transactionsPerformed } = account;
+      const { txsDone, totalFeeStr } = task;
 
-      const txs = `${transactionsPerformed}/${minimumTransactionsLimit}`;
-      logger.info(createMessage(account, `txs done ${txs}`));
+      logger.info(
+        createMessage(account, `done`, `txs:${txsDone}`, `fee:${totalFeeStr}`),
+      );
       return;
     }
 
@@ -129,11 +130,23 @@ class TaskCreator {
       return;
     }
 
-    const shouldChangeStatus = isForce || task.isEmpty();
+    if (!task.isEmpty()) return;
 
-    if (!shouldChangeStatus) return;
+    if (task.isFeeGte(maxAccountFeeUsd)) {
+      task.changeStatus("FEE_LIMIT");
 
-    task.clear();
+      const { txsDone, totalFeeStr } = task;
+
+      logger.info(
+        createMessage(
+          account,
+          `fee limit`,
+          `txs:${txsDone}`,
+          `fee:${totalFeeStr}`,
+        ),
+      );
+      return;
+    }
 
     switch (onCurrentTaskEnd) {
       case "CREATE_NEXT_TASK": {
@@ -144,10 +157,10 @@ class TaskCreator {
         task.changeStatus("WAITING");
         this.moveTaskToEnd(task);
 
-        logger.info(createMessage(account, `iteration done, moved to end`));
+        logger.info(createMessage(account, `current task done, waiting`));
         break;
       }
-      case "MOVE_TO_RANDOM_PLACE": {
+      case "MOVE_RANDOMLY": {
         task.changeStatus("TODO");
         this.moveTaskRandomly(task);
 

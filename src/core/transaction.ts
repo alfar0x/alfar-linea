@@ -8,7 +8,7 @@ import Chain from "./chain";
 
 const MAX_RETRY_TIMES = 20;
 const DEFAULT_GAS_MULTIPLIER = 1.1;
-const DEFAULT_RETRY_TIMES = 0;
+const DEFAULT_RETRY_TIMES = 1;
 
 export type CreateTransactionResult = {
   tx: Transaction | null;
@@ -58,7 +58,7 @@ class RunnableTransaction {
 
     const usdPrice = await this.chain.getNative().readableAmountToUsd(priceEth);
 
-    return usdPrice;
+    return Big(usdPrice).toNumber();
   }
 
   private async transactionRunner(params: {
@@ -66,15 +66,15 @@ class RunnableTransaction {
     retryTimes: number;
     gasMultiplier: number;
     maxTxFeeUsd?: number;
-  }): Promise<{ hash: string; gasPriceUsd: string }> {
+  }): Promise<{ hash: string; fee: number }> {
     const { tx, retryTimes, gasMultiplier, maxTxFeeUsd } = params;
 
-    const gasPriceUsd = await this.calcTxFeeUsd(tx);
+    const fee = await this.calcTxFeeUsd(tx);
 
     if (maxTxFeeUsd) {
-      if (Big(gasPriceUsd).gt(maxTxFeeUsd)) {
+      if (Big(fee).gt(maxTxFeeUsd)) {
         throw new Error(
-          `Tx price is greater than max value: ${gasPriceUsd} > ${maxTxFeeUsd}`,
+          `Tx price is greater than max value: ${fee} > ${maxTxFeeUsd}`,
         );
       }
     }
@@ -82,7 +82,7 @@ class RunnableTransaction {
     try {
       const hash = await this.account.signAndSendTransaction(this.chain, tx);
 
-      return { hash, gasPriceUsd };
+      return { hash, fee };
     } catch (error) {
       if (retryTimes <= 0) throw error;
 
@@ -130,14 +130,14 @@ class RunnableTransaction {
       );
     }
 
-    const { hash, gasPriceUsd } = await this.transactionRunner({
+    const { hash, fee } = await this.transactionRunner({
       tx,
       maxTxFeeUsd,
       retryTimes,
       gasMultiplier,
     });
 
-    return { hash, resultMsg, gasPriceUsd };
+    return { hash, resultMsg, fee };
   }
 
   public toString() {

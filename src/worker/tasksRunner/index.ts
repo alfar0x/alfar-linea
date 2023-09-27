@@ -3,10 +3,7 @@ import readline from "readline";
 import Linea from "../../chain/linea";
 import Account from "../../core/account";
 import Chain from "../../core/chain";
-import Operation from "../../core/operation";
 import Proxy from "../../core/proxy";
-import Step from "../../core/step";
-import RunnableTransaction from "../../core/transaction";
 import createMessage from "../../utils/other/createMessage";
 import logger from "../../utils/other/logger";
 import prettifyError from "../../utils/other/prettifyError";
@@ -19,38 +16,27 @@ import confirmRun from "./confirmRun";
 import initializeAccounts from "./initializeAccounts";
 import initializeProxy from "./initializeProxy";
 import printTasks from "./printTasks";
-import Task from "./task";
 import TaskCreator from "./taskCreator";
 import Waiter from "./waiter";
-
-type PrevRun = {
-  task: Task | null;
-  isTransactionsRun: boolean;
-};
+import WorkerState from "./workerState";
 
 class TasksRunner {
   private readonly config: TasksRunnerConfig;
   private readonly chain: Chain;
   private readonly creator: TaskCreator;
   private readonly waiter: Waiter;
-  private readonly prevRun: PrevRun;
+  private readonly state: WorkerState;
 
   private _proxy: Proxy | null;
 
   public constructor(configFileName: string) {
     this.config = new TasksRunnerConfig({ configFileName });
-
-    const { rpc } = this.config.fixed;
-
-    this.chain = new Linea({ rpc: rpc.linea });
+    this.chain = new Linea({ rpc: this.config.fixed.rpc.linea });
+    this.creator = new TaskCreator({ chain: this.chain, config: this.config });
+    this.waiter = new Waiter({ chain: this.chain, config: this.config });
+    this.state = new WorkerState();
 
     this._proxy = null;
-
-    this.creator = new TaskCreator({ chain: this.chain, config: this.config });
-
-    this.waiter = new Waiter({ chain: this.chain, config: this.config });
-
-    this.prevRun = { task: null, isTransactionsRun: false };
   }
 
   private get proxy() {
@@ -73,142 +59,134 @@ class TasksRunner {
     await this.proxy.onProviderChange();
   }
 
-  private async runTransaction(
-    transaction: RunnableTransaction,
-  ): Promise<boolean> {
-    try {
-      const { maxTxFeeUsd } = this.config.dynamic();
+  private runTestTransaction() {
+    const { transaction, account, task } = this.state;
 
-      await this.waiter.waitGasLimit();
+    logger.debug(createMessage(account, transaction, `running...`));
 
-      const txResult = await transaction.run({ maxTxFeeUsd });
+    const isSuccess = Math.random() > 0.5;
 
-      if (!txResult) return false;
-
-      const { hash, resultMsg, gasPriceUsd } = txResult;
-
-      const message = createMessage(
-        transaction,
-        resultMsg,
-        `fee:$${gasPriceUsd}`,
-        this.chain.getHashLink(hash),
-      );
-
-      logger.info(createMessage(transaction.account, message));
-
-      return true;
-    } catch (error) {
-      throw new Error(createMessage(transaction, (error as Error).message));
+    if (!isSuccess) {
+      throw new Error(createMessage("failed"));
     }
+
+    this.state.isTxRun = true;
+    this.state.isAtLeastOneTxRun = true;
+
+    task.onTransactionSuccess(0.5);
   }
 
-  private async runStep(step: Step) {
-    let isTransactionsRun = false;
+  private async runTransaction() {
+    const { transaction, account, task } = this.state;
+
+    await this.waiter.waitGasLimit();
+
+    const { maxTxFeeUsd } = this.config.dynamic();
+
+    const txResult = await transaction.run({ maxTxFeeUsd });
+
+    if (!txResult) return;
+
+    const { hash, resultMsg, fee } = txResult;
+
+    const message = createMessage(
+      transaction,
+      resultMsg,
+      `fee:$${fee}`,
+      this.chain.getHashLink(hash),
+    );
+
+    logger.info(createMessage(account, message));
+
+    this.state.isTxRun = true;
+    this.state.isAtLeastOneTxRun = true;
+
+    task.onTransactionSuccess(fee);
+  }
+
+  private async runStep() {
+    const { step } = this.state;
 
     while (!step.isEmpty()) {
-      const transaction = step.getNextTransaction();
-
-      if (!transaction) break;
-
-      const wrapped = waitInternetConnectionWrapper(
+      const wrappedRunner = waitInternetConnectionWrapper(
         this.runTransaction.bind(this),
       );
+      await wrappedRunner();
 
-      const isRun = await wrapped(transaction);
+      // this.runTestTransaction();
 
-      if (isRun) {
-        isTransactionsRun = true;
-
-        if (!step.isEmpty()) await this.waiter.waitTransaction();
+      if (this.state.isTxRun && !step.isEmpty()) {
+        await this.waiter.waitTransaction();
       }
-    }
 
-    return isTransactionsRun;
+      this.state.onTransactionEnd();
+    }
   }
 
-  private async runOperation(operation: Operation, account: Account) {
-    let isTransactionsRun = false;
+  private async onStepFailed(params: {
+    isSupportStepsAvailable: boolean;
+    error: Error;
+  }) {
+    const { isSupportStepsAvailable, error } = params;
+
+    const { account, transaction } = this.state;
+
+    if (isSupportStepsAvailable) {
+      logger.warn(
+        createMessage(account, `${transaction} failed`, `getting support step`),
+      );
+    } else {
+      logger.error(createMessage(account, `${transaction} failed`));
+    }
+
+    logger.debug(prettifyError.render(error));
+
+    await sleep(10);
+  }
+
+  private async runOperation() {
+    const { operation } = this.state;
 
     const isSupportStepsAvailable = operation.size() > 1;
 
     while (!operation.isEmpty()) {
-      const step = operation.getNextStep();
-
-      if (!step) {
-        throw new Error(`step is not found`);
-      }
-
-      if (step.isEmpty()) {
-        throw new Error(`step is empty`);
-      }
-
       try {
-        isTransactionsRun = await this.runStep(step);
-
-        return { isTransactionsRun, isOperationFailed: false };
+        await this.runStep();
+        break;
       } catch (error) {
-        if (isSupportStepsAvailable) {
-          logger.warn(
-            createMessage(account, `${step} failed`, `getting support step`),
-          );
-        } else {
-          logger.error(createMessage(account, `${step} failed`));
-        }
-        logger.debug(prettifyError.render(error as Error));
+        await this.onStepFailed({
+          isSupportStepsAvailable,
+          error: error as Error,
+        });
       }
 
-      await sleep(10);
+      this.state.onStepEnd();
     }
+
+    this.state.isOperationFailed = true;
 
     if (isSupportStepsAvailable) {
       logger.error(`all operation steps failed`);
     }
-
-    return { isTransactionsRun, isOperationFailed: true };
   }
 
   private async runTask() {
     const task = await this.creator.getNextInProgressTask();
 
-    if (!task) {
-      throw new Error(`in progress task is not found`);
-    }
+    if (!task) throw new Error(`in progress task is not found`);
 
-    const { account } = task;
+    this.state.task = task;
 
-    const isSameTask =
-      this.prevRun.task !== null && this.prevRun.task.isEquals(task);
+    if (this.state.isDifferentTask)
+      await this.changeChainProvider(task.account);
 
-    if (!isSameTask) {
-      await this.changeChainProvider(account);
-    }
+    if (this.state.isAtLeastOnePrevTxRun) await this.waiter.waitStep();
 
-    if (this.prevRun.isTransactionsRun) await this.waiter.waitStep();
+    await this.runOperation();
 
-    const operation = task.getNextOperation();
+    await this.creator.onTaskOperationEnd(task, this.state.isOperationFailed);
 
-    if (!operation) {
-      throw new Error(`operation is not found`);
-    }
-
-    if (operation.isEmpty()) {
-      throw new Error(`operation is empty`);
-    }
-
-    logger.debug(createMessage(account, `operation start: ${operation}`));
-
-    const { isTransactionsRun, isOperationFailed } = await this.runOperation(
-      operation,
-      account,
-    );
-
-    this.prevRun.task = task;
-
-    logger.debug(createMessage(account, `operation finish`));
-
-    await this.creator.onTaskOperationEnd(task, { isForce: isOperationFailed });
-
-    return isTransactionsRun;
+    this.state.onOperationEnd();
   }
 
   private initCommandListener() {
@@ -273,12 +251,10 @@ class TasksRunner {
 
     this.initCommandListener();
 
-    while (!this.creator.isEmpty()) {
-      const isTransactionsRun = await this.runTask();
-      this.prevRun.isTransactionsRun = isTransactionsRun;
-    }
+    while (!this.creator.isEmpty()) await this.runTask();
 
     logger.info("all tasks finished");
+
     printTasks(this.creator.getTasks());
 
     process.exit();
