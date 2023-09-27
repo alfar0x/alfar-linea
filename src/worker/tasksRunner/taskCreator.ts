@@ -100,17 +100,6 @@ class TaskCreator {
 
     const { account } = task;
 
-    if (task.isMinimumTransactionsLimitReached()) {
-      task.changeStatus("DONE");
-      task.clear();
-      const { txsDone, totalFeeStr } = task;
-
-      logger.info(
-        createMessage(account, `done`, `txs:${txsDone}`, `fee:${totalFeeStr}`),
-      );
-      return;
-    }
-
     const { isAllowed, readableBalance } = await account.isBalanceGteReadable({
       token: this.native,
       minReadableAmount: minEthBalance,
@@ -131,6 +120,17 @@ class TaskCreator {
     }
 
     if (!task.isEmpty()) return;
+
+    if (task.isMinimumTransactionsLimitReached()) {
+      task.changeStatus("DONE");
+      task.clear();
+      const { txsDone, totalFeeStr } = task;
+
+      logger.info(
+        createMessage(account, `done`, `txs:${txsDone}`, `fee:${totalFeeStr}`),
+      );
+      return;
+    }
 
     if (task.isFeeGte(maxAccountFeeUsd)) {
       task.changeStatus("FEE_LIMIT");
