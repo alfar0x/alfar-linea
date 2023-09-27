@@ -108,12 +108,12 @@ class TasksRunner {
     const { step } = this.state;
 
     while (!step.isEmpty()) {
-      // const wrappedRunner = waitInternetConnectionWrapper(
-      //   this.runTransaction.bind(this),
-      // );
-      // await wrappedRunner();
+      const wrappedRunner = waitInternetConnectionWrapper(
+        this.runTransaction.bind(this),
+      );
+      await wrappedRunner();
 
-      this.runTestTransaction();
+      // this.runTestTransaction();
 
       if (this.state.isTxRun && !step.isEmpty()) {
         await this.waiter.waitTransaction();
