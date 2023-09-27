@@ -2,7 +2,7 @@
 import fs from "fs";
 import path from "path";
 
-import Web3, { Contract, ContractAbi } from "web3";
+import { Web3, Contract, ContractAbi } from "web3";
 
 import {
   CONTRACT_DMAIL,

@@ -1,13 +1,13 @@
 import { z } from "zod";
 
-import getFilenameRefine from "../../../utils/zod/getFilenameRefine";
+import getFilenameRefineSchema from "../../../utils/zod/getFilenameRefineSchema";
 
 export const dynamicSchema = z.object({});
 
 const filesSchema = z
   .object({
-    privateKeys: getFilenameRefine(".txt").optional(),
-    addresses: getFilenameRefine(".txt").optional(),
+    privateKeys: getFilenameRefineSchema(".txt").optional(),
+    addresses: getFilenameRefineSchema(".txt").optional(),
   })
   .refine(
     (data) => data.addresses || data.privateKeys,
@@ -21,9 +21,7 @@ const maxParallelAccountsSchema = z
   .min(1)
   .max(10);
 
-const rpcSchema = z.object({
-  linea: z.string().url(),
-});
+const rpcSchema = z.object({ linea: z.string().url() });
 
 export const fixedSchema = z.object({
   files: filesSchema,

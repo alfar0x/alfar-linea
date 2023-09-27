@@ -10,4 +10,9 @@ const getPrettifyError = () => {
 
 const prettifyError = getPrettifyError();
 
-export default prettifyError;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const formatError = (error: any) => {
+  return prettifyError.render(error as Error);
+};
+
+export default formatError;

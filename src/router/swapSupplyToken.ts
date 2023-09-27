@@ -6,7 +6,7 @@ import Account from "../core/account";
 import Operation from "../core/operation";
 import Router from "../core/router";
 import Token from "../core/token";
-import sortStringsHelper from "../utils/other/sortStringsHelper";
+import arraySortStringsHelper from "../utils/array/arraySortStringsHelper";
 import randomChoice from "../utils/random/randomChoice";
 import randomElementWithWeight from "../utils/random/randomElementWithWeight";
 import randomShuffle from "../utils/random/randomShuffle";
@@ -122,7 +122,7 @@ class SwapSupplyTokenRouter extends Router {
         ),
       )
       .flat(depth)
-      .sort(sortStringsHelper);
+      .sort(arraySortStringsHelper);
   }
 
   public size() {
@@ -199,9 +199,7 @@ class SwapSupplyTokenRouter extends Router {
       steps: [supplyStep],
     });
 
-    const redeemAllStep = supplyTokenAction.redeemAllStep({
-      account,
-    });
+    const redeemAllStep = supplyTokenAction.redeemAllStep({ account });
 
     const redeemAllOperation = new Operation({
       name: redeemAllStep.name,

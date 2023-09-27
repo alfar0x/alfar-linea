@@ -1,4 +1,4 @@
-const getShortString = (str: string, symbolsCount = 4) => {
+const formatShortString = (str: string, symbolsCount = 4) => {
   if (str.length <= symbolsCount * 2) return str;
 
   const start = str.substring(0, symbolsCount);
@@ -7,4 +7,4 @@ const getShortString = (str: string, symbolsCount = 4) => {
   return `${start}...${end}`;
 };
 
-export default getShortString;
+export default formatShortString;

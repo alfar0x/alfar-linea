@@ -1,5 +1,5 @@
 import Big from "big.js";
-import Web3, { HttpProvider } from "web3";
+import { Web3, HttpProvider } from "web3";
 
 import CONTRACTS from "../abi/constants/contracts";
 import CONTRACTS_WITHOUT_ABI from "../constants/contractsWithoutAbi";

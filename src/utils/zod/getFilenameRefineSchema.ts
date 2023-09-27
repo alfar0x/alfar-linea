@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const getFilenameRefine = (ext: string) => {
+const getFilenameRefineSchema = (ext: string) => {
   const exampleExt = `.example.${ext}`;
 
   return z
@@ -15,4 +15,4 @@ const getFilenameRefine = (ext: string) => {
     );
 };
 
-export default getFilenameRefine;
+export default getFilenameRefineSchema;

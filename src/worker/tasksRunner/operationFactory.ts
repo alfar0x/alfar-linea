@@ -1,17 +1,17 @@
 import Big from "big.js";
 
-import LendAction from "../action/lend/base";
-import RandomAction from "../action/random/base";
-import SwapAction from "../action/swap/base";
-import Account from "../core/account";
-import Operation from "../core/operation";
-import Router from "../core/router";
-import RandomRouter from "../router/random";
-import SupplyEthRouter from "../router/supplyEth";
-import SwapEthTokenEthRouter from "../router/swapEthTokenEth";
-import SwapSupplyTokenRouter from "../router/swapSupplyToken";
-import randomElementWithWeight from "../utils/random/randomElementWithWeight";
-import randomInteger from "../utils/random/randomInteger";
+import LendAction from "../../action/lend/base";
+import RandomAction from "../../action/random/base";
+import SwapAction from "../../action/swap/base";
+import Account from "../../core/account";
+import Operation from "../../core/operation";
+import Router from "../../core/router";
+import RandomRouter from "../../router/random";
+import SupplyEthRouter from "../../router/supplyEth";
+import SwapEthTokenEthRouter from "../../router/swapEthTokenEth";
+import SwapSupplyTokenRouter from "../../router/swapSupplyToken";
+import randomElementWithWeight from "../../utils/random/randomElementWithWeight";
+import randomInteger from "../../utils/random/randomInteger";
 
 type RouterId =
   | "RANDOM"
@@ -146,9 +146,7 @@ class OperationFactory {
 
     const router = randomElementWithWeight(this.routers);
 
-    const operations = await router.generateOperationList({
-      account,
-    });
+    const operations = await router.generateOperationList({ account });
 
     return operations;
   }
@@ -175,9 +173,7 @@ class OperationFactory {
 
     const { value } = randomTypeRouterData;
 
-    const randomOperations = await value.generateOperationList({
-      account,
-    });
+    const randomOperations = await value.generateOperationList({ account });
 
     const randomIndex = randomInteger(0, operations.length - 1).toNumber();
 
@@ -197,16 +193,10 @@ class OperationFactory {
     return await this.addRandomTypeOperations(account, steps);
   }
 
-  public info(isFull = false) {
-    const routesInfo = this.routers.map(({ value }) => {
-      const short = `${value.description}: ${value.size()}`;
-
-      if (!isFull) return short;
-
-      const possibleRoutesStrings = value.possibleRoutesStrings().join("\n");
-
-      return `${short}\n${possibleRoutesStrings}`;
-    });
+  public info() {
+    const routesInfo = this.routers.map(
+      ({ value }) => `${value.description}: ${value.size()}`,
+    );
 
     return routesInfo;
   }

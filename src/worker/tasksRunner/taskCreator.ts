@@ -1,8 +1,8 @@
 import Account from "../../core/account";
 import Chain from "../../core/chain";
+import Task, { TaskStatus } from "../../core/task";
 import Token from "../../core/token";
-import OperationFactory from "../../factory/operationFactory";
-import createMessage from "../../utils/other/createMessage";
+import formatMessage from "../../utils/formatters/formatMessage";
 import logger from "../../utils/other/logger";
 import randomChoice from "../../utils/random/randomChoice";
 import randomInteger from "../../utils/random/randomInteger";
@@ -10,7 +10,7 @@ import randomShuffle from "../../utils/random/randomShuffle";
 
 import TasksRunnerConfig from "./config";
 import initializeFactory from "./initializeFactory";
-import Task, { TaskStatus } from "./task";
+import OperationFactory from "./operationFactory";
 
 class TaskCreator {
   private readonly config: TasksRunnerConfig;
@@ -61,7 +61,7 @@ class TaskCreator {
     if (isAllowed) return new Task({ account, minimumTransactionsLimit });
 
     logger.error(
-      createMessage(
+      formatMessage(
         account,
         `insufficient balance ${readableBalance} < ${minEthBalance}`,
         `deposit to create tasks`,
@@ -107,7 +107,7 @@ class TaskCreator {
 
     if (!isAllowed) {
       logger.error(
-        createMessage(
+        formatMessage(
           account,
           `insufficient balance ${readableBalance} < ${minEthBalance}`,
           `deposit to create tasks`,
@@ -127,7 +127,7 @@ class TaskCreator {
       const { txsDone, totalFeeStr } = task;
 
       logger.info(
-        createMessage(account, `done`, `txs:${txsDone}`, `fee:${totalFeeStr}`),
+        formatMessage(account, `done`, `txs:${txsDone}`, `fee:${totalFeeStr}`),
       );
       return;
     }
@@ -138,7 +138,7 @@ class TaskCreator {
       const { txsDone, totalFeeStr } = task;
 
       logger.info(
-        createMessage(
+        formatMessage(
           account,
           `fee limit`,
           `txs:${txsDone}`,
@@ -157,14 +157,14 @@ class TaskCreator {
         task.changeStatus("WAITING");
         this.moveTaskToEnd(task);
 
-        logger.info(createMessage(account, `current task done, waiting`));
+        logger.info(formatMessage(account, `current task done, waiting`));
         break;
       }
       case "MOVE_RANDOMLY": {
         task.changeStatus("TODO");
         this.moveTaskRandomly(task);
 
-        logger.info(createMessage(account, `moved randomly`));
+        logger.info(formatMessage(account, `moved randomly`));
       }
     }
   }
@@ -206,7 +206,7 @@ class TaskCreator {
     task.pushMany(...operation);
 
     logger.info(
-      createMessage(account, `new steps created: ${task.operationsString()}`),
+      formatMessage(account, `new steps created: ${task.operationsString()}`),
     );
 
     task.changeStatus("IN_PROGRESS");
@@ -241,7 +241,7 @@ class TaskCreator {
       if (isAllowed) return task;
 
       logger.error(
-        createMessage(
+        formatMessage(
           account,
           `insufficient balance ${readableBalance} < ${minEthBalance}`,
           `deposit to create tasks`,

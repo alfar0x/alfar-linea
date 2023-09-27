@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import ACTION_PROVIDERS from "../../../constants/actionProviders";
 import createUnionSchema from "../../../utils/zod/createUnionSchema";
-import getFilenameRefine from "../../../utils/zod/getFilenameRefine";
+import getFilenameRefineSchema from "../../../utils/zod/getFilenameRefineSchema";
 
 const minMaxRefine = [
   (schema: { min: number; max: number }) => schema.max >= schema.min,
@@ -48,8 +48,8 @@ const transactionsLimitSchema = z
   .refine(...minMaxRefine);
 
 const filesSchema = z.object({
-  privateKeys: getFilenameRefine(".txt"),
-  proxies: getFilenameRefine(".txt"),
+  privateKeys: getFilenameRefineSchema(".txt"),
+  proxies: getFilenameRefineSchema(".txt"),
 });
 
 const proxySchema = z.discriminatedUnion("type", [
@@ -58,9 +58,7 @@ const proxySchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("mobile"), mobileIpChangeUrl: z.string().url() }),
 ]);
 
-const rpcSchema = z.object({
-  linea: z.string().url(),
-});
+const rpcSchema = z.object({ linea: z.string().url() });
 
 const workingAmountPercentSchema = z
   .object({

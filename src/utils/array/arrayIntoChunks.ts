@@ -1,4 +1,4 @@
-const sliceIntoChunks = <T>(arr: T[], maxChunkSize: number) => {
+const arrayIntoChunks = <T>(arr: T[], maxChunkSize: number) => {
   const res = [];
 
   const chunks = Math.ceil(arr.length / maxChunkSize);
@@ -11,4 +11,4 @@ const sliceIntoChunks = <T>(arr: T[], maxChunkSize: number) => {
   return res;
 };
 
-export default sliceIntoChunks;
+export default arrayIntoChunks;

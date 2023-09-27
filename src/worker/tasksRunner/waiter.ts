@@ -1,9 +1,9 @@
 import Big from "big.js";
-import Web3 from "web3";
+import { Web3 } from "web3";
 
 import Chain from "../../core/chain";
-import formatIntervalSec from "../../utils/datetime/formatIntervalSec";
-import createMessage from "../../utils/other/createMessage";
+import formatIntervalSec from "../../utils/formatters/formatIntervalSec";
+import formatMessage from "../../utils/formatters/formatMessage";
 import logger from "../../utils/other/logger";
 import sleep from "../../utils/other/sleep";
 import randomInteger from "../../utils/random/randomInteger";
@@ -68,7 +68,7 @@ class Waiter {
         `next check ${formatIntervalSec(WAIT_GAS_SEC)}`,
       ];
 
-      logger.warn(createMessage(...msg));
+      logger.warn(formatMessage(...msg));
 
       await sleep(WAIT_GAS_SEC);
     }

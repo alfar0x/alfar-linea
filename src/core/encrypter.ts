@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-export class Encrypter {
+class Encrypter {
   private readonly algorithm = "aes256";
   private readonly salt = "salt";
 

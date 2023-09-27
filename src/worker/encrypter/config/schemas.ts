@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-import getFilenameRefine from "../../../utils/zod/getFilenameRefine";
+import getFilenameRefineSchema from "../../../utils/zod/getFilenameRefineSchema";
 
 export const dynamicSchema = z.object({});
 
 export const fixedSchema = z.object({
-  decryptedFileName: getFilenameRefine(".txt"),
+  decryptedFileName: getFilenameRefineSchema(".txt"),
 });
 
 const schema = z.object({ fixed: fixedSchema, dynamic: dynamicSchema });

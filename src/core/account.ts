@@ -2,13 +2,13 @@ import Big from "big.js";
 import { ethers } from "ethers";
 import { Transaction as Web3Transaction, Web3 } from "web3";
 
-import formatOrdinals from "../utils/other/formatOrdinals";
+import formatOrdinals from "../utils/formatters/formatOrdinals";
+import formatShortString from "../utils/formatters/formatShortString";
+import formatZodError from "../utils/formatters/formatZodError";
 import logger from "../utils/other/logger";
 import randomInteger from "../utils/random/randomInteger";
-import getShortString from "../utils/string/getShortString";
 import evmAddressSchema from "../utils/zod/evmAddressSchema";
 import evmPrivateKeySchema from "../utils/zod/evmPrivateKeySchema";
-import zodErrorPrettify from "../utils/zod/zodErrorPrettify";
 
 import Chain from "./chain";
 import Token from "./token";
@@ -37,7 +37,7 @@ class Account {
     } else {
       throw new Error("Either private key or address must be provided.");
     }
-    this.name = name || getShortString(this.address);
+    this.name = name || formatShortString(this.address);
   }
 
   private initializeAddressFromGiven(address: string) {
@@ -47,7 +47,7 @@ class Account {
 
     const indexOrd = formatOrdinals(this.fileIndex + 1);
 
-    const errorMessage = zodErrorPrettify(addressParsed.error.issues);
+    const errorMessage = formatZodError(addressParsed.error.issues);
 
     throw new Error(
       `${indexOrd} address is not valid. Details: ${errorMessage}`,
@@ -61,9 +61,9 @@ class Account {
 
     const indexOrd = formatOrdinals(this.fileIndex + 1);
 
-    const privateShortForm = getShortString(privateKey);
+    const privateShortForm = formatShortString(privateKey);
 
-    const errorMessage = zodErrorPrettify(privateKeyParsed.error.issues);
+    const errorMessage = formatZodError(privateKeyParsed.error.issues);
 
     throw new Error(
       `${indexOrd} private key ${privateShortForm} is not valid. Details: ${errorMessage}`,

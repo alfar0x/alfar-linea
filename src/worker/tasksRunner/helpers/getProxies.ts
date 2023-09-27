@@ -1,4 +1,4 @@
-import readFileAndEncryptByLine from "../../utils/file/readFileAndEncryptByLine";
+import readFileAndEncryptByLine from "../../../utils/file/readFileAndEncryptByLine";
 
 const getProxies = async (params: {
   baseFileName: string;

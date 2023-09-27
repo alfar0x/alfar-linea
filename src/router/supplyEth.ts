@@ -2,7 +2,7 @@ import LendAction from "../action/lend/base";
 import Account from "../core/account";
 import Operation from "../core/operation";
 import Router from "../core/router";
-import sortStringsHelper from "../utils/other/sortStringsHelper";
+import arraySortStringsHelper from "../utils/array/arraySortStringsHelper";
 import randomChoice from "../utils/random/randomChoice";
 
 type PossibleRoute = LendAction;
@@ -43,7 +43,7 @@ class SupplyEthRouter extends Router {
   public possibleRoutesStrings() {
     return this.possibleRoutes
       .map((possibleRoute) => `${possibleRoute}`)
-      .sort(sortStringsHelper);
+      .sort(arraySortStringsHelper);
   }
 
   public size() {
@@ -63,9 +63,7 @@ class SupplyEthRouter extends Router {
       maxApproveMultiplier: this.maxApproveMultiplier,
     });
 
-    const redeemStep = supplyRouter.redeemAllStep({
-      account,
-    });
+    const redeemStep = supplyRouter.redeemAllStep({ account });
 
     const supplyOperation = new Operation({
       name: supplyStep.name,

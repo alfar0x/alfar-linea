@@ -10,9 +10,7 @@ export const AMOUNT_TYPES = {
   all: 2,
 };
 
-export const OPERATION_TYPES = {
-  swap: 0,
-};
+export const OPERATION_TYPES = { swap: 0 };
 
 export const PACKED_ETH =
   "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";

@@ -1,7 +1,7 @@
 import { Table } from "console-table-printer";
 import { RowOptionsRaw } from "console-table-printer/dist/src/utils/table-helpers";
 
-import Task, { TaskStatus } from "./task";
+import Task, { TaskStatus } from "../../../core/task";
 
 type ColumnId =
   | "idx"
@@ -53,9 +53,7 @@ const transform = (task: Task): readonly [Row, RowOptionsRaw] => {
     address,
   };
 
-  const opts: RowOptionsRaw = {
-    color: colors[status],
-  };
+  const opts: RowOptionsRaw = { color: colors[status] };
 
   return [row, opts];
 };

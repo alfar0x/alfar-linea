@@ -1,8 +1,7 @@
 import Operation from "../../core/operation";
 import Step from "../../core/step";
+import Task from "../../core/task";
 import RunnableTransaction from "../../core/transaction";
-
-import Task from "./task";
 
 class WorkerState {
   private _task: Task | null;

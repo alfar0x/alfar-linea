@@ -2,13 +2,13 @@ import axios from "axios";
 import tunnel from "tunnel";
 import { z } from "zod";
 
-import createMessage from "../utils/other/createMessage";
-import formatOrdinals from "../utils/other/formatOrdinals";
+import formatMessage from "../utils/formatters/formatMessage";
+import formatOrdinals from "../utils/formatters/formatOrdinals";
+import formatZodError from "../utils/formatters/formatZodError";
 import logger from "../utils/other/logger";
 import sleep from "../utils/other/sleep";
 import randomChoice from "../utils/random/randomChoice";
 import ipOrDomainSchema from "../utils/zod/ipOrDomainSchema";
-import zodErrorPrettify from "../utils/zod/zodErrorPrettify";
 
 type ProxyType = "mobile" | "none" | "server";
 
@@ -64,7 +64,7 @@ class Proxy {
 
     if (proxyParsed.success) return proxyParsed.data;
 
-    const errorMessage = zodErrorPrettify(proxyParsed.error.issues);
+    const errorMessage = formatZodError(proxyParsed.error.issues);
 
     const indexOrd = formatOrdinals(index + 1);
 
@@ -128,7 +128,7 @@ class Proxy {
           throw new Error(`ip change response status is ${status}`);
         }
 
-        logger.info(createMessage(`ip change success`));
+        logger.info(formatMessage(`ip change success`));
 
         await sleep(this.pauseAfterIpChange);
 
@@ -137,7 +137,7 @@ class Proxy {
         const retryOrd = formatOrdinals(retry + 1);
 
         logger.error(
-          createMessage(
+          formatMessage(
             `${retryOrd} attempt to change ip failed`,
             (error as Error).message,
           ),

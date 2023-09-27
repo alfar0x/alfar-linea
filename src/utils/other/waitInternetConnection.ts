@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import formatIntervalSec from "../datetime/formatIntervalSec";
+import formatIntervalSec from "../formatters/formatIntervalSec";
+import formatMessage from "../formatters/formatMessage";
 
-import createMessage from "./createMessage";
 import getMyIp from "./getMyIp";
 import logger from "./logger";
 import sleep from "./sleep";
@@ -15,7 +15,7 @@ const waitInternetConnectionLoop = async (sleepSec = 60, maxRetries = 1000) => {
     if (myIp) return;
 
     logger.error(
-      createMessage(
+      formatMessage(
         "internet connection error",
         `next check ${formatIntervalSec(sleepSec)}`,
       ),

@@ -1,5 +1,5 @@
 import Big from "big.js";
-import Web3, { Transaction } from "web3";
+import { Web3, Transaction } from "web3";
 
 import { CONTRACT_ERC20 } from "../abi/constants/contracts";
 import getWeb3Contract from "../abi/methods/getWeb3Contract";

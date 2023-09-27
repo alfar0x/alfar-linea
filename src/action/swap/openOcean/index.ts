@@ -1,12 +1,12 @@
 import axios from "axios";
-import Web3, { Transaction } from "web3";
+import { Web3, Transaction } from "web3";
 
 import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import { CONTRACT_OPEN_OCEAN_EXCHANGE } from "../../../constants/contractsWithoutAbi";
 import Account from "../../../core/account";
 import Token from "../../../core/token";
 import { Amount } from "../../../types";
-import getRandomWalletAddress from "../../../utils/web3/getRandomWalletAddress";
+import randomWalletAddress from "../../../utils/random/randomWalletAddress";
 import SwapAction from "../base";
 
 import { API_URL, CHAINS_DATA } from "./constants";
@@ -43,10 +43,10 @@ class OpenOceanSwapAction extends SwapAction {
   }) {
     const { account, normalizedAmount } = params;
 
-    const randomWalletAddress = getRandomWalletAddress();
+    const randomAddress = randomWalletAddress();
 
     const fullRandomAddress = Web3.utils.toChecksumAddress(
-      `0x${randomWalletAddress}`,
+      `0x${randomAddress}`,
     );
 
     const readableAmount = await this.fromToken.toReadableAmount(
@@ -82,7 +82,7 @@ class OpenOceanSwapAction extends SwapAction {
     const addressToChangeTo = account.address.toLocaleLowerCase().substring(2);
 
     const contractData = data.data.data.replaceAll(
-      randomWalletAddress,
+      randomAddress,
       addressToChangeTo,
     );
 

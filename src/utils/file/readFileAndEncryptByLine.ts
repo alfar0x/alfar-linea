@@ -1,7 +1,7 @@
 import path from "path";
 
 import Encrypter from "../../core/encrypter";
-import getPassword from "../other/getPassword";
+import getPassword from "../cli/getPassword";
 
 import readFile from "./readFile";
 

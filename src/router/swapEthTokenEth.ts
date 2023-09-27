@@ -5,7 +5,7 @@ import Account from "../core/account";
 import Operation from "../core/operation";
 import Router from "../core/router";
 import Token from "../core/token";
-import sortStringsHelper from "../utils/other/sortStringsHelper";
+import arraySortStringsHelper from "../utils/array/arraySortStringsHelper";
 import randomElementWithWeight from "../utils/random/randomElementWithWeight";
 import randomShuffle from "../utils/random/randomShuffle";
 
@@ -107,7 +107,7 @@ class SwapEthTokenEthRouter extends Router {
         ),
       )
       .flat(depth)
-      .sort(sortStringsHelper);
+      .sort(arraySortStringsHelper);
   }
 
   public size() {

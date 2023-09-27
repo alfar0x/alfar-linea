@@ -1,6 +1,6 @@
 import { Provider } from "../../../core/action";
 import Chain from "../../../core/chain";
-import Factory from "../../../factory/operationFactory";
+import Factory from "../operationFactory";
 
 import getFactoryPairs from "./getFactoryPairs";
 import getFactoryTokens from "./getFactoryTokens";

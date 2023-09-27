@@ -1,12 +1,12 @@
-import Cli from "./cli";
+import startMenu from "./utils/cli/startMenu";
+import formatError from "./utils/formatters/formatError";
 import logger from "./utils/other/logger";
-import prettifyError from "./utils/other/prettifyError";
 import Checker from "./worker/checker";
 import EncrypterWorker from "./worker/encrypter";
 import TasksRunner from "./worker/tasksRunner";
 
 const main = async () => {
-  const { mode, config } = await new Cli().run();
+  const { mode, config } = await startMenu();
 
   switch (mode) {
     case "task-runner": {
@@ -29,5 +29,5 @@ const main = async () => {
 
 void main().catch((error) => {
   logger.error((error as Error).message);
-  logger.debug(prettifyError.render(error as Error));
+  logger.debug(formatError(error));
 });

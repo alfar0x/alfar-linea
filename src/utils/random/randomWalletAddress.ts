@@ -1,4 +1,4 @@
-const getRandomWalletAddress = () => {
+const randomWalletAddress = () => {
   const addressLength = 40;
 
   const symbols = "abcdef0123456789";
@@ -11,4 +11,4 @@ const getRandomWalletAddress = () => {
   return randomWalletAddress.join("");
 };
 
-export default getRandomWalletAddress;
+export default randomWalletAddress;

@@ -1,8 +1,8 @@
 import Big from "big.js";
 
-import Account from "../../core/account";
-import Operation from "../../core/operation";
-import Queue from "../../core/queue";
+import Account from "./account";
+import Operation from "./operation";
+import Queue from "./queue";
 
 export type TaskStatus =
   | "TODO"

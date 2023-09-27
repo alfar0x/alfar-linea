@@ -1,5 +1,5 @@
 import axios from "axios";
-import Web3 from "web3";
+import { Web3 } from "web3";
 
 import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import { CONTRACT_XY_FINANCE_ROUTER } from "../../../constants/contractsWithoutAbi";
@@ -7,7 +7,7 @@ import Account from "../../../core/account";
 import Token from "../../../core/token";
 import { Amount } from "../../../types";
 import sleep from "../../../utils/other/sleep";
-import getRandomWalletAddress from "../../../utils/web3/getRandomWalletAddress";
+import randomWalletAddress from "../../../utils/random/randomWalletAddress";
 import SwapAction from "../base";
 
 import { API_URL, RESEND_TX_TIMES } from "./constants";
@@ -73,10 +73,10 @@ class XyFinanceSwapAction extends SwapAction {
   }) {
     const { account, normalizedAmount, provider } = params;
 
-    const randomWalletAddress = getRandomWalletAddress();
+    const randomAddress = randomWalletAddress();
 
     const fullRandomAddress = Web3.utils.toChecksumAddress(
-      `0x${randomWalletAddress}`,
+      `0x${randomAddress}`,
     );
 
     const chainId = String(this.fromToken.chain.chainId);
@@ -105,7 +105,7 @@ class XyFinanceSwapAction extends SwapAction {
     const addressToChangeTo = account.address.toLocaleLowerCase().substring(2);
 
     const contractData = data.tx.data.replaceAll(
-      randomWalletAddress,
+      randomAddress,
       addressToChangeTo,
     );
 
@@ -146,9 +146,7 @@ class XyFinanceSwapAction extends SwapAction {
 
     await this.checkIsBalanceAllowed({ account, normalizedAmount });
 
-    const { provider } = await this.quoteRequest({
-      normalizedAmount,
-    });
+    const { provider } = await this.quoteRequest({ normalizedAmount });
 
     const sleepBetweenApiRequestsSec = 5;
 

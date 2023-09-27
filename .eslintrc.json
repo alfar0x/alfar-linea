@@ -47,16 +47,7 @@
     "class-methods-use-this": "warn",
     "func-style": "error",
     "import/no-unresolved": "error",
-    "import/order": [
-      "error",
-      {
-        "alphabetize": {
-          "caseInsensitive": true,
-          "order": "asc"
-        },
-        "newlines-between": "always"
-      }
-    ],
+    "import/order": "error",
     "max-depth": "error",
     "max-lines": "error",
     "no-console": "warn",
@@ -72,6 +63,7 @@
     "no-unneeded-ternary": "error",
     "no-useless-computed-key": "error",
     "no-useless-concat": "error",
+    // "object-curly-newline": ["error", { "multiline": true }],
     "prefer-template": "error",
     "prettier/prettier": "error",
     "require-await": "error",

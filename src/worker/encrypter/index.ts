@@ -2,8 +2,8 @@ import fs from "fs";
 import path from "path";
 
 import Encrypter from "../../core/encrypter";
+import getPassword from "../../utils/cli/getPassword";
 import readFile from "../../utils/file/readFile";
-import getPassword from "../../utils/other/getPassword";
 import logger from "../../utils/other/logger";
 
 import EncrypterConfig from "./config";

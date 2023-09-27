@@ -1,6 +1,6 @@
 export type Stringable = string | { toString(): string };
 
-const createMessage = (...stringable: Stringable[]) =>
+const formatMessage = (...stringable: Stringable[]) =>
   stringable.map((str) => String(str)).join(" | ");
 
-export default createMessage;
+export default formatMessage;

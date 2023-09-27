@@ -5,7 +5,7 @@ import Linea from "../../chain/linea";
 import Account from "../../core/account";
 import Chain from "../../core/chain";
 import Prices from "../../core/prices";
-import sliceIntoChunks from "../../utils/array/sliceIntoChunks";
+import arrayIntoChunks from "../../utils/array/arrayIntoChunks";
 import sleep from "../../utils/other/sleep";
 
 import CheckerConfig from "./config";
@@ -64,7 +64,7 @@ class Checker {
 
   private async checkAllAccounts() {
     const { delayBetweenChunkSec, maxParallelAccounts } = this.config.fixed;
-    const chunks = sliceIntoChunks(this.accounts, maxParallelAccounts);
+    const chunks = arrayIntoChunks(this.accounts, maxParallelAccounts);
 
     const bar = new cliProgress.SingleBar({});
 

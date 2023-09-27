@@ -1,5 +1,5 @@
-import Account from "../../core/account";
-import readFileAndEncryptByLine from "../../utils/file/readFileAndEncryptByLine";
+import Account from "../../../core/account";
+import readFileAndEncryptByLine from "../../../utils/file/readFileAndEncryptByLine";
 
 const getAccounts = async (params: { baseFileName: string }) => {
   const { baseFileName } = params;

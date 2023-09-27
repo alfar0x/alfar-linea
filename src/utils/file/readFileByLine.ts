@@ -1,6 +1,5 @@
 import readFile from "./readFile";
 
-const readFileSyncByLine = (filePath: string) =>
-  readFile(filePath).split(/\r?\n/);
+const readFileByLine = (filePath: string) => readFile(filePath).split(/\r?\n/);
 
-export default readFileSyncByLine;
+export default readFileByLine;

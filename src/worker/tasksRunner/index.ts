@@ -4,18 +4,18 @@ import Linea from "../../chain/linea";
 import Account from "../../core/account";
 import Chain from "../../core/chain";
 import Proxy from "../../core/proxy";
-import createMessage from "../../utils/other/createMessage";
+import confirmRun from "../../utils/cli/confirmRun";
+import formatError from "../../utils/formatters/formatError";
+import formatMessage from "../../utils/formatters/formatMessage";
 import logger from "../../utils/other/logger";
-import prettifyError from "../../utils/other/prettifyError";
 import sleep from "../../utils/other/sleep";
 import waitInternetConnection from "../../utils/other/waitInternetConnection";
 import randomShuffle from "../../utils/random/randomShuffle";
 
 import TasksRunnerConfig from "./config";
-import confirmRun from "./confirmRun";
-import getAccounts from "./getAccounts";
-import getProxies from "./getProxies";
-import printTasks from "./printTasks";
+import getAccounts from "./helpers/getAccounts";
+import getProxies from "./helpers/getProxies";
+import printTasks from "./helpers/printTasks";
 import TaskCreator from "./taskCreator";
 import Waiter from "./waiter";
 import WorkerState from "./workerState";
@@ -63,12 +63,12 @@ class TasksRunner {
   private runTestTransaction() {
     const { transaction, account, task } = this.state;
 
-    logger.debug(createMessage(account, transaction, `running...`));
+    logger.debug(formatMessage(account, transaction, `running...`));
 
     const isSuccess = Math.random() > 0.5;
 
     if (!isSuccess) {
-      throw new Error(createMessage("failed"));
+      throw new Error(formatMessage("failed"));
     }
 
     this.state.isTxRun = true;
@@ -91,14 +91,14 @@ class TasksRunner {
 
     const { hash, resultMsg, fee } = txResult;
 
-    const message = createMessage(
+    const message = formatMessage(
       transaction,
       resultMsg,
       `fee:$${fee}`,
       this.chain.getHashLink(hash),
     );
 
-    logger.info(createMessage(account, message));
+    logger.info(formatMessage(account, message));
 
     this.state.isTxRun = true;
     this.state.isAtLeastOneTxRun = true;
@@ -132,13 +132,13 @@ class TasksRunner {
 
     if (isSupportStepsAvailable) {
       logger.warn(
-        createMessage(account, `${transaction} failed`, `getting support step`),
+        formatMessage(account, `${transaction} failed`, `getting support step`),
       );
     } else {
-      logger.error(createMessage(account, `${transaction} failed`));
+      logger.error(formatMessage(account, `${transaction} failed`));
     }
 
-    logger.debug(prettifyError.render(error));
+    logger.debug(formatError(error));
 
     await sleep(10);
   }
@@ -228,9 +228,7 @@ class TasksRunner {
   private async initialize() {
     const { files, proxy } = this.config.fixed;
 
-    const accounts = await getAccounts({
-      baseFileName: files.privateKeys,
-    });
+    const accounts = await getAccounts({ baseFileName: files.privateKeys });
 
     const proxies = await getProxies({
       baseFileName: files.proxies,
