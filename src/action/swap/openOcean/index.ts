@@ -13,6 +13,9 @@ import formatToChecksum from "../../../utils/formatters/formatToChecksum";
 import formatUrlParams from "../../../utils/formatters/formatUrlParams";
 import { OpenOceanSwapQuote } from "./types";
 import config from "./config";
+import logger from "../../../utils/other/logger";
+import formatObject from "../../../utils/formatters/formatObject";
+import Big from "big.js";
 
 class OpenOceanSwapAction extends SwapAction {
   private readonly config: ChainConfig<typeof config>;
@@ -33,7 +36,8 @@ class OpenOceanSwapAction extends SwapAction {
   }) {
     const { account, normalizedAmount } = params;
 
-    const { apiUrl, routerAddress, slippagePercent } = this.config;
+    const { apiUrl, routerAddress, slippagePercent, initialGasMultiplier } =
+      this.config;
 
     const randomAddress = randomWalletAddress();
 
@@ -63,6 +67,8 @@ class OpenOceanSwapAction extends SwapAction {
 
     const { to, value, estimatedGas, minOutAmount } = data.data;
 
+    logger.silly(formatObject({ to, value, estimatedGas, minOutAmount }));
+
     if (to !== routerAddress) {
       throw new Error(`to !== routerAddress: ${to} !== ${routerAddress}`);
     }
@@ -78,7 +84,10 @@ class OpenOceanSwapAction extends SwapAction {
       data: contractData,
       to,
       value,
-      estimatedGas,
+      estimatedGas: Big(estimatedGas)
+        .times(initialGasMultiplier)
+        .round()
+        .toString(),
       minOutNormalizedAmount: minOutAmount,
     };
   }

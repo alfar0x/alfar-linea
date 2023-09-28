@@ -40,6 +40,16 @@ const initLogger = () => {
     ],
   });
 
+  if (env.NODE_ENV === "dev") {
+    logger.add(
+      new transports.File({
+        level: "silly",
+        filename: `./logs/${time}_silly.log`,
+        format: format.combine(format.splat(), formatTimestamp, customFormat),
+      }),
+    );
+  }
+
   return logger;
 };
 

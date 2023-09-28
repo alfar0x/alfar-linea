@@ -12,6 +12,7 @@ const config = new ActionConfig({
         "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64",
       ),
       slippagePercent: DEFAULT_SLIPPAGE_PERCENT,
+      initialGasMultiplier: 0.3,
     },
   },
 });

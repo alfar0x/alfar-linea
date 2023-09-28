@@ -114,6 +114,8 @@ class RunnableTransaction {
 
     const data = await this.createTransaction();
 
+    logger.silly(formatObject(data));
+
     const {
       tx,
       resultMsg,
