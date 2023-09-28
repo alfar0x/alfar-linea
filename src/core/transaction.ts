@@ -71,12 +71,10 @@ class RunnableTransaction {
 
     const fee = await this.calcTxFeeUsd(tx);
 
-    if (maxTxFeeUsd) {
-      if (Big(fee).gt(maxTxFeeUsd)) {
-        throw new Error(
-          `Tx price is greater than max value: ${fee} > ${maxTxFeeUsd}`,
-        );
-      }
+    if (maxTxFeeUsd && Big(fee).gt(maxTxFeeUsd)) {
+      throw new Error(
+        `Tx price is greater than max value: ${fee} > ${maxTxFeeUsd}`,
+      );
     }
 
     try {
