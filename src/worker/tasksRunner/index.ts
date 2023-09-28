@@ -52,20 +52,21 @@ class TasksRunner {
 
     if (!https) return;
 
-    const httpProviderOptions = { providerOptions: { agent: { https } } };
+    const httpProviderOptions = { providerOptions: { agent: https } };
 
     this.chain.updateHttpProviderOptions({ httpProviderOptions });
 
     await this.proxy.onProviderChange();
   }
 
+  // eslint-disable-next-line require-await
   @waitInternetConnection()
-  private runTestTransaction() {
+  private async runTestTransaction() {
     const { transaction, account, task } = this.state;
 
     logger.debug(formatMessages(account, transaction, `running...`));
 
-    const isSuccess = Math.random() > 0.5;
+    const isSuccess = Math.random() > 1;
 
     if (!isSuccess) {
       throw new Error(formatMessages("failed"));
@@ -110,9 +111,9 @@ class TasksRunner {
     const { step } = this.state;
 
     while (!step.isEmpty()) {
-      // await this.runTransaction();
+      await this.runTransaction();
 
-      this.runTestTransaction();
+      // await this.runTestTransaction();
 
       if (this.state.isTxRun && !step.isEmpty()) {
         await this.waiter.waitTransaction();
