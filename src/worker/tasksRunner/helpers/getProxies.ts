@@ -14,7 +14,7 @@ const getProxies = async (params: {
 
   const proxiesLength = proxies.length;
 
-  if (!isServerRandom && accountsLength !== proxiesLength) {
+  if (isServerRandom && accountsLength !== proxiesLength) {
     throw new Error(
       `number of proxies (${proxiesLength}) must be equal to the number accounts ${accountsLength} if serverIsRandom is false`,
     );
