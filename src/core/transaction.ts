@@ -128,14 +128,19 @@ class RunnableTransaction {
       );
     }
 
-    const { hash, fee } = await this.transactionRunner({
-      tx,
-      maxTxFeeUsd,
-      retryTimes,
-      gasMultiplier,
-    });
+    try {
+      const { hash, fee } = await this.transactionRunner({
+        tx,
+        maxTxFeeUsd,
+        retryTimes,
+        gasMultiplier,
+      });
 
-    return { hash, resultMsg, fee };
+      return { hash, resultMsg, fee };
+    } catch (error) {
+      logger.debug(JSON.stringify(tx));
+      throw error;
+    }
   }
 
   public toString() {

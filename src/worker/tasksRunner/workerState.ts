@@ -14,6 +14,7 @@ class WorkerState {
   public isOperationFailed: boolean;
   public isTxRun: boolean;
   public isAtLeastOneTxRun: boolean;
+  public isSupportStepsAvailable: boolean;
 
   public isAtLeastOnePrevTxRun: boolean;
 
@@ -28,6 +29,7 @@ class WorkerState {
     this.isOperationFailed = false;
     this.isTxRun = false;
     this.isAtLeastOneTxRun = false;
+    this.isSupportStepsAvailable = false;
 
     this.isAtLeastOnePrevTxRun = false;
   }
@@ -69,6 +71,7 @@ class WorkerState {
 
     this.isOperationFailed = false;
     this.isAtLeastOneTxRun = false;
+    this.isSupportStepsAvailable = false;
 
     this.onStepEnd();
   }

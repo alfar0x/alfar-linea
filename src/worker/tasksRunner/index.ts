@@ -62,9 +62,9 @@ class TasksRunner {
   // eslint-disable-next-line require-await
   @waitInternetConnection()
   private async runTestTransaction() {
-    const { transaction, account, task } = this.state;
-
-    logger.debug(formatMessages(account, transaction, `running...`));
+    logger.debug(
+      formatMessages(this.state.account, this.state.transaction, `running...`),
+    );
 
     const isSuccess = Math.random() > 1;
 
@@ -75,47 +75,43 @@ class TasksRunner {
     this.state.isTxRun = true;
     this.state.isAtLeastOneTxRun = true;
 
-    task.onTransactionSuccess(0.5);
+    this.state.task.onTransactionSuccess(0.5);
   }
 
   @waitInternetConnection()
   private async runTransaction() {
-    const { transaction, account, task } = this.state;
-
     await this.waiter.waitGasLimit();
 
     const { maxTxFeeUsd } = this.config.dynamic();
 
-    const txResult = await transaction.run({ maxTxFeeUsd });
+    const txResult = await this.state.transaction.run({ maxTxFeeUsd });
 
     if (!txResult) return;
 
     const { hash, resultMsg, fee } = txResult;
 
     const message = formatMessages(
-      transaction,
+      this.state.transaction,
       resultMsg,
       `fee:$${fee}`,
       this.chain.getHashLink(hash),
     );
 
-    logger.info(formatMessages(account, message));
+    logger.info(formatMessages(this.state.account, message));
 
     this.state.isTxRun = true;
     this.state.isAtLeastOneTxRun = true;
 
-    task.onTransactionSuccess(fee);
+    this.state.task.onTransactionSuccess(fee);
   }
 
   private async runStep() {
-    const { step } = this.state;
-
-    while (!step.isEmpty()) {
+    while (!this.state.step.isEmpty()) {
       await this.runTransaction();
 
       // await this.runTestTransaction();
 
-      if (this.state.isTxRun && !step.isEmpty()) {
+      if (this.state.isTxRun && !this.state.step.isEmpty()) {
         await this.waiter.waitTransaction();
       }
 
@@ -123,24 +119,17 @@ class TasksRunner {
     }
   }
 
-  private async onStepFailed(params: {
-    isSupportStepsAvailable: boolean;
-    error: Error;
-  }) {
-    const { isSupportStepsAvailable, error } = params;
+  private async onStepFailed(error: Error) {
+    const msg = formatMessages(
+      this.state.account,
+      `${this.state.transaction} failed`,
+      `details: ${error.message}`,
+    );
 
-    const { account, transaction } = this.state;
-
-    if (isSupportStepsAvailable) {
-      logger.warn(
-        formatMessages(
-          account,
-          `${transaction} failed`,
-          `getting support step`,
-        ),
-      );
+    if (this.state.isSupportStepsAvailable) {
+      logger.warn(msg);
     } else {
-      logger.error(formatMessages(account, `${transaction} failed`));
+      logger.error(msg);
     }
 
     logger.debug(formatError(error));
@@ -149,27 +138,21 @@ class TasksRunner {
   }
 
   private async runOperation() {
-    const { operation } = this.state;
+    this.state.isSupportStepsAvailable = this.state.operation.size() > 1;
 
-    const isSupportStepsAvailable = operation.size() > 1;
-
-    while (!operation.isEmpty()) {
+    while (!this.state.operation.isEmpty()) {
       try {
         await this.runStep();
         return;
       } catch (error) {
-        await this.onStepFailed({
-          isSupportStepsAvailable,
-          error: error as Error,
-        });
+        await this.onStepFailed(error as Error);
       }
 
       this.state.onStepEnd();
     }
 
     this.state.isOperationFailed = true;
-
-    if (isSupportStepsAvailable) {
+    if (this.state.isSupportStepsAvailable) {
       logger.error(`all operation steps failed`);
     }
   }
