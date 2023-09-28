@@ -10,8 +10,6 @@ import randomInteger from "../../utils/random/randomInteger";
 
 import TasksRunnerConfig from "./config";
 
-const WAIT_GAS_SEC = 10 * 60;
-
 class Waiter {
   private readonly chain: Chain;
   private readonly config: TasksRunnerConfig;
@@ -62,15 +60,17 @@ class Waiter {
 
       if (isGasLimitValid) return;
 
+      const waitSec = 10 * 60;
+
       const msg = [
         `gas ${currentFeePerGasGweiBig.toString()}`,
         `limit ${maxGwei}`,
-        `next check ${formatIntervalSec(WAIT_GAS_SEC)}`,
+        `next check ${formatIntervalSec(waitSec)}`,
       ];
 
       logger.warn(formatMessages(...msg));
 
-      await sleep(WAIT_GAS_SEC);
+      await sleep(waitSec);
     }
   }
 }
