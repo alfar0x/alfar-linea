@@ -29,9 +29,8 @@ class PancakeSwapAction extends SwapAction {
   private readonly quoteContractAddress: string;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
-    super(params);
-
-    this.initializeName({ provider: "PANCAKE" });
+    const { fromToken, toToken } = params;
+    super({ fromToken, toToken, provider: "PANCAKE" });
 
     this.routerContractAddress = this.getContractAddress({
       contractName: CONTRACT_PANCAKE_SWAP_ROUTER,

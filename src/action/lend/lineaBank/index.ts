@@ -20,9 +20,8 @@ class LineaBankLend extends LendAction {
   private readonly marketAddress: string;
 
   public constructor(params: { token: Token }) {
-    super(params);
-
-    this.initializeName({ provider: "LINEA_BANK" });
+    const { token } = params;
+    super({ token, provider: "LINEA_BANK" });
 
     this.coreContractAddress = this.getContractAddress({
       contractName: CONTRACT_LINEA_BANK_CORE,

@@ -10,9 +10,8 @@ class WoofiSwapAction extends SwapAction {
   private readonly contractAddress: string;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
-    super(params);
-
-    this.initializeName({ provider: "WOOFI" });
+    const { fromToken, toToken } = params;
+    super({ fromToken, toToken, provider: "WOOFI" });
 
     this.contractAddress = this.getContractAddress({
       contractName: CONTRACT_WOOFI_ROUTER,

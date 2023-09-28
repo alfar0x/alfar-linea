@@ -16,9 +16,7 @@ class DmailSendMailAction extends RandomAction {
   public constructor(params: { chain: Chain }) {
     const { chain } = params;
 
-    super({ chain });
-
-    this.initializeName({ provider: "DMAIL", operation: "SEND_MAIL" });
+    super({ chain, provider: "DMAIL", operation: "SEND_MAIL" });
 
     this.contractAddress = this.getContractAddress({
       contractName: CONTRACT_DMAIL,

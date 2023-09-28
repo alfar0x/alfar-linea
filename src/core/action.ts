@@ -14,32 +14,20 @@ export type ActionType = (typeof ACTION_TYPES)[number];
 export type DefaultActionFunctionResult = CreateTransactionResult;
 
 abstract class Action {
-  private _actionType?: ActionType;
-  private _provider?: Provider;
-  private _operation?: string;
+  private readonly actionType: ActionType;
+  private readonly provider: Provider;
+  private readonly operation: string;
 
-  protected initializeDefaultName(params: {
+  protected constructor(params: {
+    actionType: ActionType;
     provider: Provider;
     operation: string;
-    actionType: ActionType;
   }) {
-    const { provider, actionType, operation } = params;
+    const { actionType, provider, operation } = params;
 
-    this._provider = provider;
-    this._operation = operation;
-    this._actionType = actionType;
-  }
-
-  public get actionType() {
-    return this._actionType || "NULL_ACTION_TYPE";
-  }
-
-  public get provider() {
-    return this._provider || "NULL_PROVIDER";
-  }
-
-  public get operation() {
-    return this._operation || "NULL_OPERATION";
+    this.actionType = actionType;
+    this.provider = provider;
+    this.operation = operation;
   }
 
   public get name() {

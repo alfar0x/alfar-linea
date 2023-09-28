@@ -11,19 +11,32 @@ import RunnableTransaction from "../../../core/transaction";
 import { Amount } from "../../../types";
 import randomInteger from "../../../utils/random/randomInteger";
 
+export type SwapActionConstructorParams = {
+  fromToken: Token;
+  toToken: Token;
+};
+
 abstract class SwapAction extends Action {
   public readonly fromToken: Token;
   public readonly toToken: Token;
 
-  public constructor(params: { fromToken: Token; toToken: Token }) {
-    const { fromToken, toToken } = params;
+  protected constructor(params: {
+    fromToken: Token;
+    toToken: Token;
+    provider: Provider;
+  }) {
+    const { fromToken, toToken, provider } = params;
 
-    super();
+    super({
+      actionType: "SWAP",
+      operation: `${fromToken}_${toToken}`,
+      provider,
+    });
+
+    SwapAction.checkPair(fromToken, toToken);
 
     this.fromToken = fromToken;
     this.toToken = toToken;
-
-    this.checkConstructor();
   }
 
   // eslint-disable-next-line no-unused-vars
@@ -38,23 +51,14 @@ abstract class SwapAction extends Action {
     normalizedAmount: Amount;
   }): Promise<DefaultActionFunctionResult>;
 
-  protected initializeName(params: { provider: Provider }) {
-    const { provider } = params;
-    this.initializeDefaultName({
-      provider,
-      actionType: "SWAP",
-      operation: `${this.fromToken.name}_${this.toToken.name}`,
-    });
-  }
-
-  private checkConstructor() {
-    const isSameTokens = this.fromToken.isEquals(this.toToken);
+  private static checkPair(fromToken: Token, toToken: Token) {
+    const isSameTokens = fromToken.isEquals(toToken);
 
     if (isSameTokens) {
       throw new Error(`swap is not available for equal tokens`);
     }
 
-    const isSameChains = this.fromToken.chain.isEquals(this.toToken.chain);
+    const isSameChains = fromToken.chain.isEquals(toToken.chain);
 
     if (!isSameChains) {
       throw new Error(`swap is not available for tokens in different chains`);

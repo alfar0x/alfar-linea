@@ -19,9 +19,8 @@ class SyncswapSwapAction extends SwapAction {
   private readonly factoryContractAddress: string;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
-    super(params);
-
-    this.initializeName({ provider: "SYNCSWAP" });
+    const { fromToken, toToken } = params;
+    super({ fromToken, toToken, provider: "SYNCSWAP" });
 
     this.routerContractAddress = this.getContractAddress({
       contractName: CONTRACT_SYNCSWAP_ROUTER,

@@ -14,21 +14,12 @@ import randomInteger from "../../../utils/random/randomInteger";
 abstract class LendAction extends Action {
   public readonly token: Token;
 
-  public constructor(params: { token: Token }) {
-    const { token } = params;
+  protected constructor(params: { token: Token; provider: Provider }) {
+    const { token, provider } = params;
 
-    super();
+    super({ actionType: "LEND", operation: `${token}`, provider });
 
     this.token = token;
-  }
-
-  protected initializeName(params: { provider: Provider }) {
-    const { provider } = params;
-    this.initializeDefaultName({
-      provider,
-      actionType: "LEND",
-      operation: `${this.token}`,
-    });
   }
 
   // eslint-disable-next-line no-unused-vars

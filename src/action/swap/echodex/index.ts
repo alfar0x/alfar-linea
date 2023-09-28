@@ -4,19 +4,18 @@ import { CONTRACT_ECHO_DEX_SMART_ROUTER } from "../../../abi/constants/contracts
 import getEthersInterface from "../../../abi/methods/getEthersInterface";
 import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import Account from "../../../core/account";
-import Token from "../../../core/token";
 import { Amount } from "../../../types";
 import SwapAction from "../base";
 
+import Token from "../../../core/token";
 import { UNWRAP_ETH_ADDRESS } from "./constants";
 
 class EchoDexSwapAction extends SwapAction {
   private readonly contractAddress: string;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
-    super(params);
-
-    this.initializeName({ provider: "ECHO_DEX" });
+    const { fromToken, toToken } = params;
+    super({ fromToken, toToken, provider: "ECHO_DEX" });
 
     this.contractAddress = this.getContractAddress({
       contractName: CONTRACT_ECHO_DEX_SMART_ROUTER,

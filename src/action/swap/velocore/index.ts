@@ -24,9 +24,8 @@ class VelocoreSwapAction extends SwapAction {
   private readonly factoryContractAddress: string;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
-    super(params);
-
-    this.initializeName({ provider: "VELOCORE" });
+    const { fromToken, toToken } = params;
+    super({ fromToken, toToken, provider: "VELOCORE" });
 
     this.vaultContractAddress = this.getContractAddress({
       contractName: CONTRACT_VELOCORE_VAULT,

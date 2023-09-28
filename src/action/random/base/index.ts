@@ -6,10 +6,14 @@ import Step from "../../../core/step";
 abstract class RandomAction extends Action {
   protected chain: Chain;
 
-  public constructor(params: { chain: Chain }) {
-    const { chain } = params;
+  protected constructor(params: {
+    chain: Chain;
+    provider: Provider;
+    operation: string;
+  }) {
+    const { chain, provider, operation } = params;
 
-    super();
+    super({ provider, actionType: "RANDOM", operation: operation });
 
     this.chain = chain;
   }
@@ -22,15 +26,6 @@ abstract class RandomAction extends Action {
     minApproveMultiplier: number;
     maxApproveMultiplier: number;
   }): Promise<Step[]> | Step[];
-
-  protected initializeName(params: { provider: Provider; operation: string }) {
-    const { provider, operation } = params;
-    this.initializeDefaultName({
-      provider,
-      actionType: "RANDOM",
-      operation: operation,
-    });
-  }
 
   protected getContractAddress(params: {
     contractName: string;

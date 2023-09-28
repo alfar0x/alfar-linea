@@ -17,9 +17,8 @@ class OpenOceanSwapAction extends SwapAction {
   private readonly chainPath: string;
 
   public constructor(params: { fromToken: Token; toToken: Token }) {
-    super(params);
-
-    this.initializeName({ provider: "OPEN_OCEAN" });
+    const { fromToken, toToken } = params;
+    super({ fromToken, toToken, provider: "OPEN_OCEAN" });
 
     this.contractAddress = this.getContractAddress({
       contractName: CONTRACT_OPEN_OCEAN_EXCHANGE,
