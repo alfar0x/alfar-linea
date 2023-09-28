@@ -2,7 +2,7 @@ import axios from "axios";
 import tunnel from "tunnel";
 import { z } from "zod";
 
-import formatMessage from "../utils/formatters/formatMessage";
+import formatMessages from "../utils/formatters/formatMessages";
 import formatOrdinals from "../utils/formatters/formatOrdinals";
 import formatZodError from "../utils/formatters/formatZodError";
 import logger from "../utils/other/logger";
@@ -128,7 +128,7 @@ class Proxy {
           throw new Error(`ip change response status is ${status}`);
         }
 
-        logger.info(formatMessage(`ip change success`));
+        logger.info(formatMessages(`ip change success`));
 
         await sleep(this.pauseAfterIpChange);
 
@@ -137,7 +137,7 @@ class Proxy {
         const retryOrd = formatOrdinals(retry + 1);
 
         logger.error(
-          formatMessage(
+          formatMessages(
             `${retryOrd} attempt to change ip failed`,
             (error as Error).message,
           ),

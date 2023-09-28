@@ -6,7 +6,7 @@ import Chain from "../../core/chain";
 import Proxy from "../../core/proxy";
 import confirmRun from "../../utils/cli/confirmRun";
 import formatError from "../../utils/formatters/formatError";
-import formatMessage from "../../utils/formatters/formatMessage";
+import formatMessages from "../../utils/formatters/formatMessages";
 import logger from "../../utils/other/logger";
 import sleep from "../../utils/other/sleep";
 import waitInternetConnection from "../../utils/other/waitInternetConnection";
@@ -63,12 +63,12 @@ class TasksRunner {
   private runTestTransaction() {
     const { transaction, account, task } = this.state;
 
-    logger.debug(formatMessage(account, transaction, `running...`));
+    logger.debug(formatMessages(account, transaction, `running...`));
 
     const isSuccess = Math.random() > 0.5;
 
     if (!isSuccess) {
-      throw new Error(formatMessage("failed"));
+      throw new Error(formatMessages("failed"));
     }
 
     this.state.isTxRun = true;
@@ -91,14 +91,14 @@ class TasksRunner {
 
     const { hash, resultMsg, fee } = txResult;
 
-    const message = formatMessage(
+    const message = formatMessages(
       transaction,
       resultMsg,
       `fee:$${fee}`,
       this.chain.getHashLink(hash),
     );
 
-    logger.info(formatMessage(account, message));
+    logger.info(formatMessages(account, message));
 
     this.state.isTxRun = true;
     this.state.isAtLeastOneTxRun = true;
@@ -132,10 +132,14 @@ class TasksRunner {
 
     if (isSupportStepsAvailable) {
       logger.warn(
-        formatMessage(account, `${transaction} failed`, `getting support step`),
+        formatMessages(
+          account,
+          `${transaction} failed`,
+          `getting support step`,
+        ),
       );
     } else {
-      logger.error(formatMessage(account, `${transaction} failed`));
+      logger.error(formatMessages(account, `${transaction} failed`));
     }
 
     logger.debug(formatError(error));

@@ -5,7 +5,6 @@ import { CONTRACT_ERC20 } from "../abi/constants/contracts";
 import getWeb3Contract from "../abi/methods/getWeb3Contract";
 import { Erc20 } from "../abi/types/web3-v1/Erc20";
 import { Amount, TokenType } from "../types";
-import waitInternetConnection from "../utils/other/waitInternetConnection";
 
 import Account from "./account";
 import Chain from "./chain";
@@ -118,7 +117,6 @@ class Token {
     return await Prices.instance.getTokenPrice(this.geskoId);
   }
 
-  @waitInternetConnection()
   public async normalizedBalanceOf(address: string) {
     if (this.isNative) {
       const balance = await this.chain.w3.eth.getBalance(address);

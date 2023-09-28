@@ -3,7 +3,7 @@ import { Web3 } from "web3";
 
 import Chain from "../../core/chain";
 import formatIntervalSec from "../../utils/formatters/formatIntervalSec";
-import formatMessage from "../../utils/formatters/formatMessage";
+import formatMessages from "../../utils/formatters/formatMessages";
 import logger from "../../utils/other/logger";
 import sleep from "../../utils/other/sleep";
 import randomInteger from "../../utils/random/randomInteger";
@@ -68,7 +68,7 @@ class Waiter {
         `next check ${formatIntervalSec(WAIT_GAS_SEC)}`,
       ];
 
-      logger.warn(formatMessage(...msg));
+      logger.warn(formatMessages(...msg));
 
       await sleep(WAIT_GAS_SEC);
     }

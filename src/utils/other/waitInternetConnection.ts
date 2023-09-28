@@ -1,10 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import formatIntervalSec from "../formatters/formatIntervalSec";
-import formatMessage from "../formatters/formatMessage";
+import axios from "axios";
 
-import getMyIp from "./getMyIp";
+import formatIntervalSec from "../formatters/formatIntervalSec";
+import formatMessages from "../formatters/formatMessages";
+
 import logger from "./logger";
 import sleep from "./sleep";
+
+type Response = {
+  data?: { ip?: string };
+};
+
+const ipCheckerUrl = "https://api.ipify.org?format=json";
+
+const getMyIp = async () => {
+  try {
+    const response = await axios.get<unknown, Response>(ipCheckerUrl);
+
+    return response.data?.ip || null;
+  } catch (error) {
+    return null;
+  }
+};
 
 const waitInternetConnectionLoop = async (sleepSec = 60, maxRetries = 1000) => {
   let retries = 0;
@@ -15,7 +32,7 @@ const waitInternetConnectionLoop = async (sleepSec = 60, maxRetries = 1000) => {
     if (myIp) return;
 
     logger.error(
-      formatMessage(
+      formatMessages(
         "internet connection error",
         `next check ${formatIntervalSec(sleepSec)}`,
       ),
