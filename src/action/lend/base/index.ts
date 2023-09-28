@@ -3,7 +3,7 @@ import Big from "big.js";
 import Account from "../../../core/account";
 import Action, {
   DefaultActionFunctionResult,
-  Provider,
+  ActionProvider,
 } from "../../../core/action";
 import Step from "../../../core/step";
 import Token from "../../../core/token";
@@ -17,7 +17,7 @@ abstract class LendAction extends Action {
 
   protected constructor(params: {
     token: Token;
-    provider: Provider;
+    provider: ActionProvider;
     context: ActionContext;
   }) {
     const { token, provider, context } = params;

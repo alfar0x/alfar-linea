@@ -6,13 +6,13 @@ import SyncswapSwapAction from "../../../action/swap/syncswap";
 import VelocoreSwapAction from "../../../action/swap/velocore";
 import WoofiSwapAction from "../../../action/swap/woofi";
 import XyFinanceSwapAction from "../../../action/swap/xyFinance";
-import { Provider } from "../../../core/action";
+import { ActionProvider } from "../../../core/action";
 import ActionContext from "../../../core/actionContext";
 
 import { Pairs } from "./getFactoryPairs";
 
 const getProviderActions = (
-  provider: Provider,
+  provider: ActionProvider,
   pairs: Pairs,
   context: ActionContext,
 ): SwapAction[] => {
@@ -95,7 +95,7 @@ const getProviderActions = (
 };
 
 const getSwapActions = (
-  activeProviders: Provider[],
+  activeProviders: ActionProvider[],
   pairs: Pairs,
   context: ActionContext,
 ) =>

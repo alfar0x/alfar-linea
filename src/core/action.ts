@@ -8,7 +8,7 @@ import Chain from "./chain";
 import Token from "./token";
 import { CreateTransactionResult } from "./transaction";
 
-export type Provider = (typeof ACTION_PROVIDERS)[number];
+export type ActionProvider = (typeof ACTION_PROVIDERS)[number];
 
 export type ActionType = (typeof ACTION_TYPES)[number];
 
@@ -16,14 +16,14 @@ export type DefaultActionFunctionResult = CreateTransactionResult;
 
 abstract class Action {
   private readonly actionType: ActionType;
-  private readonly provider: Provider;
+  private readonly provider: ActionProvider;
   private readonly operation: string;
 
   protected readonly context: ActionContext;
 
   protected constructor(params: {
     actionType: ActionType;
-    provider: Provider;
+    provider: ActionProvider;
     operation: string;
     context: ActionContext;
   }) {

@@ -1,17 +1,25 @@
 import Big from "big.js";
 
-import LendAction from "../../action/lend/base";
-import RandomAction from "../../action/random/base";
-import SwapAction from "../../action/swap/base";
-import Account from "../../core/account";
-import Operation from "../../core/operation";
-import Router from "../../core/router";
-import RandomRouter from "../../router/random";
-import SupplyEthRouter from "../../router/supplyEth";
-import SwapEthTokenEthRouter from "../../router/swapEthTokenEth";
-import SwapSupplyTokenRouter from "../../router/swapSupplyToken";
-import randomElementWithWeight from "../../utils/random/randomElementWithWeight";
-import randomInteger from "../../utils/random/randomInteger";
+import LendAction from "../../../action/lend/base";
+import RandomAction from "../../../action/random/base";
+import SwapAction from "../../../action/swap/base";
+import Account from "../../../core/account";
+import Operation from "../../../core/operation";
+import Router from "../../../core/router";
+import RandomRouter from "../../../router/random";
+import SupplyEthRouter from "../../../router/supplyEth";
+import SwapEthTokenEthRouter from "../../../router/swapEthTokenEth";
+import SwapSupplyTokenRouter from "../../../router/swapSupplyToken";
+import randomElementWithWeight from "../../../utils/random/randomElementWithWeight";
+import randomInteger from "../../../utils/random/randomInteger";
+import Chain from "../../../core/chain";
+import ActionContext from "../../../core/actionContext";
+import { ActionProvider } from "../../../core/action";
+import getFactoryTokens from "./getFactoryTokens";
+import getFactoryPairs from "./getFactoryPairs";
+import getLendActions from "./getLendActions";
+import getSwapActions from "./getSwapActions";
+import getRandomActions from "./getRandomActions";
 
 type RouterId =
   | "RANDOM"
@@ -30,11 +38,18 @@ class OperationFactory {
   private readonly totalWeight: number;
 
   public constructor(params: {
-    swapActions: SwapAction[];
-    lendActions: LendAction[];
-    randomActions: RandomAction[];
+    chain: Chain;
+    activeProviders: ActionProvider[];
+    context: ActionContext;
   }) {
-    const { swapActions, lendActions, randomActions } = params;
+    const { chain, activeProviders, context } = params;
+
+    const factoryTokens = getFactoryTokens(chain);
+    const factoryPairs = getFactoryPairs(factoryTokens);
+
+    const lendActions = getLendActions(activeProviders, factoryTokens, context);
+    const swapActions = getSwapActions(activeProviders, factoryPairs, context);
+    const randomActions = getRandomActions(activeProviders, chain, context);
 
     this.routers = OperationFactory.initializeRouters({
       swapActions,

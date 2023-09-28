@@ -1,12 +1,12 @@
 import LendAction from "../../../action/lend/base";
 import LineaBankLend from "../../../action/lend/lineaBank";
-import { Provider } from "../../../core/action";
+import { ActionProvider } from "../../../core/action";
 import ActionContext from "../../../core/actionContext";
 
 import { FactoryTokens } from "./getFactoryTokens";
 
 const getProviderActions = (
-  provider: Provider,
+  provider: ActionProvider,
   factoryTokens: FactoryTokens,
   context: ActionContext,
 ): LendAction[] => {
@@ -25,7 +25,7 @@ const getProviderActions = (
 };
 
 const getLendActions = (
-  activeProviders: Provider[],
+  activeProviders: ActionProvider[],
   factoryTokens: FactoryTokens,
   context: ActionContext,
 ) =>

@@ -1,11 +1,11 @@
 import RandomAction from "../../../action/random/base";
 import DmailSendMailAction from "../../../action/random/dmailSendMail";
-import { Provider } from "../../../core/action";
+import { ActionProvider } from "../../../core/action";
 import ActionContext from "../../../core/actionContext";
 import Chain from "../../../core/chain";
 
 const getProviderActions = (
-  provider: Provider,
+  provider: ActionProvider,
   chain: Chain,
   context: ActionContext,
 ): RandomAction[] => {
@@ -20,7 +20,7 @@ const getProviderActions = (
 };
 
 const getRandomActions = (
-  activeProviders: Provider[],
+  activeProviders: ActionProvider[],
   chain: Chain,
   context: ActionContext,
 ) =>

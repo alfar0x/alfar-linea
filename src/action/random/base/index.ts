@@ -1,5 +1,5 @@
 import Account from "../../../core/account";
-import Action, { Provider } from "../../../core/action";
+import Action, { ActionProvider } from "../../../core/action";
 import ActionContext from "../../../core/actionContext";
 import Chain from "../../../core/chain";
 import Step from "../../../core/step";
@@ -9,7 +9,7 @@ abstract class RandomAction extends Action {
 
   protected constructor(params: {
     chain: Chain;
-    provider: Provider;
+    provider: ActionProvider;
     operation: string;
     context: ActionContext;
   }) {

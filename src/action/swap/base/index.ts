@@ -3,7 +3,7 @@ import Big from "big.js";
 import Account from "../../../core/account";
 import Action, {
   DefaultActionFunctionResult,
-  Provider,
+  ActionProvider,
 } from "../../../core/action";
 import Step from "../../../core/step";
 import Token from "../../../core/token";
@@ -24,7 +24,7 @@ abstract class SwapAction extends Action {
   protected constructor(params: {
     fromToken: Token;
     toToken: Token;
-    provider: Provider;
+    provider: ActionProvider;
     context: ActionContext;
   }) {
     const { fromToken, toToken, provider, context } = params;

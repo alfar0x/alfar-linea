@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import Account from "../../core/account";
 import ActionContext from "../../core/actionContext";
 import Chain from "../../core/chain";
@@ -11,7 +12,6 @@ import randomInteger from "../../utils/random/randomInteger";
 import randomShuffle from "../../utils/random/randomShuffle";
 
 import TasksRunnerConfig from "./config";
-import initializeFactory from "./initializeFactory";
 import OperationFactory from "./operationFactory";
 
 class TaskCreator {
@@ -38,7 +38,7 @@ class TaskCreator {
       maxWorkAmountPercent: workingAmountPercent.max,
     });
 
-    this.factory = initializeFactory({
+    this.factory = new OperationFactory({
       chain: this.chain,
       activeProviders: providers,
       context: actionContext,
