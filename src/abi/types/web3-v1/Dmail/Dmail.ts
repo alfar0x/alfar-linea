@@ -22,7 +22,7 @@ export interface EventOptions {
 }
 
 export interface Dmail extends BaseContract {
-  public constructor(
+  constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions

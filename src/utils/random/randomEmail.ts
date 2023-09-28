@@ -1,7 +1,7 @@
 import { randomInt } from "crypto";
 
-import randomChoice from "../../../utils/random/randomChoice";
-import randomSymbols from "../../../utils/random/randomSymbols";
+import randomChoice from "./randomChoice";
+import randomSymbols from "./randomSymbols";
 
 const generateEmail = () => {
   const domains = ["dmail.ai", "gmail.com"];

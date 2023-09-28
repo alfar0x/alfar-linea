@@ -89,7 +89,7 @@ export type Vote = ContractEventLog<{
 }>;
 
 export interface VelocoreVault extends BaseContract {
-  public constructor(
+  constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions

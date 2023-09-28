@@ -1,11 +1,11 @@
 import Big from "big.js";
-import { Web3, Transaction } from "web3";
+import { Transaction } from "web3";
 
-import { CONTRACT_ERC20 } from "../abi/constants/contracts";
 import getWeb3Contract from "../abi/methods/getWeb3Contract";
 import { Erc20 } from "../abi/types/web3-v1/Erc20";
 import { Amount, TokenType } from "../types";
 
+import formatToChecksum from "../utils/formatters/formatToChecksum";
 import Account from "./account";
 import Chain from "./chain";
 import Prices from "./prices";
@@ -40,7 +40,7 @@ class Token {
     } = params;
 
     this.name = name;
-    this.address = Web3.utils.toChecksumAddress(address);
+    this.address = formatToChecksum(address);
     this.geskoId = geskoId;
     this.chain = chain;
     this.type = type;
@@ -64,11 +64,9 @@ class Token {
   private initializeContract() {
     if (this.isNative) return null;
 
-    return getWeb3Contract({
-      w3: this.chain.w3,
-      name: CONTRACT_ERC20,
-      address: this.address,
-    });
+    const contract = getWeb3Contract("Erc20");
+
+    return contract(this.chain.w3, this.address);
   }
 
   public getAddressOrWrappedForNative() {

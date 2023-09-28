@@ -31,7 +31,7 @@ export type PoolCreated = ContractEventLog<{
 }>;
 
 export interface SyncswapClassicPoolFactory extends BaseContract {
-  public constructor(
+  constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions

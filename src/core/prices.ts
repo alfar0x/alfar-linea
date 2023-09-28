@@ -4,6 +4,7 @@ import Big from "big.js";
 import rawTokens from "../chain/linea/rawTokens";
 import logger from "../utils/other/logger";
 import waitInternetConnection from "../utils/other/waitInternetConnection";
+import formatUrlParams from "../utils/formatters/formatUrlParams";
 
 type TokenId = string;
 
@@ -52,7 +53,7 @@ class Prices {
     // eslint-disable-next-line camelcase
     const params = { ids: this.geskoIds.join(","), vs_currencies: "usd" };
 
-    const urlParams = new URLSearchParams(params).toString();
+    const urlParams = formatUrlParams(params).toString();
 
     const result = await axios.get(`${this.url}?${urlParams}`);
 

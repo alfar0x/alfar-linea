@@ -27,16 +27,13 @@ abstract class SwapAction extends Action {
     provider: ActionProvider;
     context: ActionContext;
   }) {
-    const { fromToken, toToken, provider, context } = params;
+    const { fromToken, toToken, ...superParams } = params;
 
     SwapAction.checkPair(fromToken, toToken);
 
-    super({
-      actionType: "SWAP",
-      operation: `${fromToken}_${toToken}`,
-      provider,
-      context,
-    });
+    const operation = `${fromToken}_${toToken}`;
+
+    super({ ...superParams, operation, actionType: "SWAP" });
 
     this.fromToken = fromToken;
     this.toToken = toToken;
@@ -66,15 +63,6 @@ abstract class SwapAction extends Action {
     if (!isSameChains) {
       throw new Error(`swap is not available for tokens in different chains`);
     }
-  }
-
-  protected getContractAddress(params: { contractName: string }) {
-    const { contractName } = params;
-
-    return SwapAction.getDefaultContractAddress({
-      contractName,
-      chain: this.fromToken.chain,
-    });
   }
 
   protected async checkIsBalanceAllowed(params: {

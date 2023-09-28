@@ -51,7 +51,7 @@ export type WooRouterSwap = ContractEventLog<{
 }>;
 
 export interface WoofiRouter extends BaseContract {
-  public constructor(
+  constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions

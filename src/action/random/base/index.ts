@@ -13,30 +13,15 @@ abstract class RandomAction extends Action {
     operation: string;
     context: ActionContext;
   }) {
-    const { chain, provider, operation, context } = params;
+    const { chain, ...superParams } = params;
 
-    super({ provider, actionType: "RANDOM", operation: operation, context });
+    super({ ...superParams, actionType: "RANDOM" });
 
     this.chain = chain;
   }
 
   // eslint-disable-next-line no-unused-vars
   public abstract steps(params: { account: Account }): Promise<Step[]> | Step[];
-
-  protected getContractAddress(params: {
-    contractName: string;
-    chain?: Chain;
-  }) {
-    const { chain = this.chain, contractName } = params;
-
-    const contractAddress = chain.getContractAddressByName(contractName);
-
-    if (!contractAddress) {
-      throw new Error(`action is not available in ${chain}`);
-    }
-
-    return contractAddress;
-  }
 }
 
 export default RandomAction;

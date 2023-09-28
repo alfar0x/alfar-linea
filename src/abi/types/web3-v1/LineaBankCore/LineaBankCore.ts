@@ -127,7 +127,7 @@ export type ValidatorUpdated = ContractEventLog<{
 }>;
 
 export interface LineaBankCore extends BaseContract {
-  public constructor(
+  constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions

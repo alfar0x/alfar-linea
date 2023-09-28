@@ -1,7 +1,5 @@
 import { Transaction } from "web3";
 
-import { CONTRACT_DMAIL } from "../../../abi/constants/contracts";
-import getWeb3Contract from "../../../abi/methods/getWeb3Contract";
 import Account from "../../../core/account";
 import Chain from "../../../core/chain";
 import Step from "../../../core/step";
@@ -9,34 +7,27 @@ import RunnableTransaction from "../../../core/transaction";
 import RandomAction from "../base";
 
 import ActionContext from "../../../core/actionContext";
-import generateEmail from "./generateEmail";
+import generateEmail from "../../../utils/random/randomEmail";
+import { ChainConfig } from "../../../core/actionConfig";
+import config from "./config";
 
 class DmailSendMailAction extends RandomAction {
-  private readonly contractAddress: string;
+  private readonly config: ChainConfig<typeof config>;
 
   public constructor(params: { chain: Chain; context: ActionContext }) {
-    const { chain, context } = params;
+    super({ ...params, provider: "DMAIL", operation: "SEND_MAIL" });
 
-    super({ chain, provider: "DMAIL", operation: "SEND_MAIL", context });
-
-    this.contractAddress = this.getContractAddress({
-      contractName: CONTRACT_DMAIL,
-    });
+    this.config = config.getChainConfig(params.chain);
   }
 
   private async sendMail(params: { account: Account }) {
     const { account } = params;
+    const { dmailAddress, dmailContract } = this.config;
     const { w3 } = this.chain;
-
-    const dmailContract = getWeb3Contract({
-      w3,
-      name: CONTRACT_DMAIL,
-      address: this.contractAddress,
-    });
 
     const emailAddress = generateEmail();
 
-    const sendFunctionCall = dmailContract.methods.send_mail(
+    const sendFunctionCall = dmailContract(w3, dmailAddress).methods.send_mail(
       emailAddress,
       emailAddress,
     );
@@ -55,7 +46,7 @@ class DmailSendMailAction extends RandomAction {
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: this.contractAddress,
+      to: dmailAddress,
       value: 0,
     };
 

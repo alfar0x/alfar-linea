@@ -20,9 +20,9 @@ abstract class LendAction extends Action {
     provider: ActionProvider;
     context: ActionContext;
   }) {
-    const { token, provider, context } = params;
+    const { token, ...superParams } = params;
 
-    super({ actionType: "LEND", operation: `${token}`, provider, context });
+    super({ ...superParams, actionType: "LEND", operation: `${token}` });
 
     this.token = token;
   }
@@ -43,15 +43,6 @@ abstract class LendAction extends Action {
   protected abstract redeemAll(params: {
     account: Account;
   }): Promise<DefaultActionFunctionResult>;
-
-  protected getContractAddress(params: { contractName: string }) {
-    const { contractName } = params;
-
-    return LendAction.getDefaultContractAddress({
-      contractName,
-      chain: this.token.chain,
-    });
-  }
 
   protected async checkIsBalanceAllowed(params: {
     account: Account;

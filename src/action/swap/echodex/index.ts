@@ -1,30 +1,25 @@
 import { Transaction } from "web3";
 
-import { CONTRACT_ECHO_DEX_SMART_ROUTER } from "../../../abi/constants/contracts";
-import getEthersInterface from "../../../abi/methods/getEthersInterface";
-import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import Account from "../../../core/account";
 import { Amount } from "../../../types";
 import SwapAction from "../base";
 
 import Token from "../../../core/token";
 import ActionContext from "../../../core/actionContext";
-import { UNWRAP_ETH_ADDRESS } from "./constants";
+import { ChainConfig } from "../../../core/actionConfig";
+import config from "./config";
 
 class EchoDexSwapAction extends SwapAction {
-  private readonly contractAddress: string;
+  private readonly config: ChainConfig<typeof config>;
 
   public constructor(params: {
     fromToken: Token;
     toToken: Token;
     context: ActionContext;
   }) {
-    const { fromToken, toToken, context } = params;
-    super({ fromToken, toToken, provider: "ECHO_DEX", context });
+    super({ ...params, provider: "ECHO_DEX" });
 
-    this.contractAddress = this.getContractAddress({
-      contractName: CONTRACT_ECHO_DEX_SMART_ROUTER,
-    });
+    this.config = config.getChainConfig(params.fromToken.chain);
   }
 
   private async getSwapData(params: {
@@ -34,17 +29,13 @@ class EchoDexSwapAction extends SwapAction {
   }) {
     const { account, normalizedAmount, minOutNormalizedAmount } = params;
     const { chain } = this.fromToken;
+    const { routerInterface, unwrapEthAddress } = this.config;
 
-    const echoDexRouterInterface = getEthersInterface({
-      name: "EchoDexSmartRouter",
-    });
+    const address = this.toToken.isNative ? unwrapEthAddress : account.address;
 
-    const address = this.toToken.isNative
-      ? UNWRAP_ETH_ADDRESS
-      : account.address;
-
-    const swapExactTokensForTokensData =
-      echoDexRouterInterface.encodeFunctionData("swapExactTokensForTokens", [
+    const swapExactTokensForTokensData = routerInterface.encodeFunctionData(
+      "swapExactTokensForTokens",
+      [
         normalizedAmount,
         minOutNormalizedAmount,
         [
@@ -52,21 +43,22 @@ class EchoDexSwapAction extends SwapAction {
           this.toToken.getAddressOrWrappedForNative(),
         ],
         address,
-      ]);
+      ],
+    );
 
     const multicallBytesArray = [swapExactTokensForTokensData];
 
     if (this.toToken.isNative) {
-      const unwrapEthData = echoDexRouterInterface.encodeFunctionData(
-        "unwrapWETH9",
-        [minOutNormalizedAmount, account.address],
-      );
+      const unwrapEthData = routerInterface.encodeFunctionData("unwrapWETH9", [
+        minOutNormalizedAmount,
+        account.address,
+      ]);
       multicallBytesArray.push(unwrapEthData);
     }
 
     const deadline = await chain.getSwapDeadline();
 
-    const data = echoDexRouterInterface.encodeFunctionData(
+    const data = routerInterface.encodeFunctionData(
       "multicall(uint256,bytes[])",
       [deadline, multicallBytesArray],
     );
@@ -79,17 +71,19 @@ class EchoDexSwapAction extends SwapAction {
     normalizedAmount: Amount;
   }) {
     const { account, normalizedAmount } = params;
+    const { routerAddress } = this.config;
 
     return await EchoDexSwapAction.getDefaultApproveTransaction({
       account,
       token: this.fromToken,
-      spenderAddress: this.contractAddress,
+      spenderAddress: routerAddress,
       normalizedAmount,
     });
   }
 
   protected async swap(params: { account: Account; normalizedAmount: Amount }) {
     const { account, normalizedAmount } = params;
+    const { routerAddress, slippagePercent } = this.config;
 
     const { chain } = this.fromToken;
     const { w3 } = chain;
@@ -99,7 +93,7 @@ class EchoDexSwapAction extends SwapAction {
     const minOutNormalizedAmount = await this.toToken.getMinOutNormalizedAmount(
       this.fromToken,
       normalizedAmount,
-      DEFAULT_SLIPPAGE_PERCENT,
+      slippagePercent,
     );
 
     const { data } = await this.getSwapData({
@@ -123,7 +117,7 @@ class EchoDexSwapAction extends SwapAction {
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: this.contractAddress,
+      to: routerAddress,
     };
 
     const resultMsg = await this.getDefaultSwapResultMsg({

@@ -1,8 +1,6 @@
 import axios from "axios";
-import { Web3, Transaction } from "web3";
+import { Transaction } from "web3";
 
-import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
-import { CONTRACT_OPEN_OCEAN_EXCHANGE } from "../../../constants/contractsWithoutAbi";
 import Account from "../../../core/account";
 import Token from "../../../core/token";
 import { Amount } from "../../../types";
@@ -10,35 +8,23 @@ import randomWalletAddress from "../../../utils/random/randomWalletAddress";
 import SwapAction from "../base";
 
 import ActionContext from "../../../core/actionContext";
-import { API_URL, CHAINS_DATA } from "./constants";
+import { ChainConfig } from "../../../core/actionConfig";
+import formatToChecksum from "../../../utils/formatters/formatToChecksum";
+import formatUrlParams from "../../../utils/formatters/formatUrlParams";
 import { OpenOceanSwapQuote } from "./types";
+import config from "./config";
 
 class OpenOceanSwapAction extends SwapAction {
-  private readonly contractAddress: string;
-  private readonly chainPath: string;
+  private readonly config: ChainConfig<typeof config>;
 
   public constructor(params: {
     fromToken: Token;
     toToken: Token;
     context: ActionContext;
   }) {
-    const { fromToken, toToken, context } = params;
-    super({ fromToken, toToken, provider: "OPEN_OCEAN", context });
+    super({ ...params, provider: "OPEN_OCEAN" });
 
-    this.contractAddress = this.getContractAddress({
-      contractName: CONTRACT_OPEN_OCEAN_EXCHANGE,
-    });
-    this.chainPath = this.getChainPath();
-  }
-
-  private getChainPath() {
-    const chainPath = CHAINS_DATA[this.fromToken.chain.chainId]?.chainPath;
-
-    if (!chainPath) {
-      throw new Error(`chain path action is not available`);
-    }
-
-    return chainPath;
+    this.config = config.getChainConfig(params.fromToken.chain);
   }
 
   private async swapQuoteRequest(params: {
@@ -47,11 +33,11 @@ class OpenOceanSwapAction extends SwapAction {
   }) {
     const { account, normalizedAmount } = params;
 
+    const { apiUrl, routerAddress, slippagePercent } = this.config;
+
     const randomAddress = randomWalletAddress();
 
-    const fullRandomAddress = Web3.utils.toChecksumAddress(
-      `0x${randomAddress}`,
-    );
+    const fullRandomAddress = formatToChecksum(`0x${randomAddress}`);
 
     const readableAmount = await this.fromToken.toReadableAmount(
       normalizedAmount,
@@ -64,12 +50,12 @@ class OpenOceanSwapAction extends SwapAction {
       outTokenAddress: this.toToken.address,
       amount: readableAmount,
       gasPrice: gasPrice.toString(),
-      slippage: String(DEFAULT_SLIPPAGE_PERCENT),
+      slippage: slippagePercent,
       account: fullRandomAddress,
     };
 
-    const urlParams = new URLSearchParams(searchParams).toString();
-    const url = `${API_URL}/${this.chainPath}/swap_quote?${urlParams}`;
+    const urlParams = formatUrlParams(searchParams).toString();
+    const url = `${apiUrl}/swap_quote?${urlParams}`;
 
     const { data } = await axios.get<OpenOceanSwapQuote>(url);
 
@@ -77,10 +63,8 @@ class OpenOceanSwapAction extends SwapAction {
 
     const { to, value, estimatedGas, minOutAmount } = data.data;
 
-    if (to !== this.contractAddress) {
-      throw new Error(
-        `to !== contractAddress: ${to} !== ${this.contractAddress}`,
-      );
+    if (to !== routerAddress) {
+      throw new Error(`to !== routerAddress: ${to} !== ${routerAddress}`);
     }
 
     const addressToChangeTo = account.address.toLocaleLowerCase().substring(2);
@@ -104,11 +88,12 @@ class OpenOceanSwapAction extends SwapAction {
     normalizedAmount: Amount;
   }) {
     const { account, normalizedAmount } = params;
+    const { routerAddress } = this.config;
 
     return await OpenOceanSwapAction.getDefaultApproveTransaction({
       account,
       token: this.fromToken,
-      spenderAddress: this.contractAddress,
+      spenderAddress: routerAddress,
       normalizedAmount,
     });
   }

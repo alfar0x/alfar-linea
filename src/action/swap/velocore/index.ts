@@ -1,11 +1,5 @@
 import { ethers } from "ethers";
 
-import {
-  CONTRACT_VELOCORE_FACTORY,
-  CONTRACT_VELOCORE_VAULT,
-} from "../../../abi/constants/contracts";
-import getWeb3Contract from "../../../abi/methods/getWeb3Contract";
-import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import Account from "../../../core/account";
 import Token from "../../../core/token";
 import { Amount } from "../../../types";
@@ -13,48 +7,69 @@ import arraySortStringsHelper from "../../../utils/array/arraySortStringsHelper"
 import SwapAction from "../base";
 
 import ActionContext from "../../../core/actionContext";
-import { AMOUNT_TYPES } from "./constants";
-import {
-  getPackedPool,
-  getPackedToken,
-  getPackedTokenInformation,
-} from "./packHelpers";
+import { ChainConfig } from "../../../core/actionConfig";
+import config from "./config";
 
 class VelocoreSwapAction extends SwapAction {
-  private readonly vaultContractAddress: string;
-  private readonly factoryContractAddress: string;
+  private readonly config: ChainConfig<typeof config>;
 
   public constructor(params: {
     fromToken: Token;
     toToken: Token;
     context: ActionContext;
   }) {
-    const { fromToken, toToken, context } = params;
-    super({ fromToken, toToken, provider: "VELOCORE", context });
+    super({ ...params, provider: "VELOCORE" });
 
-    this.vaultContractAddress = this.getContractAddress({
-      contractName: CONTRACT_VELOCORE_VAULT,
-    });
+    this.config = config.getChainConfig(params.fromToken.chain);
+  }
 
-    this.factoryContractAddress = this.getContractAddress({
-      contractName: CONTRACT_VELOCORE_FACTORY,
-    });
+  private getPackedPool(params: { address: string }) {
+    const { operationTypes } = this.config;
+    const { address } = params;
+
+    const unusedBytes = 0;
+
+    return ethers.solidityPacked(
+      ["uint8", "uint88", "address"],
+      [operationTypes.swap, unusedBytes, address],
+    );
+  }
+
+  private getPackedToken(params: { token: Token }) {
+    const { token } = params;
+    const { packedEth, tokenTypes } = this.config;
+    if (token.isNative) return packedEth;
+
+    const id = 0;
+
+    return ethers.solidityPacked(
+      ["uint8", "uint88", "address"],
+      [tokenTypes.erc20, id, token.getAddressOrWrappedForNative()],
+    );
+  }
+
+  private static getPackedTokenInformation(params: {
+    index: number;
+    amountType: number;
+    normalizedAmount: Amount;
+  }) {
+    const { index, amountType, normalizedAmount } = params;
+    const unusedBytes = 0;
+    return ethers.solidityPacked(
+      ["uint8", "uint8", "uint112", "int128"],
+      [index, amountType, unusedBytes, normalizedAmount],
+    );
   }
 
   private async getPool(fromToken: Token, toToken: Token): Promise<string> {
     const { chain } = fromToken;
+    const { factoryAddress, factoryContract } = this.config;
 
-    const factoryContract = getWeb3Contract({
-      w3: chain.w3,
-      name: CONTRACT_VELOCORE_FACTORY,
-      address: this.factoryContractAddress,
-    });
+    const fromTokenPacked = this.getPackedToken({ token: fromToken });
+    const toTokenPacked = this.getPackedToken({ token: toToken });
 
-    const fromTokenPacked = getPackedToken({ token: fromToken });
-    const toTokenPacked = getPackedToken({ token: toToken });
-
-    const poolAddress = await factoryContract.methods
-      .pools(fromTokenPacked, toTokenPacked)
+    const poolAddress = await factoryContract(chain.w3, factoryAddress)
+      .methods.pools(fromTokenPacked, toTokenPacked)
       .call();
 
     if (poolAddress !== ethers.ZeroAddress) return poolAddress;
@@ -72,11 +87,13 @@ class VelocoreSwapAction extends SwapAction {
     poolAddress: string;
   }) {
     const { normalizedAmount, minOutNormalizedAmount, poolAddress } = params;
+    const { vaultAddress, vaultContract, amountTypes } = this.config;
+    const { w3 } = this.fromToken.chain;
 
-    const poolId = getPackedPool({ address: poolAddress });
+    const poolId = this.getPackedPool({ address: poolAddress });
 
-    const fromTokenPacked = getPackedToken({ token: this.fromToken });
-    const toTokenPacked = getPackedToken({ token: this.toToken });
+    const fromTokenPacked = this.getPackedToken({ token: this.fromToken });
+    const toTokenPacked = this.getPackedToken({ token: this.toToken });
 
     const tokenRef = [fromTokenPacked, toTokenPacked];
 
@@ -84,21 +101,15 @@ class VelocoreSwapAction extends SwapAction {
 
     const deposit = new Array(tokenRef.length).fill(0);
 
-    const vaultContract = getWeb3Contract({
-      w3: this.fromToken.chain.w3,
-      name: CONTRACT_VELOCORE_VAULT,
-      address: this.vaultContractAddress,
-    });
-
-    const fromTokenInformation = getPackedTokenInformation({
+    const fromTokenInformation = VelocoreSwapAction.getPackedTokenInformation({
       index: tokenRef.indexOf(fromTokenPacked),
-      amountType: AMOUNT_TYPES.exactly,
+      amountType: amountTypes.exactly,
       normalizedAmount: normalizedAmount,
     });
 
-    const toTokenInformation = getPackedTokenInformation({
+    const toTokenInformation = VelocoreSwapAction.getPackedTokenInformation({
       index: tokenRef.indexOf(toTokenPacked),
-      amountType: AMOUNT_TYPES.atMost,
+      amountType: amountTypes.atMost,
       normalizedAmount: minOutNormalizedAmount,
     });
 
@@ -108,9 +119,11 @@ class VelocoreSwapAction extends SwapAction {
 
     const emptyPool = "0x";
 
-    const swapCall = vaultContract.methods.execute(tokenRef, deposit, [
-      [poolId, tokenInformationList, emptyPool],
-    ]);
+    const swapCall = vaultContract(w3, vaultAddress).methods.execute(
+      tokenRef,
+      deposit,
+      [[poolId, tokenInformationList, emptyPool]],
+    );
 
     return swapCall;
   }
@@ -120,17 +133,19 @@ class VelocoreSwapAction extends SwapAction {
     normalizedAmount: Amount;
   }) {
     const { account, normalizedAmount } = params;
+    const { vaultAddress } = this.config;
 
     return await VelocoreSwapAction.getDefaultApproveTransaction({
       account,
       token: this.fromToken,
-      spenderAddress: this.vaultContractAddress,
+      spenderAddress: vaultAddress,
       normalizedAmount,
     });
   }
 
   protected async swap(params: { account: Account; normalizedAmount: Amount }) {
     const { account, normalizedAmount } = params;
+    const { slippagePercent, vaultAddress } = this.config;
     const { chain } = this.fromToken;
     const { w3 } = chain;
 
@@ -145,7 +160,7 @@ class VelocoreSwapAction extends SwapAction {
     const minOutNormalizedAmount = await this.toToken.getMinOutNormalizedAmount(
       this.fromToken,
       normalizedAmount,
-      DEFAULT_SLIPPAGE_PERCENT,
+      slippagePercent,
     );
 
     const swapFunctionCall = this.getSwapCall({
@@ -171,7 +186,7 @@ class VelocoreSwapAction extends SwapAction {
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: this.vaultContractAddress,
+      to: vaultAddress,
       value,
     };
 

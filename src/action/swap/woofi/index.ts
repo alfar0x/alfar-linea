@@ -1,26 +1,22 @@
-import { CONTRACT_WOOFI_ROUTER } from "../../../abi/constants/contracts";
-import getWeb3Contract from "../../../abi/methods/getWeb3Contract";
-import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import Account from "../../../core/account";
+import { ChainConfig } from "../../../core/actionConfig";
 import ActionContext from "../../../core/actionContext";
 import Token from "../../../core/token";
 import { Amount } from "../../../types";
 import SwapAction from "../base";
+import config from "./config";
 
 class WoofiSwapAction extends SwapAction {
-  private readonly contractAddress: string;
+  private readonly config: ChainConfig<typeof config>;
 
   public constructor(params: {
     fromToken: Token;
     toToken: Token;
     context: ActionContext;
   }) {
-    const { fromToken, toToken, context } = params;
-    super({ fromToken, toToken, provider: "WOOFI", context });
+    super({ ...params, provider: "WOOFI" });
 
-    this.contractAddress = this.getContractAddress({
-      contractName: CONTRACT_WOOFI_ROUTER,
-    });
+    this.config = config.getChainConfig(params.fromToken.chain);
   }
 
   private getSwapCall(params: {
@@ -29,17 +25,11 @@ class WoofiSwapAction extends SwapAction {
     minOutNormalizedAmount: Amount;
   }) {
     const { account, normalizedAmount, minOutNormalizedAmount } = params;
+    const { routerAddress, routerContract } = this.config;
 
-    const { chain } = this.fromToken;
-    const { w3 } = chain;
+    const { w3 } = this.fromToken.chain;
 
-    const routerContract = getWeb3Contract({
-      w3,
-      name: CONTRACT_WOOFI_ROUTER,
-      address: this.contractAddress,
-    });
-
-    return routerContract.methods.swap(
+    return routerContract(w3, routerAddress).methods.swap(
       this.fromToken.address,
       this.toToken.address,
       normalizedAmount,
@@ -54,27 +44,28 @@ class WoofiSwapAction extends SwapAction {
     normalizedAmount: Amount;
   }) {
     const { account, normalizedAmount } = params;
+    const { routerAddress } = this.config;
 
     return await WoofiSwapAction.getDefaultApproveTransaction({
       account,
       token: this.fromToken,
-      spenderAddress: this.contractAddress,
+      spenderAddress: routerAddress,
       normalizedAmount,
     });
   }
 
   protected async swap(params: { account: Account; normalizedAmount: Amount }) {
     const { account, normalizedAmount } = params;
+    const { slippagePercent, routerAddress } = this.config;
 
-    const { chain } = this.fromToken;
-    const { w3 } = chain;
+    const { w3 } = this.fromToken.chain;
 
     await this.checkIsBalanceAllowed({ account, normalizedAmount });
 
     const minOutNormalizedAmount = await this.toToken.getMinOutNormalizedAmount(
       this.fromToken,
       normalizedAmount,
-      DEFAULT_SLIPPAGE_PERCENT,
+      slippagePercent,
     );
 
     const swapFunctionCall = this.getSwapCall({
@@ -99,7 +90,7 @@ class WoofiSwapAction extends SwapAction {
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: this.contractAddress,
+      to: routerAddress,
       value,
     };
 

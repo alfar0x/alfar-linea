@@ -4,7 +4,6 @@ import { Amount } from "../types";
 
 import Account from "./account";
 import ActionContext from "./actionContext";
-import Chain from "./chain";
 import Token from "./token";
 import { CreateTransactionResult } from "./transaction";
 
@@ -60,21 +59,6 @@ abstract class Action {
     const readableAmount = await token.toReadableAmount(normalizedAmount);
 
     return { tx, resultMsg: `${readableAmount} ${token} approved` };
-  }
-
-  protected static getDefaultContractAddress(params: {
-    contractName: string;
-    chain: Chain;
-  }) {
-    const { chain, contractName } = params;
-
-    const contractAddress = chain.getContractAddressByName(contractName);
-
-    if (!contractAddress) {
-      throw new Error(`action is not available in ${chain}`);
-    }
-
-    return contractAddress;
   }
 
   public toString() {

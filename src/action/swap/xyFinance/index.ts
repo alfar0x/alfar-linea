@@ -1,8 +1,5 @@
 import axios from "axios";
-import { Web3 } from "web3";
 
-import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
-import { CONTRACT_XY_FINANCE_ROUTER } from "../../../constants/contractsWithoutAbi";
 import Account from "../../../core/account";
 import Token from "../../../core/token";
 import { Amount } from "../../../types";
@@ -11,40 +8,42 @@ import randomWalletAddress from "../../../utils/random/randomWalletAddress";
 import SwapAction from "../base";
 
 import ActionContext from "../../../core/actionContext";
-import { API_URL, RESEND_TX_TIMES } from "./constants";
+import { ChainConfig } from "../../../core/actionConfig";
+import formatUrlParams from "../../../utils/formatters/formatUrlParams";
+import formatToChecksum from "../../../utils/formatters/formatToChecksum";
 import { XyFinanceBuildTx, XyFinanceQuote } from "./types";
+import config from "./config";
 
 class XyFinanceSwapAction extends SwapAction {
-  private readonly contractAddress: string;
+  private readonly config: ChainConfig<typeof config>;
 
   public constructor(params: {
     fromToken: Token;
     toToken: Token;
     context: ActionContext;
   }) {
-    const { fromToken, toToken, context } = params;
-    super({ fromToken, toToken, provider: "XY_FINANCE", context });
+    super({ ...params, provider: "XY_FINANCE" });
 
-    this.contractAddress = this.getContractAddress({
-      contractName: CONTRACT_XY_FINANCE_ROUTER,
-    });
+    this.config = config.getChainConfig(params.fromToken.chain);
   }
 
   private async quoteRequest(params: { normalizedAmount: Amount }) {
     const { normalizedAmount } = params;
+    const { slippagePercent, apiUrl, routerAddress } = this.config;
 
-    const chainId = String(this.fromToken.chain.chainId);
+    const { chainId } = this.fromToken.chain;
+
     const searchParams = {
       srcChainId: chainId,
       srcQuoteTokenAddress: this.fromToken.address,
-      srcQuoteTokenAmount: String(normalizedAmount),
+      srcQuoteTokenAmount: normalizedAmount,
       dstChainId: chainId,
       dstQuoteTokenAddress: this.toToken.address,
-      slippage: String(DEFAULT_SLIPPAGE_PERCENT),
+      slippage: slippagePercent,
     };
 
-    const urlParams = new URLSearchParams(searchParams).toString();
-    const url = `${API_URL}/quote?${urlParams}`;
+    const urlParams = formatUrlParams(searchParams);
+    const url = `${apiUrl}/quote?${urlParams}`;
 
     const { data } = await axios.get<XyFinanceQuote>(url);
 
@@ -61,9 +60,9 @@ class XyFinanceSwapAction extends SwapAction {
     const { srcSwapDescription, contractAddress } = data.routes[0];
     const { provider } = srcSwapDescription;
 
-    if (contractAddress !== this.contractAddress) {
+    if (contractAddress !== routerAddress) {
       throw new Error(
-        `contractAddress !== this.contractAddress: ${contractAddress} !== ${this.contractAddress}. Please contact developer`,
+        `unexpected error. contractAddress !== routerAddress: ${contractAddress} !== ${routerAddress}`,
       );
     }
 
@@ -76,28 +75,27 @@ class XyFinanceSwapAction extends SwapAction {
     provider: string;
   }) {
     const { account, normalizedAmount, provider } = params;
+    const { slippagePercent, apiUrl, routerAddress } = this.config;
 
     const randomAddress = randomWalletAddress();
 
-    const fullRandomAddress = Web3.utils.toChecksumAddress(
-      `0x${randomAddress}`,
-    );
+    const fullRandomAddress = formatToChecksum(`0x${randomAddress}`);
 
-    const chainId = String(this.fromToken.chain.chainId);
+    const { chainId } = this.fromToken.chain;
 
     const searchParams = {
       srcChainId: chainId,
       srcQuoteTokenAddress: this.fromToken.address,
-      srcQuoteTokenAmount: String(normalizedAmount),
+      srcQuoteTokenAmount: normalizedAmount,
       dstChainId: chainId,
       dstQuoteTokenAddress: this.toToken.address,
-      slippage: String(DEFAULT_SLIPPAGE_PERCENT),
+      slippage: slippagePercent,
       receiver: fullRandomAddress,
       srcSwapProvider: provider,
     };
 
-    const urlParams = new URLSearchParams(searchParams).toString();
-    const url = `${API_URL}/buildTx?${urlParams}`;
+    const urlParams = formatUrlParams(searchParams);
+    const url = `${apiUrl}/buildTx?${urlParams}`;
 
     const { data } = await axios.get<XyFinanceBuildTx>(url);
 
@@ -113,9 +111,9 @@ class XyFinanceSwapAction extends SwapAction {
       addressToChangeTo,
     );
 
-    if (to !== this.contractAddress) {
+    if (to !== routerAddress) {
       throw new Error(
-        `unexpected error: to !== contractAddress: ${to} !== ${this.contractAddress}. Please contact developer`,
+        `unexpected error. to !== contractAddress: ${to} !== ${routerAddress}`,
       );
     }
 
@@ -133,17 +131,19 @@ class XyFinanceSwapAction extends SwapAction {
     normalizedAmount: Amount;
   }) {
     const { account, normalizedAmount } = params;
+    const { routerAddress } = this.config;
 
     return await XyFinanceSwapAction.getDefaultApproveTransaction({
       account,
       token: this.fromToken,
-      spenderAddress: this.contractAddress,
+      spenderAddress: routerAddress,
       normalizedAmount,
     });
   }
 
   protected async swap(params: { account: Account; normalizedAmount: Amount }) {
     const { account, normalizedAmount } = params;
+    const { resendTxTimes } = this.config;
 
     const { chain } = this.fromToken;
     const { w3 } = chain;
@@ -182,7 +182,7 @@ class XyFinanceSwapAction extends SwapAction {
       minOutNormalizedAmount,
     });
 
-    return { tx, resultMsg, retryTimes: RESEND_TX_TIMES };
+    return { tx, resultMsg, retryTimes: resendTxTimes };
   }
 }
 
