@@ -26,8 +26,8 @@ export type ProxyItem = z.infer<typeof proxyItemSchema>;
 
 class Proxy {
   private readonly type: ProxyType;
-  private readonly isRandom?: boolean;
-  private readonly ipChangeUrl?: string;
+  private readonly serverIsRandom?: boolean;
+  private readonly mobileIpChangeUrl?: string;
   private readonly proxyList: ProxyItem[];
   private readonly onIpChangeErrorSleepSec = 30;
   private readonly onIpChangeErrorRepeatTimes = 3;
@@ -35,17 +35,17 @@ class Proxy {
 
   public constructor(params: {
     type: ProxyType;
-    isRandom?: boolean;
-    ipChangeUrl?: string;
+    serverIsRandom?: boolean;
+    mobileIpChangeUrl?: string;
     proxies: string[];
   }) {
-    const { type, isRandom, ipChangeUrl, proxies } = params;
+    const { type, serverIsRandom, mobileIpChangeUrl, proxies } = params;
 
     this.type = type;
-    this.isRandom = isRandom;
-    this.ipChangeUrl = ipChangeUrl;
+    this.serverIsRandom = serverIsRandom;
+    this.mobileIpChangeUrl = mobileIpChangeUrl;
 
-    if (this.type === "mobile" && !this.ipChangeUrl) {
+    if (this.type === "mobile" && !this.mobileIpChangeUrl) {
       throw new Error(`ip change url is required for ${this.type} proxy type`);
     }
 
@@ -102,7 +102,7 @@ class Proxy {
 
     if (this.type === "mobile") return this.proxyList[0];
 
-    if (this.isRandom) return randomChoice(this.proxyList);
+    if (this.serverIsRandom) return randomChoice(this.proxyList);
 
     const proxyItem = this.proxyList.at(index);
 
@@ -116,13 +116,13 @@ class Proxy {
   public async onProviderChange() {
     if (this.type !== "mobile") return;
 
-    if (!this.ipChangeUrl) {
+    if (!this.mobileIpChangeUrl) {
       throw new Error(`ip change url is required for ${this.type} proxy type`);
     }
 
     for (let retry = 0; retry < this.onIpChangeErrorRepeatTimes; retry += 1) {
       try {
-        const { status } = await axios.get(this.ipChangeUrl);
+        const { status } = await axios.get(this.mobileIpChangeUrl);
 
         if (status !== 200) {
           throw new Error(`ip change response status is ${status}`);
