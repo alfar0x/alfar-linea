@@ -8,15 +8,16 @@ import Step from "../../../core/step";
 import RunnableTransaction from "../../../core/transaction";
 import RandomAction from "../base";
 
+import ActionContext from "../../../core/actionContext";
 import generateEmail from "./generateEmail";
 
 class DmailSendMailAction extends RandomAction {
   private readonly contractAddress: string;
 
-  public constructor(params: { chain: Chain }) {
-    const { chain } = params;
+  public constructor(params: { chain: Chain; context: ActionContext }) {
+    const { chain, context } = params;
 
-    super({ chain, provider: "DMAIL", operation: "SEND_MAIL" });
+    super({ chain, provider: "DMAIL", operation: "SEND_MAIL", context });
 
     this.contractAddress = this.getContractAddress({
       contractName: CONTRACT_DMAIL,

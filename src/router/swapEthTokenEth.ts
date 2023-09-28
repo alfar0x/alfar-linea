@@ -20,28 +20,9 @@ class SwapEthTokenEthRouter extends Router {
 
   public readonly description = "swap eth -> token -> eth";
 
-  public constructor(params: {
-    swapActions: SwapAction[];
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
-    minApproveMultiplier: number;
-    maxApproveMultiplier: number;
-  }) {
-    const {
-      swapActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    } = params;
-
-    super({
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    });
-
+  public constructor(params: { swapActions: SwapAction[] }) {
+    const { swapActions } = params;
+    super();
     this.possibleRoutes =
       SwapEthTokenEthRouter.initializePossibleRoutes(swapActions);
   }
@@ -143,21 +124,8 @@ class SwapEthTokenEthRouter extends Router {
       );
     }
 
-    const {
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    } = this;
-
     const buyPossibleSteps = possibleRoute.buyActions.map((action) =>
-      action.swapStep({
-        account,
-        minWorkAmountPercent,
-        maxWorkAmountPercent,
-        minApproveMultiplier,
-        maxApproveMultiplier,
-      }),
+      action.swapStep({ account }),
     );
 
     const buyOperation = new Operation({
@@ -168,10 +136,7 @@ class SwapEthTokenEthRouter extends Router {
     const sellPossibleSteps = possibleRoute.sellActions.map((action) =>
       action.swapStep({
         account,
-        minWorkAmountPercent: 100,
-        maxWorkAmountPercent: 100,
-        minApproveMultiplier,
-        maxApproveMultiplier,
+        isAllBalance: true,
       }),
     );
 

@@ -10,15 +10,20 @@ import sleep from "../../../utils/other/sleep";
 import randomWalletAddress from "../../../utils/random/randomWalletAddress";
 import SwapAction from "../base";
 
+import ActionContext from "../../../core/actionContext";
 import { API_URL, RESEND_TX_TIMES } from "./constants";
 import { XyFinanceBuildTx, XyFinanceQuote } from "./types";
 
 class XyFinanceSwapAction extends SwapAction {
   private readonly contractAddress: string;
 
-  public constructor(params: { fromToken: Token; toToken: Token }) {
-    const { fromToken, toToken } = params;
-    super({ fromToken, toToken, provider: "XY_FINANCE" });
+  public constructor(params: {
+    fromToken: Token;
+    toToken: Token;
+    context: ActionContext;
+  }) {
+    const { fromToken, toToken, context } = params;
+    super({ fromToken, toToken, provider: "XY_FINANCE", context });
 
     this.contractAddress = this.getContractAddress({
       contractName: CONTRACT_XY_FINANCE_ROUTER,

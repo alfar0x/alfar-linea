@@ -1,4 +1,5 @@
 import Account from "../../core/account";
+import ActionContext from "../../core/actionContext";
 import Chain from "../../core/chain";
 import Task, { TaskStatus } from "../../core/task";
 import Token from "../../core/token";
@@ -30,13 +31,17 @@ class TaskCreator {
     const { providers, workingAmountPercent, approveMultiplier } =
       this.config.fixed;
 
+    const actionContext = new ActionContext({
+      minApproveMultiplier: approveMultiplier.min,
+      maxApproveMultiplier: approveMultiplier.max,
+      minWorkAmountPercent: workingAmountPercent.min,
+      maxWorkAmountPercent: workingAmountPercent.max,
+    });
+
     this.factory = initializeFactory({
       chain: this.chain,
       activeProviders: providers,
-      minWorkAmountPercent: workingAmountPercent.min,
-      maxWorkAmountPercent: workingAmountPercent.max,
-      minApproveMultiplier: approveMultiplier.min,
-      maxApproveMultiplier: approveMultiplier.max,
+      context: actionContext,
     });
 
     this.tasks = [];

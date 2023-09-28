@@ -11,27 +11,10 @@ class SupplyEthRouter extends Router {
   private readonly possibleRoutes: PossibleRoute[];
   public readonly description = "supply -> redeem eth";
 
-  public constructor(params: {
-    lendActions: LendAction[];
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
-    minApproveMultiplier: number;
-    maxApproveMultiplier: number;
-  }) {
-    const {
-      lendActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    } = params;
+  public constructor(params: { lendActions: LendAction[] }) {
+    const { lendActions } = params;
 
-    super({
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    });
+    super();
 
     this.possibleRoutes = SupplyEthRouter.initializePossibleRoutes(lendActions);
   }
@@ -55,13 +38,7 @@ class SupplyEthRouter extends Router {
 
     const supplyRouter = randomChoice(this.possibleRoutes);
 
-    const supplyStep = supplyRouter.supplyStep({
-      account,
-      minWorkAmountPercent: this.minWorkAmountPercent,
-      maxWorkAmountPercent: this.maxWorkAmountPercent,
-      minApproveMultiplier: this.minApproveMultiplier,
-      maxApproveMultiplier: this.maxApproveMultiplier,
-    });
+    const supplyStep = supplyRouter.supplyStep({ account });
 
     const redeemStep = supplyRouter.redeemAllStep({ account });
 

@@ -12,6 +12,7 @@ import Token from "../../../core/token";
 import { Amount } from "../../../types";
 import LendAction from "../base";
 
+import ActionContext from "../../../core/actionContext";
 import { CHAINS_DATA } from "./constants";
 
 class LineaBankLend extends LendAction {
@@ -19,9 +20,9 @@ class LineaBankLend extends LendAction {
   private readonly distributorContractAddress: string;
   private readonly marketAddress: string;
 
-  public constructor(params: { token: Token }) {
-    const { token } = params;
-    super({ token, provider: "LINEA_BANK" });
+  public constructor(params: { token: Token; context: ActionContext }) {
+    const { token, context } = params;
+    super({ token, provider: "LINEA_BANK", context });
 
     this.coreContractAddress = this.getContractAddress({
       contractName: CONTRACT_LINEA_BANK_CORE,

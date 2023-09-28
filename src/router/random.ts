@@ -12,27 +12,10 @@ class RandomRouter extends Router {
 
   public readonly description = "random";
 
-  public constructor(params: {
-    randomActions: RandomAction[];
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
-    minApproveMultiplier: number;
-    maxApproveMultiplier: number;
-  }) {
-    const {
-      randomActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    } = params;
+  public constructor(params: { randomActions: RandomAction[] }) {
+    const { randomActions } = params;
 
-    super({
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    });
+    super();
 
     this.randomActions = randomActions;
     this.possibleRoutes = randomActions;
@@ -53,13 +36,7 @@ class RandomRouter extends Router {
 
     const randomAction = randomChoice(this.possibleRoutes);
 
-    const steps = await randomAction.steps({
-      account,
-      minWorkAmountPercent: this.minWorkAmountPercent,
-      maxWorkAmountPercent: this.maxWorkAmountPercent,
-      minApproveMultiplier: this.minApproveMultiplier,
-      maxApproveMultiplier: this.maxApproveMultiplier,
-    });
+    const steps = await randomAction.steps({ account });
 
     return Router.stepsToOperations(steps);
   }
@@ -67,13 +44,7 @@ class RandomRouter extends Router {
   public async getRandomOperationList(params: { account: Account }) {
     const { account } = params;
     const action = randomChoice(this.randomActions);
-    const steps = await action.steps({
-      account,
-      minWorkAmountPercent: this.minWorkAmountPercent,
-      maxWorkAmountPercent: this.maxWorkAmountPercent,
-      minApproveMultiplier: this.minApproveMultiplier,
-      maxApproveMultiplier: this.maxApproveMultiplier,
-    });
+    const steps = await action.steps({ account });
 
     return Router.stepsToOperations(steps);
   }

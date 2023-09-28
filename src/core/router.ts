@@ -3,28 +3,6 @@ import Operation from "./operation";
 import Step from "./step";
 
 abstract class Router {
-  protected minWorkAmountPercent: number;
-  protected maxWorkAmountPercent: number;
-  protected minApproveMultiplier: number;
-  protected maxApproveMultiplier: number;
-
-  public constructor(params: {
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
-    minApproveMultiplier: number;
-    maxApproveMultiplier: number;
-  }) {
-    const {
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    } = params;
-    this.minWorkAmountPercent = minWorkAmountPercent;
-    this.maxWorkAmountPercent = maxWorkAmountPercent;
-    this.minApproveMultiplier = minApproveMultiplier;
-    this.maxApproveMultiplier = maxApproveMultiplier;
-  }
   public abstract description: string;
   public abstract size(): number;
   public abstract possibleRoutesStrings(): string[];

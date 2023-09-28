@@ -2,6 +2,7 @@ import { CONTRACT_WOOFI_ROUTER } from "../../../abi/constants/contracts";
 import getWeb3Contract from "../../../abi/methods/getWeb3Contract";
 import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
 import Account from "../../../core/account";
+import ActionContext from "../../../core/actionContext";
 import Token from "../../../core/token";
 import { Amount } from "../../../types";
 import SwapAction from "../base";
@@ -9,9 +10,13 @@ import SwapAction from "../base";
 class WoofiSwapAction extends SwapAction {
   private readonly contractAddress: string;
 
-  public constructor(params: { fromToken: Token; toToken: Token }) {
-    const { fromToken, toToken } = params;
-    super({ fromToken, toToken, provider: "WOOFI" });
+  public constructor(params: {
+    fromToken: Token;
+    toToken: Token;
+    context: ActionContext;
+  }) {
+    const { fromToken, toToken, context } = params;
+    super({ fromToken, toToken, provider: "WOOFI", context });
 
     this.contractAddress = this.getContractAddress({
       contractName: CONTRACT_WOOFI_ROUTER,

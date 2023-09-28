@@ -1,4 +1,5 @@
 import { Provider } from "../../../core/action";
+import ActionContext from "../../../core/actionContext";
 import Chain from "../../../core/chain";
 import Factory from "../operationFactory";
 
@@ -11,35 +12,21 @@ import getSwapActions from "./getSwapActions";
 const initializeFactory = (params: {
   chain: Chain;
   activeProviders: Provider[];
-  minWorkAmountPercent: number;
-  maxWorkAmountPercent: number;
-  minApproveMultiplier: number;
-  maxApproveMultiplier: number;
+  context: ActionContext;
 }) => {
-  const {
-    chain,
-    activeProviders,
-    minWorkAmountPercent,
-    maxWorkAmountPercent,
-    minApproveMultiplier,
-    maxApproveMultiplier,
-  } = params;
+  const { chain, activeProviders, context } = params;
 
   const factoryTokens = getFactoryTokens(chain);
   const factoryPairs = getFactoryPairs(factoryTokens);
 
-  const lendActions = getLendActions(activeProviders, factoryTokens);
-  const swapActions = getSwapActions(activeProviders, factoryPairs);
-  const randomActions = getRandomActions(activeProviders, chain);
+  const lendActions = getLendActions(activeProviders, factoryTokens, context);
+  const swapActions = getSwapActions(activeProviders, factoryPairs, context);
+  const randomActions = getRandomActions(activeProviders, chain, context);
 
   const factory = new Factory({
     lendActions,
     swapActions,
     randomActions,
-    minWorkAmountPercent,
-    maxWorkAmountPercent,
-    minApproveMultiplier,
-    maxApproveMultiplier,
   });
 
   return factory;

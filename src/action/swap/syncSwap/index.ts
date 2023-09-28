@@ -12,15 +12,20 @@ import Token from "../../../core/token";
 import { Amount } from "../../../types";
 import SwapAction from "../base";
 
+import ActionContext from "../../../core/actionContext";
 import { WITHDRAWAL_MODE } from "./constants";
 
 class SyncswapSwapAction extends SwapAction {
   private readonly routerContractAddress: string;
   private readonly factoryContractAddress: string;
 
-  public constructor(params: { fromToken: Token; toToken: Token }) {
-    const { fromToken, toToken } = params;
-    super({ fromToken, toToken, provider: "SYNCSWAP" });
+  public constructor(params: {
+    fromToken: Token;
+    toToken: Token;
+    context: ActionContext;
+  }) {
+    const { fromToken, toToken, context } = params;
+    super({ fromToken, toToken, provider: "SYNCSWAP", context });
 
     this.routerContractAddress = this.getContractAddress({
       contractName: CONTRACT_SYNCSWAP_ROUTER,

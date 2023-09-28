@@ -10,14 +10,19 @@ import Token from "../../../core/token";
 import RunnableTransaction from "../../../core/transaction";
 import { Amount } from "../../../types";
 import randomInteger from "../../../utils/random/randomInteger";
+import ActionContext from "../../../core/actionContext";
 
 abstract class LendAction extends Action {
   public readonly token: Token;
 
-  protected constructor(params: { token: Token; provider: Provider }) {
-    const { token, provider } = params;
+  protected constructor(params: {
+    token: Token;
+    provider: Provider;
+    context: ActionContext;
+  }) {
+    const { token, provider, context } = params;
 
-    super({ actionType: "LEND", operation: `${token}`, provider });
+    super({ actionType: "LEND", operation: `${token}`, provider, context });
 
     this.token = token;
   }
@@ -72,22 +77,17 @@ abstract class LendAction extends Action {
     );
   }
 
-  private getCreateApproveTransaction(params: {
-    account: Account;
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
-    minApproveMultiplier: number;
-    maxApproveMultiplier: number;
-  }) {
-    const {
-      account,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    } = params;
+  private getCreateApproveTransaction(params: { account: Account }) {
+    const { account } = params;
 
     const createApproveSupplyTransaction = async () => {
+      const {
+        minWorkAmountPercent,
+        maxWorkAmountPercent,
+        minApproveMultiplier,
+        maxApproveMultiplier,
+      } = this.context;
+
       const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
         this.token,
         minWorkAmountPercent,
@@ -113,16 +113,17 @@ abstract class LendAction extends Action {
 
   private getCreateSupplyTransaction(params: {
     account: Account;
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
+    isAllBalance?: boolean;
   }) {
-    const { account, minWorkAmountPercent, maxWorkAmountPercent } = params;
+    const { account, isAllBalance } = params;
 
     const createSupplyTransaction = async () => {
+      const { minWorkAmountPercent, maxWorkAmountPercent } = this.context;
+
       const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
         this.token,
-        minWorkAmountPercent,
-        maxWorkAmountPercent,
+        isAllBalance ? minWorkAmountPercent : 100,
+        isAllBalance ? maxWorkAmountPercent : 100,
       );
       return await this.supply({ account, normalizedAmount });
     };
@@ -130,31 +131,13 @@ abstract class LendAction extends Action {
     return createSupplyTransaction;
   }
 
-  public supplyStep(params: {
-    account: Account;
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
-    minApproveMultiplier: number;
-    maxApproveMultiplier: number;
-  }) {
-    const {
-      account,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    } = params;
+  public supplyStep(params: { account: Account; isAllBalance?: boolean }) {
+    const { account, isAllBalance } = params;
 
     const step = new Step({ name: `${this.name}_SUPPLY` });
 
     if (!this.token.isNative) {
-      const createTransaction = this.getCreateApproveTransaction({
-        account,
-        minWorkAmountPercent,
-        maxWorkAmountPercent,
-        minApproveMultiplier,
-        maxApproveMultiplier,
-      });
+      const createTransaction = this.getCreateApproveTransaction({ account });
 
       const approveTransaction = new RunnableTransaction({
         name: this.getTxName("approve"),
@@ -168,8 +151,7 @@ abstract class LendAction extends Action {
 
     const createTransaction = this.getCreateSupplyTransaction({
       account,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
+      isAllBalance,
     });
 
     const supplyTransaction = new RunnableTransaction({

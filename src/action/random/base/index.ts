@@ -1,5 +1,6 @@
 import Account from "../../../core/account";
 import Action, { Provider } from "../../../core/action";
+import ActionContext from "../../../core/actionContext";
 import Chain from "../../../core/chain";
 import Step from "../../../core/step";
 
@@ -10,22 +11,17 @@ abstract class RandomAction extends Action {
     chain: Chain;
     provider: Provider;
     operation: string;
+    context: ActionContext;
   }) {
-    const { chain, provider, operation } = params;
+    const { chain, provider, operation, context } = params;
 
-    super({ provider, actionType: "RANDOM", operation: operation });
+    super({ provider, actionType: "RANDOM", operation: operation, context });
 
     this.chain = chain;
   }
 
   // eslint-disable-next-line no-unused-vars
-  public abstract steps(params: {
-    account: Account;
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
-    minApproveMultiplier: number;
-    maxApproveMultiplier: number;
-  }): Promise<Step[]> | Step[];
+  public abstract steps(params: { account: Account }): Promise<Step[]> | Step[];
 
   protected getContractAddress(params: {
     contractName: string;

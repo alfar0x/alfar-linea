@@ -25,26 +25,10 @@ class SwapSupplyTokenRouter extends Router {
   public constructor(params: {
     swapActions: SwapAction[];
     lendActions: LendAction[];
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
-    minApproveMultiplier: number;
-    maxApproveMultiplier: number;
   }) {
-    const {
-      swapActions,
-      lendActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    } = params;
+    const { swapActions, lendActions } = params;
 
-    super({
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    });
+    super();
 
     this.possibleRoutes = SwapSupplyTokenRouter.initializePossibleRoutes(
       swapActions,
@@ -162,21 +146,8 @@ class SwapSupplyTokenRouter extends Router {
       );
     }
 
-    const {
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    } = this;
-
     const buyPossibleSteps = possibleRoute.buyActions.map((action) =>
-      action.swapStep({
-        account,
-        minWorkAmountPercent,
-        maxWorkAmountPercent,
-        minApproveMultiplier,
-        maxApproveMultiplier,
-      }),
+      action.swapStep({ account }),
     );
 
     const buyOperation = new Operation({
@@ -188,10 +159,7 @@ class SwapSupplyTokenRouter extends Router {
 
     const supplyStep = supplyTokenAction.supplyStep({
       account,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
+      isAllBalance: true,
     });
 
     const supplyOperation = new Operation({
@@ -209,10 +177,7 @@ class SwapSupplyTokenRouter extends Router {
     const sellPossibleSteps = possibleRoute.sellActions.map((action) =>
       action.swapStep({
         account,
-        minWorkAmountPercent: 100,
-        maxWorkAmountPercent: 100,
-        minApproveMultiplier,
-        maxApproveMultiplier,
+        isAllBalance: true,
       }),
     );
 

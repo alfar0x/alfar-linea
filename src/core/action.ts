@@ -3,6 +3,7 @@ import ACTION_TYPES from "../constants/actionTypes";
 import { Amount } from "../types";
 
 import Account from "./account";
+import ActionContext from "./actionContext";
 import Chain from "./chain";
 import Token from "./token";
 import { CreateTransactionResult } from "./transaction";
@@ -18,16 +19,21 @@ abstract class Action {
   private readonly provider: Provider;
   private readonly operation: string;
 
+  protected readonly context: ActionContext;
+
   protected constructor(params: {
     actionType: ActionType;
     provider: Provider;
     operation: string;
+    context: ActionContext;
   }) {
-    const { actionType, provider, operation } = params;
+    const { actionType, provider, operation, context } = params;
 
     this.actionType = actionType;
     this.provider = provider;
     this.operation = operation;
+
+    this.context = context;
   }
 
   public get name() {

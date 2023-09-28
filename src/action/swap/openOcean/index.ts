@@ -9,6 +9,7 @@ import { Amount } from "../../../types";
 import randomWalletAddress from "../../../utils/random/randomWalletAddress";
 import SwapAction from "../base";
 
+import ActionContext from "../../../core/actionContext";
 import { API_URL, CHAINS_DATA } from "./constants";
 import { OpenOceanSwapQuote } from "./types";
 
@@ -16,9 +17,13 @@ class OpenOceanSwapAction extends SwapAction {
   private readonly contractAddress: string;
   private readonly chainPath: string;
 
-  public constructor(params: { fromToken: Token; toToken: Token }) {
-    const { fromToken, toToken } = params;
-    super({ fromToken, toToken, provider: "OPEN_OCEAN" });
+  public constructor(params: {
+    fromToken: Token;
+    toToken: Token;
+    context: ActionContext;
+  }) {
+    const { fromToken, toToken, context } = params;
+    super({ fromToken, toToken, provider: "OPEN_OCEAN", context });
 
     this.contractAddress = this.getContractAddress({
       contractName: CONTRACT_OPEN_OCEAN_EXCHANGE,

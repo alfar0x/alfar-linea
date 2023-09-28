@@ -14,6 +14,7 @@ import Token from "../../../core/token";
 import { Amount } from "../../../types";
 import SwapAction from "../base";
 
+import ActionContext from "../../../core/actionContext";
 import {
   FEE,
   INITIAL_GAS_MULTIPLIER,
@@ -28,9 +29,13 @@ class PancakeSwapAction extends SwapAction {
   private readonly factoryContractAddress: string;
   private readonly quoteContractAddress: string;
 
-  public constructor(params: { fromToken: Token; toToken: Token }) {
-    const { fromToken, toToken } = params;
-    super({ fromToken, toToken, provider: "PANCAKE" });
+  public constructor(params: {
+    fromToken: Token;
+    toToken: Token;
+    context: ActionContext;
+  }) {
+    const { fromToken, toToken, context } = params;
+    super({ fromToken, toToken, provider: "PANCAKE", context });
 
     this.routerContractAddress = this.getContractAddress({
       contractName: CONTRACT_PANCAKE_SWAP_ROUTER,

@@ -12,6 +12,7 @@ import { Amount } from "../../../types";
 import arraySortStringsHelper from "../../../utils/array/arraySortStringsHelper";
 import SwapAction from "../base";
 
+import ActionContext from "../../../core/actionContext";
 import { AMOUNT_TYPES } from "./constants";
 import {
   getPackedPool,
@@ -23,9 +24,13 @@ class VelocoreSwapAction extends SwapAction {
   private readonly vaultContractAddress: string;
   private readonly factoryContractAddress: string;
 
-  public constructor(params: { fromToken: Token; toToken: Token }) {
-    const { fromToken, toToken } = params;
-    super({ fromToken, toToken, provider: "VELOCORE" });
+  public constructor(params: {
+    fromToken: Token;
+    toToken: Token;
+    context: ActionContext;
+  }) {
+    const { fromToken, toToken, context } = params;
+    super({ fromToken, toToken, provider: "VELOCORE", context });
 
     this.vaultContractAddress = this.getContractAddress({
       contractName: CONTRACT_VELOCORE_VAULT,

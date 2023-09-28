@@ -10,6 +10,7 @@ import Token from "../../../core/token";
 import RunnableTransaction from "../../../core/transaction";
 import { Amount } from "../../../types";
 import randomInteger from "../../../utils/random/randomInteger";
+import ActionContext from "../../../core/actionContext";
 
 export type SwapActionConstructorParams = {
   fromToken: Token;
@@ -24,16 +25,18 @@ abstract class SwapAction extends Action {
     fromToken: Token;
     toToken: Token;
     provider: Provider;
+    context: ActionContext;
   }) {
-    const { fromToken, toToken, provider } = params;
+    const { fromToken, toToken, provider, context } = params;
+
+    SwapAction.checkPair(fromToken, toToken);
 
     super({
       actionType: "SWAP",
       operation: `${fromToken}_${toToken}`,
       provider,
+      context,
     });
-
-    SwapAction.checkPair(fromToken, toToken);
 
     this.fromToken = fromToken;
     this.toToken = toToken;
@@ -99,22 +102,17 @@ abstract class SwapAction extends Action {
     );
   }
 
-  private getCreateApproveTransaction(params: {
-    account: Account;
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
-    minApproveMultiplier: number;
-    maxApproveMultiplier: number;
-  }) {
-    const {
-      account,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    } = params;
+  private getCreateApproveTransaction(params: { account: Account }) {
+    const { account } = params;
 
     const createApproveTransaction = async () => {
+      const {
+        minWorkAmountPercent,
+        maxWorkAmountPercent,
+        minApproveMultiplier,
+        maxApproveMultiplier,
+      } = this.context;
+
       const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
         this.fromToken,
         minWorkAmountPercent,
@@ -140,16 +138,17 @@ abstract class SwapAction extends Action {
 
   private getCreateSwapTransaction(params: {
     account: Account;
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
+    isAllBalance?: boolean;
   }) {
-    const { account, minWorkAmountPercent, maxWorkAmountPercent } = params;
+    const { account, isAllBalance } = params;
 
     const createSwapTransaction = async () => {
+      const { minWorkAmountPercent, maxWorkAmountPercent } = this.context;
+
       const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
         this.fromToken,
-        minWorkAmountPercent,
-        maxWorkAmountPercent,
+        isAllBalance ? minWorkAmountPercent : 100,
+        isAllBalance ? maxWorkAmountPercent : 100,
       );
       return await this.swap({ account, normalizedAmount });
     };
@@ -157,31 +156,13 @@ abstract class SwapAction extends Action {
     return createSwapTransaction;
   }
 
-  public swapStep(params: {
-    account: Account;
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
-    minApproveMultiplier: number;
-    maxApproveMultiplier: number;
-  }) {
-    const {
-      account,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    } = params;
+  public swapStep(params: { account: Account; isAllBalance?: boolean }) {
+    const { account, isAllBalance } = params;
 
     const step = new Step({ name: this.name });
 
     if (!this.fromToken.isNative) {
-      const createTransaction = this.getCreateApproveTransaction({
-        account,
-        minWorkAmountPercent,
-        maxWorkAmountPercent,
-        minApproveMultiplier,
-        maxApproveMultiplier,
-      });
+      const createTransaction = this.getCreateApproveTransaction({ account });
 
       const approveTransaction = new RunnableTransaction({
         name: this.getTxName("approve"),
@@ -195,8 +176,7 @@ abstract class SwapAction extends Action {
 
     const createTransaction = this.getCreateSwapTransaction({
       account,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
+      isAllBalance,
     });
 
     const swapTransaction = new RunnableTransaction({

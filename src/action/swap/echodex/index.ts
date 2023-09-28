@@ -8,14 +8,19 @@ import { Amount } from "../../../types";
 import SwapAction from "../base";
 
 import Token from "../../../core/token";
+import ActionContext from "../../../core/actionContext";
 import { UNWRAP_ETH_ADDRESS } from "./constants";
 
 class EchoDexSwapAction extends SwapAction {
   private readonly contractAddress: string;
 
-  public constructor(params: { fromToken: Token; toToken: Token }) {
-    const { fromToken, toToken } = params;
-    super({ fromToken, toToken, provider: "ECHO_DEX" });
+  public constructor(params: {
+    fromToken: Token;
+    toToken: Token;
+    context: ActionContext;
+  }) {
+    const { fromToken, toToken, context } = params;
+    super({ fromToken, toToken, provider: "ECHO_DEX", context });
 
     this.contractAddress = this.getContractAddress({
       contractName: CONTRACT_ECHO_DEX_SMART_ROUTER,

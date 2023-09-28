@@ -33,29 +33,13 @@ class OperationFactory {
     swapActions: SwapAction[];
     lendActions: LendAction[];
     randomActions: RandomAction[];
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
-    minApproveMultiplier: number;
-    maxApproveMultiplier: number;
   }) {
-    const {
-      swapActions,
-      lendActions,
-      randomActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    } = params;
+    const { swapActions, lendActions, randomActions } = params;
 
     this.routers = OperationFactory.initializeRouters({
       swapActions,
       lendActions,
       randomActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
     });
 
     this.totalWeight = Object.values(this.routers)
@@ -67,53 +51,19 @@ class OperationFactory {
     swapActions: SwapAction[];
     lendActions: LendAction[];
     randomActions: RandomAction[];
-    minWorkAmountPercent: number;
-    maxWorkAmountPercent: number;
-    minApproveMultiplier: number;
-    maxApproveMultiplier: number;
   }) {
-    const {
-      swapActions,
-      lendActions,
-      randomActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    } = params;
+    const { swapActions, lendActions, randomActions } = params;
 
-    const swapEthTokenEthRouter = new SwapEthTokenEthRouter({
-      swapActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    });
+    const swapEthTokenEthRouter = new SwapEthTokenEthRouter({ swapActions });
 
-    const supplyEthRouter = new SupplyEthRouter({
-      lendActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    });
+    const supplyEthRouter = new SupplyEthRouter({ lendActions });
 
     const swapSupplyTokenRouter = new SwapSupplyTokenRouter({
       lendActions,
       swapActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
     });
 
-    const randomRouter = new RandomRouter({
-      randomActions,
-      minWorkAmountPercent,
-      maxWorkAmountPercent,
-      minApproveMultiplier,
-      maxApproveMultiplier,
-    });
+    const randomRouter = new RandomRouter({ randomActions });
 
     const data: RouterData[] = [
       {
