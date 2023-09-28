@@ -135,8 +135,8 @@ abstract class SwapAction extends Action {
 
       const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
         this.fromToken,
-        isAllBalance ? minWorkAmountPercent : 100,
-        isAllBalance ? maxWorkAmountPercent : 100,
+        isAllBalance ? 100 : minWorkAmountPercent,
+        isAllBalance ? 100 : maxWorkAmountPercent,
       );
       return await this.swap({ account, normalizedAmount });
     };

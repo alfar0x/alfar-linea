@@ -3,6 +3,7 @@ import { Web3, Transaction } from "web3";
 
 import logger from "../utils/other/logger";
 
+import formatObject from "../utils/formatters/formatObject";
 import Account from "./account";
 import Chain from "./chain";
 
@@ -138,7 +139,7 @@ class RunnableTransaction {
 
       return { hash, resultMsg, fee };
     } catch (error) {
-      logger.debug(JSON.stringify(tx));
+      logger.debug(formatObject(tx));
       throw error;
     }
   }

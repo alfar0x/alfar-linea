@@ -113,8 +113,8 @@ abstract class LendAction extends Action {
 
       const normalizedAmount = await account.getRandomNormalizedAmountOfBalance(
         this.token,
-        isAllBalance ? minWorkAmountPercent : 100,
-        isAllBalance ? maxWorkAmountPercent : 100,
+        isAllBalance ? 100 : minWorkAmountPercent,
+        isAllBalance ? 100 : maxWorkAmountPercent,
       );
       return await this.supply({ account, normalizedAmount });
     };
