@@ -228,6 +228,7 @@ class TasksRunner {
 
     const factoryInfoStr = this.creator.getFactoryInfoStr();
 
+    logger.info(`config:\n${this.config.toString()}`);
     logger.info(`accounts found: ${accounts.length}`);
     logger.info(`possible routes:\n${factoryInfoStr}`);
 

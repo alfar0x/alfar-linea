@@ -1,4 +1,5 @@
 import Config from "../../../core/config";
+import formatObjectAsPath from "../../../utils/formatters/formatObjectAsPath";
 
 import { dynamicSchema, fixedSchema } from "./schemas";
 
@@ -10,6 +11,13 @@ class TasksRunnerConfig extends Config<
     const { configFileName } = params;
 
     super({ configFileName, fixedSchema, dynamicSchema });
+  }
+
+  public toString() {
+    const { fixed } = this;
+    const dynamic = this.dynamic();
+
+    return formatObjectAsPath({ dynamic, fixed });
   }
 }
 

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Transaction } from "web3";
 
+import Big from "big.js";
 import Account from "../../../core/account";
 import Token from "../../../core/token";
 import { Amount } from "../../../types";
@@ -11,11 +12,10 @@ import ActionContext from "../../../core/actionContext";
 import { ChainConfig } from "../../../core/actionConfig";
 import formatToChecksum from "../../../utils/formatters/formatToChecksum";
 import formatUrlParams from "../../../utils/formatters/formatUrlParams";
-import { OpenOceanSwapQuote } from "./types";
-import config from "./config";
 import logger from "../../../utils/other/logger";
 import formatObject from "../../../utils/formatters/formatObject";
-import Big from "big.js";
+import { OpenOceanSwapQuote } from "./types";
+import config from "./config";
 
 class OpenOceanSwapAction extends SwapAction {
   private readonly config: ChainConfig<typeof config>;
