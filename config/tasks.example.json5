@@ -30,7 +30,7 @@
     proxy: {
       type: "none",
       mobileIpChangeUrl: "",
-      serverIsRandom: true,
+      serverIsRandom: false,
     },
     rpc: {
       linea: "https://1rpc.io/linea",
