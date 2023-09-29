@@ -1,173 +1,156 @@
 import axios from "axios";
+import tunnel from "tunnel";
 import { z } from "zod";
 
-import formatIntervalSec from "../utils/datetime/formatIntervalSec";
-import readFileAndEncryptByLine from "../utils/file/readFileAndEncryptByLine";
-import getMyIp from "../utils/other/getMyIp";
+import formatMessages from "../utils/formatters/formatMessages";
+import formatOrdinals from "../utils/formatters/formatOrdinals";
+import formatZodError from "../utils/formatters/formatZodError";
 import logger from "../utils/other/logger";
 import sleep from "../utils/other/sleep";
 import randomChoice from "../utils/random/randomChoice";
+import ipOrDomainSchema from "../utils/zod/ipOrDomainSchema";
 
-type ProxyType = "none" | "server" | "mobile";
+type ProxyType = "mobile" | "none" | "server";
 
 const proxyItemSchema = z.object({
-  host: z.string().ip(),
-  port: z.string().transform((str) => Number(str)),
+  host: ipOrDomainSchema,
+  port: z
+    .string()
+    .regex(/\d+/, "Must be a number")
+    .transform((str) => Number(str)),
   username: z.string(),
   password: z.string(),
 });
 
-const proxySchema = z.string().transform((str) => {
-  const [host, port, username, password] = str.split(":");
-  return proxyItemSchema.parse({ host, port, username, password });
-});
-
-export type ProxyItem = z.infer<typeof proxySchema>;
-
-const WAIT_AFTER_POST_REQUEST_SEC = 30;
+export type ProxyItem = z.infer<typeof proxyItemSchema>;
 
 class Proxy {
-  private type: ProxyType;
-  private isRandom?: boolean;
-  private ipChangeUrl?: string;
-  private proxyList: ProxyItem[];
-  private onIpChangeUrlSleepSec: number;
-  private onIpChangeErrorRepeatTimes: number;
+  private readonly type: ProxyType;
+  private readonly serverIsRandom?: boolean;
+  private readonly mobileIpChangeUrl?: string;
+  private readonly proxyList: ProxyItem[];
+  private readonly onIpChangeErrorSleepSec = 30;
+  private readonly onIpChangeErrorRepeatTimes = 3;
+  private readonly pauseAfterIpChange = 5;
 
-  constructor(params: {
+  public constructor(params: {
     type: ProxyType;
-    isRandom?: boolean;
-    ipChangeUrl?: string;
+    serverIsRandom?: boolean;
+    mobileIpChangeUrl?: string;
+    proxies: string[];
   }) {
-    const { type, isRandom, ipChangeUrl } = params;
+    const { type, serverIsRandom, mobileIpChangeUrl, proxies } = params;
 
     this.type = type;
-    this.isRandom = isRandom;
-    this.ipChangeUrl = ipChangeUrl;
-    this.onIpChangeUrlSleepSec = 30;
-    this.onIpChangeErrorRepeatTimes = 3;
+    this.serverIsRandom = serverIsRandom;
+    this.mobileIpChangeUrl = mobileIpChangeUrl;
 
-    this.proxyList = [];
-  }
-
-  async initializeProxy(fileName: string) {
-    if (this.type === "none") return [];
-
-    const allFileData = await readFileAndEncryptByLine(fileName);
-
-    const fileData = allFileData.map((v) => v.trim()).filter(Boolean);
-
-    const proxyList = fileData.map((proxyStr) => proxySchema.parse(proxyStr));
-
-    switch (this.type) {
-      case "mobile": {
-        if (proxyList.length !== 1) {
-          throw new Error(
-            `only 1 proxy must be in ${fileName} for ${this.type} proxy type`,
-          );
-        }
-        return proxyList;
-      }
-      case "server": {
-        if (!proxyList.length) {
-          throw new Error(
-            `at least 1 proxy must be in ${fileName} for ${this.type} proxy type`,
-          );
-        }
-        return proxyList;
-      }
-      default: {
-        throw new Error(`proxy type ${this.type} is not allowed`);
-      }
+    if (this.type === "mobile" && !this.mobileIpChangeUrl) {
+      throw new Error(`ip change url is required for ${this.type} proxy type`);
     }
+
+    this.proxyList = this.parseProxies(proxies);
   }
 
-  public proxyListLength() {
-    return this.proxyList.length;
+  private static parseProxyStr(proxyStr: string, index: number) {
+    const [host, port, username, password] = proxyStr.split(":");
+
+    const proxyParsed = proxyItemSchema.safeParse({
+      host,
+      port,
+      username,
+      password,
+    });
+
+    if (proxyParsed.success) return proxyParsed.data;
+
+    const errorMessage = formatZodError(proxyParsed.error.issues);
+
+    const indexOrd = formatOrdinals(index + 1);
+
+    throw new Error(`${indexOrd} proxy is not valid. Details: ${errorMessage}`);
   }
 
-  public getTunnelOptionsByIndex(index: number) {
+  private parseProxies(proxies: string[]) {
+    if (this.type === "mobile" && proxies.length !== 1) {
+      throw new Error(`mobile proxy type must have exactly 1 proxy`);
+    }
+
+    if (this.type === "server" && !proxies.length) {
+      throw new Error(`server proxy type must have at least 1 proxy`);
+    }
+
+    return proxies.map((p, i) => Proxy.parseProxyStr(p, i));
+  }
+
+  public getHttpsTunnelByIndex(index: number) {
     const proxyItem = this.getProxyItemByIndex(index);
-    if (!proxyItem) return;
 
-    return {
+    if (!proxyItem) return null;
+
+    const proxy = {
       host: proxyItem.host,
       port: proxyItem.port,
       proxyAuth: `${proxyItem.username}:${proxyItem.password}`,
     };
+
+    return tunnel.httpsOverHttp({ proxy });
   }
 
   private getProxyItemByIndex(index: number) {
-    switch (this.type) {
-      case "none": {
-        return undefined;
-      }
+    if (this.type === "none") return null;
 
-      case "mobile": {
-        return this.proxyList[0];
-      }
+    if (this.type === "mobile") return this.proxyList[0];
 
-      case "server": {
-        if (this.isRandom) {
-          return randomChoice(this.proxyList);
-        }
+    if (this.serverIsRandom) return randomChoice(this.proxyList);
 
-        const proxy = this.proxyList[index];
+    const proxyItem = this.proxyList.at(index);
 
-        if (!proxy) {
-          throw new Error(`no proxy on ${index} index`);
-        }
-
-        return proxy;
-      }
+    if (!proxyItem) {
+      throw new Error(`unexpected error: no proxy on ${index} index`);
     }
+
+    return proxyItem;
   }
 
-  public async postRequest() {
+  public async onProviderChange() {
     if (this.type !== "mobile") return;
 
-    if (!this.ipChangeUrl) {
+    if (!this.mobileIpChangeUrl) {
       throw new Error(`ip change url is required for ${this.type} proxy type`);
     }
 
     for (let retry = 0; retry < this.onIpChangeErrorRepeatTimes; retry += 1) {
       try {
-        const { status } = await axios.get(this.ipChangeUrl);
+        const { status } = await axios.get(this.mobileIpChangeUrl);
 
-        if (status === 200) {
-          const myIp = await getMyIp();
-
-          const sleepUntilStr = formatIntervalSec(WAIT_AFTER_POST_REQUEST_SEC);
-
-          const msg = [
-            `ip changed successfully: ${myIp}`,
-            `sleeping until ${sleepUntilStr}`,
-          ].join(" | ");
-          logger.info(msg);
-
-          await sleep(WAIT_AFTER_POST_REQUEST_SEC);
+        if (status !== 200) {
+          throw new Error(`ip change response status is ${status}`);
         }
 
-        throw new Error(`ip change response status is ${status}`);
+        logger.info(formatMessages(`ip change success`));
+
+        await sleep(this.pauseAfterIpChange);
+
+        return;
       } catch (error) {
+        const retryOrd = formatOrdinals(retry + 1);
+
         logger.error(
-          `Attempt ${retry + 1} failed: ${(error as Error).message}`,
+          formatMessages(
+            `${retryOrd} attempt to change ip failed`,
+            (error as Error).message,
+          ),
         );
 
-        await sleep(this.onIpChangeUrlSleepSec);
+        await sleep(this.onIpChangeErrorSleepSec);
       }
     }
 
-    throw new Error(
-      `all ${this.onIpChangeErrorRepeatTimes} attempts to change ip failed. Please check ip change url`,
-    );
+    throw new Error(`ip change failed. check ip change url`);
   }
 
-  isServerRandom() {
-    return this.type === "server" && !this.isRandom;
-  }
-
-  count() {
+  public size() {
     return this.proxyList.length;
   }
 }

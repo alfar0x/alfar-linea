@@ -1,30 +1,28 @@
 import Big from "big.js";
-import Web3 from "web3";
+import { Transaction } from "web3";
 
-import { CONTRACT_ERC20 } from "../abi/constants/contracts";
 import getWeb3Contract from "../abi/methods/getWeb3Contract";
 import { Erc20 } from "../abi/types/web3-v1/Erc20";
-import { TokenType } from "../types";
+import { Amount, TokenType } from "../types";
 
+import formatToChecksum from "../utils/formatters/formatToChecksum";
 import Account from "./account";
 import Chain from "./chain";
-import prices from "./prices";
+import Prices from "./prices";
 
 class Token {
-  public name: string;
-  public address: string;
-  public geskoId: string;
-  public chain: Chain;
-  public type: TokenType;
-
-  public contract: Erc20 | null;
-
-  private readableDecimals: number | null;
+  public readonly name: string;
+  public readonly address: string;
+  public readonly geskoId: string;
+  public readonly chain: Chain;
+  public readonly type: TokenType;
+  public readonly contract: Erc20 | null;
+  public readonly readableDecimals: number | null;
 
   private _decimals: number | null;
   private _symbol: string | null;
 
-  constructor(params: {
+  public constructor(params: {
     name: string;
     address: string;
     geskoId: string;
@@ -42,7 +40,7 @@ class Token {
     } = params;
 
     this.name = name;
-    this.address = Web3.utils.toChecksumAddress(address);
+    this.address = formatToChecksum(address);
     this.geskoId = geskoId;
     this.chain = chain;
     this.type = type;
@@ -66,18 +64,16 @@ class Token {
   private initializeContract() {
     if (this.isNative) return null;
 
-    return getWeb3Contract({
-      w3: this.chain.w3,
-      name: CONTRACT_ERC20,
-      address: this.address,
-    });
+    const contract = getWeb3Contract("Erc20");
+
+    return contract(this.chain.w3, this.address);
   }
 
-  getAddressOrWrappedForNative() {
+  public getAddressOrWrappedForNative() {
     return this.isNative ? this.chain.getWrappedNative().address : this.address;
   }
 
-  async decimals() {
+  public async decimals() {
     if (this.isNative) {
       if (!this._decimals) this._decimals = 18;
 
@@ -97,7 +93,7 @@ class Token {
     return this._decimals;
   }
 
-  async symbol() {
+  public async symbol() {
     if (this.isNative) {
       if (!this._symbol) this._symbol = "eth";
 
@@ -115,11 +111,11 @@ class Token {
     return this._symbol;
   }
 
-  async usdPrice() {
-    return await prices.getTokenPrice(this.geskoId);
+  public async usdPrice() {
+    return await Prices.instance.getTokenPrice(this.geskoId);
   }
 
-  async normalizedBalanceOf(address: string) {
+  public async normalizedBalanceOf(address: string) {
     if (this.isNative) {
       const balance = await this.chain.w3.eth.getBalance(address);
       return balance.toString();
@@ -132,10 +128,7 @@ class Token {
     return await this.contract.methods.balanceOf(address).call();
   }
 
-  async toReadableAmount(
-    normalizedAmount: number | string,
-    isOriginal = false,
-  ) {
+  public async toReadableAmount(normalizedAmount: Amount, isOriginal = false) {
     const decimals = await this.decimals();
     const readableAmountBig = Big(normalizedAmount).div(Big(10).pow(decimals));
     return this.readableDecimals === null || isOriginal
@@ -143,37 +136,37 @@ class Token {
       : readableAmountBig.round(this.readableDecimals).toString();
   }
 
-  async toNormalizedAmount(readableAmount: number | string) {
+  public async toNormalizedAmount(readableAmount: Amount) {
     const decimals = await this.decimals();
     return Big(readableAmount).times(Big(10).pow(decimals)).round().toString();
   }
 
-  async readableBalanceOf(address: string) {
+  public async readableBalanceOf(address: string) {
     const normalizedBalance = await this.normalizedBalanceOf(address);
     return await this.toReadableAmount(normalizedBalance);
   }
 
-  async readableAmountToUsd(readableAmount: number | string) {
+  public async readableAmountToUsd(readableAmount: Amount) {
     const usdPrice = await this.usdPrice();
     return Big(readableAmount).times(usdPrice).round(2).toString();
   }
 
-  async normalizedAmountToUsd(normalizedAmount: number | string) {
+  public async normalizedAmountToUsd(normalizedAmount: Amount) {
     const readableAmount = await this.toReadableAmount(normalizedAmount);
     return await this.readableAmountToUsd(readableAmount);
   }
 
-  async usdToReadableAmount(usdAmount: number) {
+  public async usdToReadableAmount(usdAmount: number) {
     const usdPrice = await this.usdPrice();
     return Big(usdAmount).div(usdPrice).toString();
   }
 
-  async usdToNormalizedAmount(usdAmount: number) {
+  public async usdToNormalizedAmount(usdAmount: number) {
     const readableAmount = await this.usdToReadableAmount(usdAmount);
     return await this.toNormalizedAmount(readableAmount);
   }
 
-  async normalizedAllowance(account: Account, spenderAddress: string) {
+  public async normalizedAllowance(account: Account, spenderAddress: string) {
     if (this.isNative) return Infinity;
 
     if (!this.contract) {
@@ -187,11 +180,13 @@ class Token {
     return allowanceNormalizedAmount;
   }
 
-  async approve(
-    account: Account,
-    spenderAddress: string,
-    normalizedAmount: string | number,
-  ) {
+  public async getApproveTransaction(params: {
+    account: Account;
+    spenderAddress: string;
+    normalizedAmount: Amount;
+  }) {
+    const { account, spenderAddress, normalizedAmount } = params;
+
     if (this.isNative) return null;
 
     if (!this.contract) {
@@ -204,7 +199,7 @@ class Token {
     );
 
     if (Big(allowanceNormalizedAmount).gte(normalizedAmount)) {
-      return false;
+      return null;
     }
 
     const approveFunctionCall = this.contract.methods.approve(
@@ -220,7 +215,7 @@ class Token {
 
     const gasPrice = await this.chain.w3.eth.getGasPrice();
 
-    const tx = {
+    const tx: Transaction = {
       from: account.address,
       to: this.address,
       data: approveFunctionCall.encodeABI(),
@@ -230,14 +225,12 @@ class Token {
       gasPrice,
     };
 
-    const result = await account.signAndSendTransaction(this.chain, tx);
-
-    return result;
+    return tx;
   }
 
-  async getMinOutReadableAmount(
+  public async getMinOutReadableAmount(
     fromToken: Token,
-    fromReadableAmount: string | number,
+    fromReadableAmount: Amount,
     slippagePercent: number,
   ) {
     const fromTokenPrice = await fromToken.usdPrice();
@@ -252,13 +245,15 @@ class Token {
       .toString();
   }
 
-  async getMinOutNormalizedAmount(
+  public async getMinOutNormalizedAmount(
     fromToken: Token,
-    fromNormalizedAmount: string | number,
+    fromNormalizedAmount: Amount,
     slippagePercent: number,
   ) {
-    const fromReadableAmount =
-      await fromToken.toReadableAmount(fromNormalizedAmount);
+    const fromReadableAmount = await fromToken.toReadableAmount(
+      fromNormalizedAmount,
+      true,
+    );
 
     const minOutReadable = await this.getMinOutReadableAmount(
       fromToken,
@@ -269,12 +264,12 @@ class Token {
     return await this.toNormalizedAmount(minOutReadable);
   }
 
-  isEquals(token: Token) {
+  public isEquals(token: Token) {
     return this.address === token.address && this.name === token.name;
   }
 
-  toString() {
-    return `${this.name} [${this.chain}]`;
+  public toString() {
+    return this.name;
   }
 }
 

@@ -2,9 +2,9 @@ import axios from "axios";
 import Big from "big.js";
 
 import rawTokens from "../chain/linea/rawTokens";
-import getMyIp from "../utils/other/getMyIp";
 import logger from "../utils/other/logger";
 import waitInternetConnection from "../utils/other/waitInternetConnection";
+import formatUrlParams from "../utils/formatters/formatUrlParams";
 
 type TokenId = string;
 
@@ -13,14 +13,28 @@ type TokenPricesData = Record<TokenId, number>;
 type GeskoResponse = Record<TokenId, { usd: number }>;
 
 class Prices {
-  url = "https://api.coingecko.com/api/v3/simple/price";
-  updatePricesIntervalMinutes = 10;
+  private readonly url = "https://api.coingecko.com/api/v3/simple/price";
+  private readonly updatePricesIntervalMinutes = 10;
 
-  lastUpdateTimestamp: number;
-  geskoIds: string[];
-  prices: TokenPricesData;
+  private lastUpdateTimestamp: number;
+  private readonly geskoIds: string[];
+  private prices: TokenPricesData;
 
-  constructor(params: { geskoIds: string[] }) {
+  private static _instance: Prices | null;
+
+  public static get instance() {
+    if (!Prices._instance) {
+      const geskoIds = [...rawTokens]
+        .map((t) => t.geskoId)
+        .filter((value, index, array) => array.indexOf(value) === index);
+
+      Prices._instance = new Prices({ geskoIds });
+    }
+
+    return Prices._instance;
+  }
+
+  private constructor(params: { geskoIds: string[] }) {
     const { geskoIds } = params;
 
     this.lastUpdateTimestamp = this.getOutdatedTimestamp() - 1;
@@ -34,35 +48,23 @@ class Prices {
     return Date.now() - updatePricesIntervalMillis;
   }
 
-  private async getGeskoPrices(
-    isConnectionChecked = false,
-  ): Promise<GeskoResponse> {
-    try {
-      // eslint-disable-next-line camelcase
-      const params = { ids: this.geskoIds.join(","), vs_currencies: "usd" };
+  @waitInternetConnection()
+  private async getGeskoPrices(): Promise<GeskoResponse> {
+    // eslint-disable-next-line camelcase
+    const params = { ids: this.geskoIds.join(","), vs_currencies: "usd" };
 
-      const urlParams = new URLSearchParams(params).toString();
+    const urlParams = formatUrlParams(params).toString();
 
-      const result = await axios.get(`${this.url}?${urlParams}`);
+    const result = await axios.get(`${this.url}?${urlParams}`);
 
-      return result.data as GeskoResponse;
-    } catch (error) {
-      const { message } = error as Error;
-
-      if (isConnectionChecked) throw new Error(message);
-
-      const myIp = await getMyIp();
-
-      if (myIp) throw new Error(message);
-
-      await waitInternetConnection();
-
-      return await this.getGeskoPrices(true);
-    }
+    return result.data as GeskoResponse;
   }
 
-  private async updatePrices() {
+  public async updatePrices() {
+    logger.debug(`updating token prices`);
+
     const geskoPrices = await this.getGeskoPrices();
+
     const prices = Object.keys(geskoPrices)
       .map((key) => ({ key, value: geskoPrices[key].usd }))
       .reduce(
@@ -71,8 +73,6 @@ class Prices {
       );
 
     this.prices = prices;
-
-    logger.debug(`updating prices`);
 
     this.lastUpdateTimestamp = Date.now();
   }
@@ -84,7 +84,7 @@ class Prices {
     return isOutdated;
   }
 
-  async getTokenPrice(geskoId: string) {
+  public async getTokenPrice(geskoId: string) {
     if (this.isPricesOutdated()) await this.updatePrices();
 
     const tokenPrice = this.prices[geskoId];
@@ -95,10 +95,4 @@ class Prices {
   }
 }
 
-const allChainsGeskoIds = [...rawTokens]
-  .map((t) => t.geskoId)
-  .filter((value, index, array) => array.indexOf(value) === index);
-
-const prices = new Prices({ geskoIds: allChainsGeskoIds });
-
-export default prices;
+export default Prices;

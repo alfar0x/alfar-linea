@@ -3,18 +3,18 @@ import fs from "fs";
 import json5 from "json5";
 import { z } from "zod";
 
+import formatZodError from "../utils/formatters/formatZodError";
 import logger from "../utils/other/logger";
-import errorPrettify from "../utils/zod/errorPrettify";
 
 class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
-  private fileName: string;
+  private readonly fileName: string;
 
-  private schema: z.ZodObject<{ fixed: F; dynamic: D }>;
+  private readonly schema: z.ZodObject<{ fixed: F; dynamic: D }>;
 
   public fixed: z.infer<F>;
   private _dynamic: z.infer<D>;
 
-  constructor(params: {
+  public constructor(params: {
     configFileName: string;
     fixedSchema: F;
     dynamicSchema: D;
@@ -28,40 +28,29 @@ class Config<F extends z.ZodTypeAny, D extends z.ZodTypeAny> {
       fixed: fixedSchema,
     });
 
-    const { fixed, dynamic } = this.initializeConfig();
+    const { fixed, dynamic } = this.getConfigData();
 
     this._dynamic = dynamic;
     this.fixed = fixed;
   }
 
   private getConfigData() {
-    const fileData = fs.readFileSync(this.fileName, {
-      encoding: "utf-8",
-    });
+    const fileData = fs.readFileSync(this.fileName, { encoding: "utf-8" });
 
     const result = this.schema.safeParse(json5.parse(fileData));
 
     if (result.success) return result.data;
 
-    const errorMessage = errorPrettify(result.error.issues);
+    const errorMessage = formatZodError(result.error.issues);
 
     throw new Error(errorMessage);
-  }
-
-  private initializeConfig() {
-    try {
-      return this.getConfigData();
-    } catch (error) {
-      logger.error((error as Error).message);
-      process.exit();
-    }
   }
 
   public dynamic() {
     try {
       this._dynamic = this.getConfigData().dynamic;
     } catch (error) {
-      const { message } = error as Error;
+      const message = (error as Error).message;
 
       logger.error(
         `used the previous dynamic value due to error. Details: ${message}`,

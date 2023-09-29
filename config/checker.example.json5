@@ -2,20 +2,14 @@
   dynamic: {},
   fixed: {
     files: {
+      addresses: "addresses.txt",
       privateKeys: "private_keys.txt",
-      addresses: "",
-      proxies: "proxies.txt",
     },
     maxParallelAccounts: 3,
     delayBetweenChunkSec: 1,
     hideBalanceLessThanUsd: 0.001,
-    proxy: {
-      type: "none",
-      mobileIpChangeUrl: "",
-      serverIsRandom: true,
-    },
     rpc: {
-      linea: "https://1rpc.io/linea",
+      linea: "https://linea.drpc.org",
     },
   },
 }

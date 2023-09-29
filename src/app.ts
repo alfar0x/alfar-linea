@@ -1,30 +1,33 @@
-import Cli from "./cli";
+import startMenu from "./utils/cli/startMenu";
+import formatError from "./utils/formatters/formatError";
 import logger from "./utils/other/logger";
 import Checker from "./worker/checker";
 import EncrypterWorker from "./worker/encrypter";
-import JobsGenerator from "./worker/jobsGenerator";
+import TasksRunner from "./worker/tasksRunner";
 
 const main = async () => {
-  try {
-    const { mode, config } = await new Cli().run();
+  const { mode, config } = await startMenu();
 
-    switch (mode) {
-      case "job-generator": {
-        return await new JobsGenerator(config).run();
-      }
-      case "checker": {
-        return await new Checker(config).run();
-      }
-      case "encrypter": {
-        return await new EncrypterWorker(config).run();
-      }
-      default: {
-        throw new Error("this mode is not available");
-      }
+  switch (mode) {
+    case "task-runner": {
+      await new TasksRunner(config).run();
+      return;
     }
-  } catch (error) {
-    logger.error((error as Error).message);
+    case "checker": {
+      await new Checker(config).run();
+      return;
+    }
+    case "encrypter": {
+      await new EncrypterWorker(config).run();
+      return;
+    }
+    default: {
+      throw new Error("this mode is not available");
+    }
   }
 };
 
-main();
+void main().catch((error) => {
+  logger.error((error as Error).message);
+  logger.debug(formatError(error));
+});

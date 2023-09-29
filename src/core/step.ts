@@ -1,34 +1,33 @@
-import Transaction from "./transaction";
+import Queue from "./queue";
+import RunnableTransaction from "./transaction";
 
-class Step {
-  public name: string;
-  private transactions: Transaction[];
+class Step extends Queue<RunnableTransaction> {
+  public readonly name: string;
 
-  constructor(params: { name: string; transactions: Transaction[] }) {
-    const { name, transactions } = params;
+  public constructor(params: { name: string; txs?: RunnableTransaction[] }) {
+    const { name, txs } = params;
+
+    super(txs);
 
     this.name = name;
-    this.transactions = transactions;
   }
 
-  push(transaction: Transaction) {
-    this.transactions.push(transaction);
-  }
-
-  shift() {
-    return this.transactions.shift();
-  }
-
-  isEmpty() {
-    return !this.transactions.length;
-  }
-
-  createDefaultTransactionName(name: string) {
-    return `${this.name}-${name}`;
-  }
-
-  toString() {
+  public toString() {
     return this.name;
+  }
+
+  public getNextTransaction() {
+    if (this.isEmpty()) {
+      throw new Error("step is empty");
+    }
+
+    const transaction = this.shift();
+
+    if (!transaction) {
+      throw new Error(`transaction is not found`);
+    }
+
+    return transaction;
   }
 }
 

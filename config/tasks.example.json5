@@ -1,0 +1,41 @@
+{
+  dynamic: {
+    delaySec: {
+      step: { min: 3000, max: 6000 },
+      transaction: { min: 120, max: 600 },
+    },
+    maxLineaGwei: 1,
+    maxParallelAccounts: 3,
+    maxTxFeeUsd: 1,
+  },
+  fixed: {
+    approveMultiplier: { min: 10, max: 100 },
+    files: {
+      privateKeys: "private_keys.txt",
+      proxies: "proxies.txt",
+    },
+    maxAccountFeeUsd: 1000,
+    minEthBalance: 0.002,
+    onCurrentTaskEnd: "CREATE_NEXT_TASK",
+    providers: [
+      "DMAIL",
+      "LINEA_BANK",
+      "OPEN_OCEAN",
+      "PANCAKE",
+      "SYNCSWAP",
+      "VELOCORE",
+      "WOOFI",
+      "XY_FINANCE",
+    ],
+    proxy: {
+      type: "none",
+      mobileIpChangeUrl: "",
+      serverIsRandom: true,
+    },
+    rpc: {
+      linea: "https://1rpc.io/linea",
+    },
+    transactionsLimit: { min: 10, max: 20 },
+    workingAmountPercent: { min: 1, max: 4 },
+  },
+}

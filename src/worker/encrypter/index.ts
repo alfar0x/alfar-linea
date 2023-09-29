@@ -1,20 +1,21 @@
 import fs from "fs";
 import path from "path";
 
-import EncrypterConfig from "../../config/encrypter";
 import Encrypter from "../../core/encrypter";
+import getPassword from "../../utils/cli/getPassword";
 import readFile from "../../utils/file/readFile";
-import getPassword from "../../utils/other/getPassword";
 import logger from "../../utils/other/logger";
 
-class EncrypterWorker {
-  config: EncrypterConfig;
+import EncrypterConfig from "./config";
 
-  constructor(configFileName: string) {
+class EncrypterWorker {
+  private readonly config: EncrypterConfig;
+
+  public constructor(configFileName: string) {
     this.config = new EncrypterConfig({ configFileName });
   }
 
-  async run() {
+  public async run() {
     const password = await getPassword();
 
     const { decryptedFileName } = this.config.fixed;

@@ -1,6 +1,6 @@
 import Big from "big.js";
 
-type Num = string | number | Big;
+type Num = Big | number | string;
 
 const randomInteger = (min: Num, max: Num) => {
   if (Big(max).lt(min)) {
@@ -9,7 +9,7 @@ const randomInteger = (min: Num, max: Num) => {
 
   if (Big(max).eq(min)) return Big(min);
 
-  const multiplier = Big(max).minus(min).plus(1);
+  const multiplier = Big(max).minus(min);
 
   return Big(Math.random()).times(multiplier).plus(min).round();
 };

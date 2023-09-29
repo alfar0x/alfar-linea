@@ -1,139 +1,64 @@
-import Big from "big.js";
+import { Transaction } from "web3";
 
-import { CONTRACT_ECHO_DEX_SMART_ROUTER } from "../../../abi/constants/contracts";
-import {
-  DEFAULT_GAS_MULTIPLIER,
-  DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
-  DEFAULT_SLIPPAGE_PERCENT,
-} from "../../../constants";
 import Account from "../../../core/account";
-import { SwapAction } from "../../../core/action/swap";
-import Chain from "../../../core/chain";
+import { Amount } from "../../../types";
+import SwapAction from "../base";
+
 import Token from "../../../core/token";
+import ActionContext from "../../../core/actionContext";
+import { ChainConfig } from "../../../core/actionConfig";
+import config from "./config";
 
-import { UNWRAP_ETH_ADDRESS } from "./constants";
+class EchoDexSwapAction extends SwapAction {
+  private readonly config: ChainConfig<typeof config>;
 
-class EchoDexSwap extends SwapAction {
-  constructor() {
-    super({ provider: "ECHO_DEX" });
-  }
-
-  public getApproveAddress(chain: Chain) {
-    return chain.getContractAddressByName(CONTRACT_ECHO_DEX_SMART_ROUTER);
-  }
-
-  private async checkIsAllowed(params: {
-    account: Account;
+  public constructor(params: {
     fromToken: Token;
     toToken: Token;
-    normalizedAmount: number | string;
+    context: ActionContext;
   }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
+    super({ ...params, provider: "ECHO_DEX" });
 
-    const { chain } = fromToken;
-
-    const routerContractAddress = chain.getContractAddressByName(
-      CONTRACT_ECHO_DEX_SMART_ROUTER,
-    );
-
-    if (!routerContractAddress) {
-      throw new Error(`${this.name} action is not available in ${chain.name}`);
-    }
-
-    if (!fromToken.chain.isEquals(toToken.chain)) {
-      throw new Error(
-        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`,
-      );
-    }
-
-    if (!fromToken.isNative) {
-      const normalizedAllowance = await fromToken.normalizedAllowance(
-        account,
-        routerContractAddress,
-      );
-
-      if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance =
-          await fromToken.toReadableAmount(normalizedAllowance);
-        const readableAmount =
-          await fromToken.toReadableAmount(normalizedAmount);
-
-        throw new Error(
-          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
-        );
-      }
-    }
-
-    const normalizedBalance = await fromToken.normalizedBalanceOf(
-      account.address,
-    );
-
-    if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance =
-        await fromToken.toReadableAmount(normalizedBalance);
-      const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
-
-      throw new Error(
-        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`,
-      );
-    }
-
-    return { routerContractAddress };
+    this.config = config.getChainConfig(params.fromToken.chain);
   }
 
   private async getSwapData(params: {
     account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
-    minOutNormalizedAmount: number | string;
+    normalizedAmount: Amount;
+    minOutNormalizedAmount: Amount;
   }) {
-    const {
-      account,
-      fromToken,
-      toToken,
-      normalizedAmount,
-      minOutNormalizedAmount,
-    } = params;
+    const { account, normalizedAmount, minOutNormalizedAmount } = params;
+    const { chain } = this.fromToken;
+    const { routerInterface, unwrapEthAddress } = this.config;
 
-    const { chain } = fromToken;
+    const address = this.toToken.isNative ? unwrapEthAddress : account.address;
 
-    if (!fromToken.isNative && !toToken.isNative) {
-      throw new Error(
-        `swap token -> token (not native) is not implemented yet: ${fromToken} -> ${toToken}`,
-      );
-    }
-
-    const echoDexRouterInterface = getEthersInterface({
-      name: "EchoDexRouter",
-    });
-
-    const address = toToken.isNative ? UNWRAP_ETH_ADDRESS : account.address;
-
-    const swapExactTokensForTokensData =
-      echoDexRouterInterface.encodeFunctionData("swapExactTokensForTokens", [
+    const swapExactTokensForTokensData = routerInterface.encodeFunctionData(
+      "swapExactTokensForTokens",
+      [
         normalizedAmount,
         minOutNormalizedAmount,
         [
-          fromToken.getAddressOrWrappedForNative(),
-          toToken.getAddressOrWrappedForNative(),
+          this.fromToken.getAddressOrWrappedForNative(),
+          this.toToken.getAddressOrWrappedForNative(),
         ],
         address,
-      ]);
+      ],
+    );
 
     const multicallBytesArray = [swapExactTokensForTokensData];
 
-    if (toToken.isNative) {
-      const unwrapEthData = echoDexRouterInterface.encodeFunctionData(
-        "unwrapWETH9",
-        [minOutNormalizedAmount, account.address],
-      );
+    if (this.toToken.isNative) {
+      const unwrapEthData = routerInterface.encodeFunctionData("unwrapWETH9", [
+        minOutNormalizedAmount,
+        account.address,
+      ]);
       multicallBytesArray.push(unwrapEthData);
     }
 
     const deadline = await chain.getSwapDeadline();
 
-    const data = echoDexRouterInterface.encodeFunctionData(
+    const data = routerInterface.encodeFunctionData(
       "multicall(uint256,bytes[])",
       [deadline, multicallBytesArray],
     );
@@ -141,38 +66,43 @@ class EchoDexSwap extends SwapAction {
     return { data };
   }
 
-  async swap(params: {
+  protected async approve(params: {
     account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
+    normalizedAmount: Amount;
   }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
+    const { account, normalizedAmount } = params;
+    const { routerAddress } = this.config;
 
-    const { chain } = fromToken;
-    const { w3 } = chain;
-    const { routerContractAddress } = await this.checkIsAllowed({
+    return await EchoDexSwapAction.getDefaultApproveTransaction({
       account,
-      fromToken,
-      toToken,
+      token: this.fromToken,
+      spenderAddress: routerAddress,
       normalizedAmount,
     });
+  }
 
-    const minOutNormalizedAmount = await toToken.getMinOutNormalizedAmount(
-      fromToken,
+  protected async swap(params: { account: Account; normalizedAmount: Amount }) {
+    const { account, normalizedAmount } = params;
+    const { routerAddress, slippagePercent } = this.config;
+
+    const { chain } = this.fromToken;
+    const { w3 } = chain;
+
+    await this.checkIsBalanceAllowed({ account, normalizedAmount });
+
+    const minOutNormalizedAmount = await this.toToken.getMinOutNormalizedAmount(
+      this.fromToken,
       normalizedAmount,
-      DEFAULT_SLIPPAGE_PERCENT,
+      slippagePercent,
     );
 
     const { data } = await this.getSwapData({
       account,
-      fromToken,
-      toToken,
       normalizedAmount,
       minOutNormalizedAmount,
     });
 
-    const value = fromToken.isNative ? normalizedAmount : 0;
+    const value = this.fromToken.isNative ? normalizedAmount : 0;
 
     const nonce = await account.nonce(w3);
 
@@ -180,30 +110,23 @@ class EchoDexSwap extends SwapAction {
 
     const estimatedGas = "200000"; // @TODO estimate gas
 
-    const tx = {
+    const tx: Transaction = {
       data,
       from: account.address,
       value,
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: routerContractAddress,
+      to: routerAddress,
     };
 
-    const hash = await account.signAndSendTransaction(chain, tx, {
-      retry: {
-        gasMultiplier: DEFAULT_GAS_MULTIPLIER,
-        times: DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
-      },
+    const resultMsg = await this.getDefaultSwapResultMsg({
+      normalizedAmount,
+      minOutNormalizedAmount,
     });
 
-    const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
-    const outReadableAmount = await toToken.toReadableAmount(
-      minOutNormalizedAmount,
-    );
-
-    return { hash, inReadableAmount, outReadableAmount };
+    return { tx, resultMsg };
   }
 }
 
-export default EchoDexSwap;
+export default EchoDexSwapAction;

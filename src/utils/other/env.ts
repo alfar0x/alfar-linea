@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 import { z } from "zod";
 
-import errorPrettify from "../zod/errorPrettify";
+import formatZodError from "../formatters/formatZodError";
 
 const getEnv = () => {
   dotenv.config({ path: ".env.prod" });
@@ -14,7 +14,7 @@ const getEnv = () => {
 
   if (!env.success) {
     // eslint-disable-next-line no-console
-    console.error(".env file error: ", errorPrettify(env.error.issues));
+    console.error(".env file error: ", formatZodError(env.error.issues));
     process.exit();
   }
 

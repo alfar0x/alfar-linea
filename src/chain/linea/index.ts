@@ -1,6 +1,5 @@
 import Chain from "../../core/chain";
 
-import contracts from "./contracts";
 import rawTokens from "./rawTokens";
 
 type LineaConstructorParams = {
@@ -8,7 +7,7 @@ type LineaConstructorParams = {
 };
 
 class Linea extends Chain {
-  constructor(params: LineaConstructorParams) {
+  public constructor(params: LineaConstructorParams) {
     const { rpc } = params;
 
     super({
@@ -17,7 +16,6 @@ class Linea extends Chain {
       rpc,
       explorer: "https://lineascan.build",
       rawTokens,
-      contracts,
     });
   }
 }

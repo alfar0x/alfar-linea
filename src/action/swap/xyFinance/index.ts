@@ -1,96 +1,101 @@
 import axios from "axios";
-import Big from "big.js";
-import Web3 from "web3";
 
-import {
-  DEFAULT_GAS_MULTIPLIER,
-  DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
-  DEFAULT_SLIPPAGE_PERCENT,
-} from "../../../constants";
-import { CONTRACT_XY_FINANCE_ROUTER } from "../../../constants/contractsWithoutAbi";
 import Account from "../../../core/account";
-import { SwapAction } from "../../../core/action/swap";
-import Chain from "../../../core/chain";
 import Token from "../../../core/token";
+import { Amount } from "../../../types";
 import sleep from "../../../utils/other/sleep";
-import getRandomWalletAddress from "../../../utils/web3/getRandomWalletAddress";
+import randomWalletAddress from "../../../utils/random/randomWalletAddress";
+import SwapAction from "../base";
 
-import { API_URL } from "./constants";
+import ActionContext from "../../../core/actionContext";
+import { ChainConfig } from "../../../core/actionConfig";
+import formatUrlParams from "../../../utils/formatters/formatUrlParams";
+import formatToChecksum from "../../../utils/formatters/formatToChecksum";
 import { XyFinanceBuildTx, XyFinanceQuote } from "./types";
+import config from "./config";
 
-class XyFinanceSwap extends SwapAction {
-  constructor() {
-    super({ provider: "XY_FINANCE" });
-  }
+class XyFinanceSwapAction extends SwapAction {
+  private readonly config: ChainConfig<typeof config>;
 
-  public getApproveAddress(chain: Chain) {
-    return chain.getContractAddressByName(CONTRACT_XY_FINANCE_ROUTER);
-  }
-
-  async quoteRequest(params: {
+  public constructor(params: {
     fromToken: Token;
     toToken: Token;
-    normalizedAmount: number | string;
+    context: ActionContext;
   }) {
-    const { fromToken, toToken, normalizedAmount } = params;
+    super({ ...params, provider: "XY_FINANCE" });
 
-    const chainId = String(fromToken.chain.chainId);
+    this.config = config.getChainConfig(params.fromToken.chain);
+  }
+
+  private async quoteRequest(params: { normalizedAmount: Amount }) {
+    const { normalizedAmount } = params;
+    const { slippagePercent, apiUrl, routerAddress } = this.config;
+
+    const { chainId } = this.fromToken.chain;
+
     const searchParams = {
       srcChainId: chainId,
-      srcQuoteTokenAddress: fromToken.address,
-      srcQuoteTokenAmount: String(normalizedAmount),
+      srcQuoteTokenAddress: this.fromToken.address,
+      srcQuoteTokenAmount: normalizedAmount,
       dstChainId: chainId,
-      dstQuoteTokenAddress: toToken.address,
-      slippage: String(DEFAULT_SLIPPAGE_PERCENT),
+      dstQuoteTokenAddress: this.toToken.address,
+      slippage: slippagePercent,
     };
 
-    const urlParams = new URLSearchParams(searchParams).toString();
-    const url = `${API_URL}/quote?${urlParams}`;
+    const urlParams = formatUrlParams(searchParams);
+    const url = `${apiUrl}/quote?${urlParams}`;
 
     const { data } = await axios.get<XyFinanceQuote>(url);
 
-    if (!data.success) throw new Error(data.errorMsg || String(data.errorCode));
+    if (!data.success)
+      throw new Error(
+        data.errorMsg ||
+          `unexpected error. xy finance api response is not success`,
+      );
 
     if (!data.routes.length) {
-      throw new Error(`Unexpected error. No routes available`);
+      throw new Error(`unexpected error. No routes available`);
     }
 
     const { srcSwapDescription, contractAddress } = data.routes[0];
     const { provider } = srcSwapDescription;
+
+    if (contractAddress !== routerAddress) {
+      throw new Error(
+        `unexpected error. contractAddress !== routerAddress: ${contractAddress} !== ${routerAddress}`,
+      );
+    }
 
     return { provider, contractAddress };
   }
 
   private async buildTxRequest(params: {
     account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
+    normalizedAmount: Amount;
     provider: string;
   }) {
-    const { account, fromToken, toToken, normalizedAmount, provider } = params;
+    const { account, normalizedAmount, provider } = params;
+    const { slippagePercent, apiUrl, routerAddress } = this.config;
 
-    const randomWalletAddress = getRandomWalletAddress();
+    const randomAddress = randomWalletAddress();
 
-    const fullRandomAddress = Web3.utils.toChecksumAddress(
-      `0x${randomWalletAddress}`,
-    );
+    const fullRandomAddress = formatToChecksum(`0x${randomAddress}`);
 
-    const chainId = String(fromToken.chain.chainId);
+    const { chainId } = this.fromToken.chain;
 
     const searchParams = {
       srcChainId: chainId,
-      srcQuoteTokenAddress: fromToken.address,
-      srcQuoteTokenAmount: String(normalizedAmount),
+      srcQuoteTokenAddress: this.fromToken.address,
+      srcQuoteTokenAmount: normalizedAmount,
       dstChainId: chainId,
-      dstQuoteTokenAddress: toToken.address,
-      slippage: String(DEFAULT_SLIPPAGE_PERCENT),
+      dstQuoteTokenAddress: this.toToken.address,
+      slippage: slippagePercent,
       receiver: fullRandomAddress,
       srcSwapProvider: provider,
     };
 
-    const urlParams = new URLSearchParams(searchParams).toString();
-    const url = `${API_URL}/buildTx?${urlParams}`;
+    const urlParams = formatUrlParams(searchParams);
+    const url = `${apiUrl}/buildTx?${urlParams}`;
 
     const { data } = await axios.get<XyFinanceBuildTx>(url);
 
@@ -102,9 +107,15 @@ class XyFinanceSwap extends SwapAction {
     const addressToChangeTo = account.address.toLocaleLowerCase().substring(2);
 
     const contractData = data.tx.data.replaceAll(
-      randomWalletAddress,
+      randomAddress,
       addressToChangeTo,
     );
+
+    if (to !== routerAddress) {
+      throw new Error(
+        `unexpected error. to !== contractAddress: ${to} !== ${routerAddress}`,
+      );
+    }
 
     return {
       data: contractData,
@@ -115,108 +126,42 @@ class XyFinanceSwap extends SwapAction {
     };
   }
 
-  private async checkIsAllowed(params: {
+  protected async approve(params: {
     account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
+    normalizedAmount: Amount;
   }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
+    const { account, normalizedAmount } = params;
+    const { routerAddress } = this.config;
 
-    const { chain } = fromToken;
-
-    const routerContractAddress = this.getApproveAddress(chain);
-
-    if (!routerContractAddress) {
-      throw new Error(`${this.name} action is not available in ${chain.name}`);
-    }
-
-    if (!fromToken.isNative) {
-      const normalizedAllowance = await fromToken.normalizedAllowance(
-        account,
-        routerContractAddress,
-      );
-
-      if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance =
-          await fromToken.toReadableAmount(normalizedAllowance);
-        const readableAmount =
-          await fromToken.toReadableAmount(normalizedAmount);
-
-        throw new Error(
-          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
-        );
-      }
-    }
-
-    if (!fromToken.chain.isEquals(toToken.chain)) {
-      throw new Error(
-        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`,
-      );
-    }
-
-    const normalizedBalance = await fromToken.normalizedBalanceOf(
-      account.address,
-    );
-
-    if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance =
-        await fromToken.toReadableAmount(normalizedBalance);
-      const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
-
-      throw new Error(
-        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`,
-      );
-    }
-
-    return { routerContractAddress };
+    return await XyFinanceSwapAction.getDefaultApproveTransaction({
+      account,
+      token: this.fromToken,
+      spenderAddress: routerAddress,
+      normalizedAmount,
+    });
   }
 
-  async swap(params: {
-    account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
-  }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
+  protected async swap(params: { account: Account; normalizedAmount: Amount }) {
+    const { account, normalizedAmount } = params;
+    const { resendTxTimes } = this.config;
 
-    const { chain } = fromToken;
+    const { chain } = this.fromToken;
     const { w3 } = chain;
-    const { routerContractAddress } = await this.checkIsAllowed({
-      account,
-      fromToken,
-      toToken,
-      normalizedAmount,
-    });
 
-    const { provider, contractAddress } = await this.quoteRequest({
-      fromToken,
-      toToken,
-      normalizedAmount,
-    });
+    await this.checkIsBalanceAllowed({ account, normalizedAmount });
 
-    if (contractAddress !== routerContractAddress) {
-      throw new Error(
-        `Unexpected error: contractAddress !== routerContractAddress: ${contractAddress} !== ${routerContractAddress}. Please contact developer`,
-      );
-    }
+    const { provider } = await this.quoteRequest({ normalizedAmount });
 
-    await sleep(3);
+    const sleepBetweenApiRequestsSec = 5;
+
+    await sleep(sleepBetweenApiRequestsSec);
 
     const { data, to, estimatedGas, minOutNormalizedAmount } =
       await this.buildTxRequest({
         account,
-        fromToken,
-        toToken,
         normalizedAmount,
         provider,
       });
-
-    if (to !== routerContractAddress) {
-      throw new Error(
-        `Unexpected error: to !== routerContractAddress: ${to} !== ${routerContractAddress}. Please contact developer`,
-      );
-    }
 
     const nonce = await account.nonce(w3);
 
@@ -228,24 +173,17 @@ class XyFinanceSwap extends SwapAction {
       gas: estimatedGas,
       gasPrice,
       nonce,
-      to: routerContractAddress,
+      to,
       value: normalizedAmount,
     };
 
-    const hash = await account.signAndSendTransaction(chain, tx, {
-      retry: {
-        gasMultiplier: DEFAULT_GAS_MULTIPLIER,
-        times: DEFAULT_RETRY_MULTIPLY_GAS_TIMES,
-      },
+    const resultMsg = await this.getDefaultSwapResultMsg({
+      normalizedAmount,
+      minOutNormalizedAmount,
     });
 
-    const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
-    const outReadableAmount = await toToken.toReadableAmount(
-      minOutNormalizedAmount,
-    );
-
-    return { hash, inReadableAmount, outReadableAmount };
+    return { tx, resultMsg, retryTimes: resendTxTimes };
   }
 }
 
-export default XyFinanceSwap;
+export default XyFinanceSwapAction;

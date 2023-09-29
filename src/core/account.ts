@@ -1,152 +1,130 @@
 import Big from "big.js";
 import { ethers } from "ethers";
 import { Transaction as Web3Transaction, Web3 } from "web3";
-import { z } from "zod";
 
-import { DEFAULT_GAS_MULTIPLIER } from "../constants";
+import formatOrdinals from "../utils/formatters/formatOrdinals";
+import formatShortString from "../utils/formatters/formatShortString";
+import formatZodError from "../utils/formatters/formatZodError";
 import logger from "../utils/other/logger";
 import randomInteger from "../utils/random/randomInteger";
-import getShortString from "../utils/string/getShortString";
+import evmAddressSchema from "../utils/zod/evmAddressSchema";
+import evmPrivateKeySchema from "../utils/zod/evmPrivateKeySchema";
 
 import Chain from "./chain";
 import Token from "./token";
 
-const evmAccountPrivateKeyLength = 66;
-const maxSendTransactionTimes = 20;
-
-const evmAccountPrivateKeySchema = z
-  .string()
-  .length(evmAccountPrivateKeyLength)
-  .startsWith("0x");
-
 class Account {
-  private privateKey: string;
-  public fileIndex: number;
-  public address: string;
-  public shortAddress: string;
-  private _transactionsPerformed: number;
+  public readonly fileIndex: number;
+  public readonly address: string;
+  public readonly name: string;
 
-  constructor(params: { privateKey: string; fileIndex: number }) {
-    const { privateKey, fileIndex } = params;
+  private readonly _privateKey?: string;
+
+  public constructor(params: {
+    name?: string;
+    privateKey?: string;
+    address?: string;
+    fileIndex: number;
+  }) {
+    const { name, privateKey, address, fileIndex } = params;
     this.fileIndex = fileIndex;
-    this.privateKey = this.initializePrivateKey(privateKey);
-    this.address = this.initializeAddress();
-    this.shortAddress = getShortString(this.address);
-    this._transactionsPerformed = 0;
+
+    if (privateKey) {
+      this._privateKey = this.initializePrivateKey(privateKey);
+      this.address = ethers.computeAddress(privateKey);
+    } else if (address) {
+      this.address = this.initializeAddressFromGiven(address);
+    } else {
+      throw new Error("Either private key or address must be provided.");
+    }
+    this.name = name || formatShortString(this.address);
   }
 
-  private initializePrivateKey(privateKey: string) {
-    const isPrivateValid = evmAccountPrivateKeySchema.safeParse(privateKey);
+  private initializeAddressFromGiven(address: string) {
+    const addressParsed = evmAddressSchema.safeParse(address);
 
-    if (isPrivateValid.success) return privateKey;
+    if (addressParsed.success) return address;
 
-    const privateShortForm = getShortString(privateKey);
+    const indexOrd = formatOrdinals(this.fileIndex + 1);
+
+    const errorMessage = formatZodError(addressParsed.error.issues);
 
     throw new Error(
-      `private key ${privateShortForm} on index ${this.fileIndex} is not valid. Check assets folder`,
+      `${indexOrd} address is not valid. Details: ${errorMessage}`,
     );
   }
 
-  private initializeAddress() {
-    return ethers.computeAddress(this.privateKey);
+  private initializePrivateKey(privateKey: string) {
+    const privateKeyParsed = evmPrivateKeySchema.safeParse(privateKey);
+
+    if (privateKeyParsed.success) return privateKey;
+
+    const indexOrd = formatOrdinals(this.fileIndex + 1);
+
+    const privateShortForm = formatShortString(privateKey);
+
+    const errorMessage = formatZodError(privateKeyParsed.error.issues);
+
+    throw new Error(
+      `${indexOrd} private key ${privateShortForm} is not valid. Details: ${errorMessage}`,
+    );
   }
 
-  toString() {
-    const idx = this.fileIndex + 1;
-    const addr = this.shortAddress;
-    const txs = this._transactionsPerformed;
-
-    return `[${idx}] ${addr} (txs:${txs})`;
+  public toString() {
+    return this.name;
   }
 
-  isEquals(account: Account) {
+  public isEquals(account: Account) {
     return this.fileIndex === account.fileIndex;
+  }
+
+  private get privateKey() {
+    if (!this._privateKey) {
+      throw new Error(
+        "This account is read-only. Cannot perform this operation.",
+      );
+    }
+
+    return this._privateKey;
   }
 
   private async signTransaction(w3: Web3, tx: Web3Transaction) {
     return await w3.eth.accounts.signTransaction(tx, this.privateKey);
   }
 
-  private async sendSignedTransaction(w3: Web3, rawTx: string) {
+  private static async sendSignedTransaction(w3: Web3, rawTx: string) {
     return await w3.eth.sendSignedTransaction(rawTx);
   }
 
-  async signAndSendTransaction(
+  public async signAndSendTransaction(
     chain: Chain,
     tx: Web3Transaction,
-    opts: {
-      retry?: { gasMultiplier: number; times: number };
-    } = {},
   ): Promise<string> {
-    const { retry } = opts;
-    const { gasMultiplier = DEFAULT_GAS_MULTIPLIER, times = 0 } = retry || {};
+    const signResult = await this.signTransaction(chain.w3, tx);
 
-    if (times > maxSendTransactionTimes) {
-      throw new Error(
-        `Unexpected error. times > maxSendTransactionTimes. ${times} > ${maxSendTransactionTimes}`,
-      );
+    if (!signResult.rawTransaction) {
+      throw new Error("transaction was not generated in blockchain");
     }
 
-    const _tx = Object.assign({}, tx);
+    const sendResult = await Account.sendSignedTransaction(
+      chain.w3,
+      signResult.rawTransaction,
+    );
 
-    try {
-      if (times && _tx.gas) {
-        _tx.gas = Big(_tx.gas.toString())
-          .times(gasMultiplier)
-          .round()
-          .toString();
-      }
+    const hash = sendResult.transactionHash.toString();
 
-      const signResult = await this.signTransaction(chain.w3, _tx);
+    logger.debug(`${this} | tx sent: ${chain.getHashLink(hash)}`);
 
-      if (!signResult?.rawTransaction) {
-        throw new Error("transaction was not generated");
-      }
+    await chain.waitTxReceipt(hash);
 
-      const sendResult = await this.sendSignedTransaction(
-        chain.w3,
-        signResult.rawTransaction,
-      );
-
-      const hash = sendResult.transactionHash.toString();
-
-      logger.debug(`${this} | tx sent: ${chain.getHashLink(hash)}`);
-
-      await chain.waitTxReceipt(hash);
-
-      this.incrementTransactionsPerformed();
-
-      return hash;
-    } catch (error) {
-      const isTxReverted = (error as Error)?.message?.includes("reverted");
-      const isNullableError = (error as Error)?.message?.includes(
-        "Cannot use 'in' operator to search for 'originalError' in null",
-      );
-
-      if ((isTxReverted || isNullableError) && times) {
-        logger.debug(`Retrying to send tx: ${times} times | ${_tx.gas} gas`);
-        return this.signAndSendTransaction(chain, _tx, {
-          retry: { gasMultiplier, times: times - 1 },
-        });
-      }
-
-      throw error;
-    }
+    return hash;
   }
 
-  private incrementTransactionsPerformed() {
-    this._transactionsPerformed = this._transactionsPerformed + 1;
-  }
-
-  transactionsPerformed() {
-    return this._transactionsPerformed;
-  }
-
-  async nonce(w3: Web3) {
+  public async nonce(w3: Web3) {
     return await w3.eth.getTransactionCount(this.address);
   }
 
-  async getRandomNormalizedAmountOfBalance(
+  public async getRandomNormalizedAmountOfBalance(
     token: Token,
     minPercent: number,
     maxPercent: number,
@@ -172,6 +150,25 @@ class Account {
     ).toString();
 
     return randomNormalizedAmount;
+  }
+
+  public async isBalanceGteReadable(params: {
+    token: Token;
+    minReadableAmount: number;
+  }) {
+    const { token, minReadableAmount } = params;
+
+    const normalizedAmount = await token.toNormalizedAmount(minReadableAmount);
+
+    const normalizedBalance = await token.normalizedBalanceOf(this.address);
+
+    const isAllowed = Big(normalizedBalance).gte(normalizedAmount);
+
+    if (isAllowed) return { isAllowed };
+
+    const readableBalance = await token.toReadableAmount(normalizedBalance);
+
+    return { isAllowed, readableBalance };
   }
 }
 

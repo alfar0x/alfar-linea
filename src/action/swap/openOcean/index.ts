@@ -1,115 +1,65 @@
 import axios from "axios";
+import { Transaction } from "web3";
+
 import Big from "big.js";
-import Web3 from "web3";
-
-import { DEFAULT_SLIPPAGE_PERCENT } from "../../../constants";
-import { CONTRACT_OPEN_OCEAN_EXCHANGE } from "../../../constants/contractsWithoutAbi";
 import Account from "../../../core/account";
-import { SwapAction } from "../../../core/action/swap";
-import Chain from "../../../core/chain";
 import Token from "../../../core/token";
-import getRandomWalletAddress from "../../../utils/web3/getRandomWalletAddress";
+import { Amount } from "../../../types";
+import randomWalletAddress from "../../../utils/random/randomWalletAddress";
+import SwapAction from "../base";
 
-import { API_URL, CHAINS_DATA } from "./constants";
+import ActionContext from "../../../core/actionContext";
+import { ChainConfig } from "../../../core/actionConfig";
+import formatToChecksum from "../../../utils/formatters/formatToChecksum";
+import formatUrlParams from "../../../utils/formatters/formatUrlParams";
+import logger from "../../../utils/other/logger";
+import formatObject from "../../../utils/formatters/formatObject";
 import { OpenOceanSwapQuote } from "./types";
+import config from "./config";
 
-class OpenOceanSwap extends SwapAction {
-  constructor() {
-    super({ provider: "OPEN_OCEAN" });
-  }
+class OpenOceanSwapAction extends SwapAction {
+  private readonly config: ChainConfig<typeof config>;
 
-  async swap(params: {
-    account: Account;
+  public constructor(params: {
     fromToken: Token;
     toToken: Token;
-    normalizedAmount: number | string;
+    context: ActionContext;
   }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
+    super({ ...params, provider: "OPEN_OCEAN" });
 
-    const { chain } = fromToken;
-    const { w3 } = chain;
-    const { chainPath, exchangeContractAddress } = await this.checkIsAllowed({
-      account,
-      fromToken,
-      toToken,
-      normalizedAmount,
-    });
-
-    const { data, to, value, estimatedGas, minOutNormalizedAmount } =
-      await this.swapQuoteRequest({
-        account,
-        fromToken,
-        toToken,
-        normalizedAmount,
-        chainPath,
-      });
-
-    if (to !== exchangeContractAddress) {
-      throw new Error(
-        `Unexpected error: to !== exchangeContractAddress: ${to} !== ${exchangeContractAddress}. Please contact developer`,
-      );
-    }
-
-    const nonce = await account.nonce(w3);
-
-    const gasPrice = await w3.eth.getGasPrice();
-
-    const tx = {
-      data,
-      from: account.address,
-      gas: estimatedGas,
-      gasPrice,
-      nonce,
-      to: exchangeContractAddress,
-      value,
-    };
-
-    const hash = await account.signAndSendTransaction(chain, tx);
-
-    const inReadableAmount = await fromToken.toReadableAmount(normalizedAmount);
-    const outReadableAmount = await toToken.toReadableAmount(
-      minOutNormalizedAmount,
-    );
-
-    return { hash, inReadableAmount, outReadableAmount };
-  }
-
-  public getApproveAddress(chain: Chain) {
-    return chain.getContractAddressByName(CONTRACT_OPEN_OCEAN_EXCHANGE);
+    this.config = config.getChainConfig(params.fromToken.chain);
   }
 
   private async swapQuoteRequest(params: {
     account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
-    chainPath: string;
+    normalizedAmount: Amount;
   }) {
-    const { account, fromToken, toToken, normalizedAmount, chainPath } = params;
+    const { account, normalizedAmount } = params;
 
-    const randomWalletAddress = getRandomWalletAddress();
+    const { apiUrl, routerAddress, slippagePercent, initialGasMultiplier } =
+      this.config;
 
-    const fullRandomAddress = Web3.utils.toChecksumAddress(
-      `0x${randomWalletAddress}`,
-    );
+    const randomAddress = randomWalletAddress();
 
-    const readableAmount = await fromToken.toReadableAmount(
+    const fullRandomAddress = formatToChecksum(`0x${randomAddress}`);
+
+    const readableAmount = await this.fromToken.toReadableAmount(
       normalizedAmount,
       true,
     );
-    const gasPrice = await fromToken.chain.w3.eth.getGasPrice();
+    const gasPrice = await this.fromToken.chain.w3.eth.getGasPrice();
 
     const searchParams = {
-      inTokenAddress: fromToken.address,
-      outTokenAddress: toToken.address,
+      inTokenAddress: this.fromToken.address,
+      outTokenAddress: this.toToken.address,
       amount: readableAmount,
       gasPrice: gasPrice.toString(),
-      slippage: String(DEFAULT_SLIPPAGE_PERCENT),
+      slippage: slippagePercent,
       account: fullRandomAddress,
     };
 
-    const urlParams = new URLSearchParams(searchParams).toString();
-    const url = `${API_URL}/${chainPath}/swap_quote?${urlParams}`;
+    const urlParams = formatUrlParams(searchParams).toString();
+    const url = `${apiUrl}/swap_quote?${urlParams}`;
 
     const { data } = await axios.get<OpenOceanSwapQuote>(url);
 
@@ -117,10 +67,16 @@ class OpenOceanSwap extends SwapAction {
 
     const { to, value, estimatedGas, minOutAmount } = data.data;
 
+    logger.silly(formatObject({ to, value, estimatedGas, minOutAmount }));
+
+    if (to !== routerAddress) {
+      throw new Error(`to !== routerAddress: ${to} !== ${routerAddress}`);
+    }
+
     const addressToChangeTo = account.address.toLocaleLowerCase().substring(2);
 
     const contractData = data.data.data.replaceAll(
-      randomWalletAddress,
+      randomAddress,
       addressToChangeTo,
     );
 
@@ -128,69 +84,64 @@ class OpenOceanSwap extends SwapAction {
       data: contractData,
       to,
       value,
-      estimatedGas,
+      estimatedGas: Big(estimatedGas)
+        .times(initialGasMultiplier)
+        .round()
+        .toString(),
       minOutNormalizedAmount: minOutAmount,
     };
   }
 
-  private async checkIsAllowed(params: {
+  protected async approve(params: {
     account: Account;
-    fromToken: Token;
-    toToken: Token;
-    normalizedAmount: number | string;
+    normalizedAmount: Amount;
   }) {
-    const { account, fromToken, toToken, normalizedAmount } = params;
+    const { account, normalizedAmount } = params;
+    const { routerAddress } = this.config;
 
-    const { chain } = fromToken;
+    return await OpenOceanSwapAction.getDefaultApproveTransaction({
+      account,
+      token: this.fromToken,
+      spenderAddress: routerAddress,
+      normalizedAmount,
+    });
+  }
 
-    const { chainPath } = CHAINS_DATA[chain.chainId] || {};
+  protected async swap(params: { account: Account; normalizedAmount: Amount }) {
+    const { account, normalizedAmount } = params;
 
-    const exchangeContractAddress = this.getApproveAddress(chain);
+    const { chain } = this.fromToken;
+    const { w3 } = chain;
 
-    if (!chainPath || !exchangeContractAddress) {
-      throw new Error(`${this.name} action is not available in ${chain.name}`);
-    }
+    await this.checkIsBalanceAllowed({ account, normalizedAmount });
 
-    if (!fromToken.isNative) {
-      const normalizedAllowance = await fromToken.normalizedAllowance(
+    const { data, to, value, estimatedGas, minOutNormalizedAmount } =
+      await this.swapQuoteRequest({
         account,
-        exchangeContractAddress,
-      );
+        normalizedAmount,
+      });
 
-      if (Big(normalizedAllowance).lt(normalizedAmount)) {
-        const readableAllowance =
-          await fromToken.toReadableAmount(normalizedAllowance);
-        const readableAmount =
-          await fromToken.toReadableAmount(normalizedAmount);
+    const nonce = await account.nonce(w3);
 
-        throw new Error(
-          `account ${fromToken} allowance is less than amount: ${readableAllowance} < ${readableAmount}`,
-        );
-      }
-    }
+    const gasPrice = await w3.eth.getGasPrice();
 
-    if (!fromToken.chain.isEquals(toToken.chain)) {
-      throw new Error(
-        `action is not available for tokens in different chains: ${fromToken} -> ${toToken}`,
-      );
-    }
+    const tx: Transaction = {
+      data,
+      from: account.address,
+      gas: estimatedGas,
+      gasPrice,
+      nonce,
+      to,
+      value,
+    };
 
-    const normalizedBalance = await fromToken.normalizedBalanceOf(
-      account.address,
-    );
+    const resultMsg = await this.getDefaultSwapResultMsg({
+      normalizedAmount,
+      minOutNormalizedAmount,
+    });
 
-    if (Big(normalizedBalance).lt(normalizedAmount)) {
-      const readableBalance =
-        await fromToken.toReadableAmount(normalizedBalance);
-      const readableAmount = await fromToken.toReadableAmount(normalizedAmount);
-
-      throw new Error(
-        `account ${fromToken} balance is less than amount: ${readableBalance} < ${readableAmount}`,
-      );
-    }
-
-    return { chainPath, exchangeContractAddress };
+    return { tx, resultMsg };
   }
 }
 
-export default OpenOceanSwap;
+export default OpenOceanSwapAction;

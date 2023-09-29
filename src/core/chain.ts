@@ -1,38 +1,37 @@
 import Big from "big.js";
-import Web3, { HttpProvider } from "web3";
+import { Web3, HttpProvider } from "web3";
 
-import CONTRACTS from "../abi/constants/contracts";
-import CONTRACTS_WITHOUT_ABI from "../constants/contractsWithoutAbi";
 import { RawToken } from "../types";
 import sleep from "../utils/other/sleep";
 
+import CHAIN_NAMES from "../constants/chainNames";
 import Token from "./token";
 
-type ContractName =
-  | (typeof CONTRACTS)[number]
-  | (typeof CONTRACTS_WITHOUT_ABI)[number];
-type Contracts = Partial<Record<ContractName, string>>;
+type ChainName = (typeof CHAIN_NAMES)[number];
+
+type HttpProviderOptions = NonNullable<
+  ConstructorParameters<typeof HttpProvider>["1"]
+>;
 
 class Chain {
-  name: string;
-  chainId: number;
-  rpc: string;
-  explorer: string;
-  tokens: Token[];
-  contracts: Contracts;
-  w3: Web3;
+  public readonly name: ChainName;
+  public readonly chainId: number;
+  public readonly w3: Web3;
+  public readonly tokens: Token[];
+
+  private readonly rpc: string;
+  private readonly explorer: string;
   private native: Token | null;
   private wrappedNative: Token | null;
 
-  constructor(params: {
-    name: string;
+  public constructor(params: {
+    name: ChainName;
     chainId: number;
     rpc: string;
     explorer: string;
     rawTokens: RawToken[];
-    contracts: Contracts;
   }) {
-    const { name, chainId, rpc, explorer, rawTokens, contracts } = params;
+    const { name, chainId, rpc, explorer, rawTokens } = params;
 
     this.name = name;
     this.chainId = chainId;
@@ -40,7 +39,6 @@ class Chain {
     this.explorer = explorer;
     this.w3 = new Web3(new HttpProvider(this.rpc));
     this.tokens = this.initializeTokens(rawTokens);
-    this.contracts = this.initializeContracts(contracts);
     this.native = null;
     this.wrappedNative = null;
   }
@@ -59,26 +57,25 @@ class Chain {
     );
   }
 
-  private initializeContracts(contacts: Contracts) {
-    return Object.keys(contacts).reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: Web3.utils.toChecksumAddress(
-          contacts[key as keyof Contracts] as string,
-        ),
-      }),
-      {} as Contracts,
-    );
+  public updateHttpProviderOptions(params: {
+    httpProviderOptions: HttpProviderOptions;
+    rpc?: string;
+  }) {
+    const { httpProviderOptions, rpc = this.rpc } = params;
+
+    const httpProvider = new HttpProvider(rpc, httpProviderOptions);
+
+    this.w3.setProvider(httpProvider);
   }
 
-  getTokenByName(name: string) {
+  public getTokenByName(name: string) {
     const token = this.tokens.find((t) => t.name === name);
     if (!token) throw new Error(`token ${name} is not found`);
 
     return token;
   }
 
-  getNative() {
+  public getNative() {
     if (!this.native) {
       const nativeList = this.tokens.filter((t) => t.isNative);
 
@@ -96,7 +93,7 @@ class Chain {
     return this.native;
   }
 
-  getWrappedNative() {
+  public getWrappedNative() {
     if (!this.wrappedNative) {
       const wrappedNativeList = this.tokens.filter((t) => t.isWrappedNative);
 
@@ -114,26 +111,26 @@ class Chain {
     return this.wrappedNative;
   }
 
-  isEquals(chain: Chain) {
+  public isEquals(chain: Chain) {
     return this.chainId === chain.chainId;
   }
 
-  async getSwapDeadline(sec = 1800) {
+  public async getSwapDeadline(sec = 1800) {
     const lastBlock = await this.w3.eth.getBlock("latest");
     const currentTimestamp = lastBlock.timestamp;
 
     return Big(currentTimestamp.toString()).plus(sec).toNumber();
   }
 
-  toString() {
+  public toString() {
     return this.name;
   }
 
-  getHashLink(hash: string) {
+  public getHashLink(hash: string) {
     return `${this.explorer}/tx/${hash}`;
   }
 
-  waitTxReceipt = async (hash: string) => {
+  public waitTxReceipt = async (hash: string) => {
     let retry = 100;
 
     const successStatus = 1n;
@@ -141,6 +138,7 @@ class Chain {
     while ((retry -= 1)) {
       const transactionReceipt = await this.w3.eth.getTransactionReceipt(hash);
 
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (transactionReceipt) {
         if (transactionReceipt.status === successStatus) {
           return transactionReceipt;
@@ -157,10 +155,6 @@ class Chain {
 
     throw new Error(`waiting for tx status time out: ${txLink}`);
   };
-
-  getContractAddressByName(name: string) {
-    return this.contracts[name as ContractName];
-  }
 }
 
 export default Chain;

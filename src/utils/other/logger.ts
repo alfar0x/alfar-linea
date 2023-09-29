@@ -1,9 +1,9 @@
-import dateFormat from "date-fns/format";
 import { format, createLogger, transports } from "winston";
 
+import formatDate from "../formatters/formatDate";
 import env from "./env";
 
-const time = dateFormat(Date.now(), "yyMMddHHmmss");
+const time = formatDate(Date.now(), "yyMMddHHmmss");
 
 const customFormat = format.printf(
   ({ level, message, timestamp }) => `${timestamp} | ${level} | ${message}`,
@@ -39,6 +39,16 @@ const initLogger = () => {
       }),
     ],
   });
+
+  if (env.NODE_ENV === "dev") {
+    logger.add(
+      new transports.File({
+        level: "silly",
+        filename: `./logs/${time}_silly.log`,
+        format: format.combine(format.splat(), formatTimestamp, customFormat),
+      }),
+    );
+  }
 
   return logger;
 };

@@ -1,4 +1,4 @@
-export type TokenType = "NATIVE" | "WRAPPED_NATIVE" | "ERC20";
+export type TokenType = "ERC20" | "NATIVE" | "WRAPPED_NATIVE";
 
 export type RawToken = {
   name: string;
