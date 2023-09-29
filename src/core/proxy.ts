@@ -72,6 +72,8 @@ class Proxy {
   }
 
   private parseProxies(proxies: string[]) {
+    if (this.type === "none") return [];
+
     if (this.type === "mobile" && proxies.length !== 1) {
       throw new Error(`mobile proxy type must have exactly 1 proxy`);
     }
@@ -152,6 +154,20 @@ class Proxy {
 
   public size() {
     return this.proxyList.length;
+  }
+
+  private typeStr() {
+    if (this.type === "server") {
+      return this.serverIsRandom
+        ? `(${this.type} random)`
+        : ` (${this.type} ordered)`;
+    }
+
+    return `(${this.type})`;
+  }
+
+  public info() {
+    return `${this.size()} ${this.typeStr()}`;
   }
 }
 

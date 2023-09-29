@@ -1,5 +1,6 @@
 import Config from "../../../core/config";
-import formatObjectAsPath from "../../../utils/formatters/formatObjectAsPath";
+import formatObjectsWithKeyPad from "../../../utils/formatters/formatObjectsWithKeyPad";
+import getObjectAsPathList from "../../../utils/other/getObjectAsPathList";
 import processPaths from "./processPaths";
 
 import { dynamicSchema, fixedSchema } from "./schemas";
@@ -14,11 +15,14 @@ class TasksRunnerConfig extends Config<
     super({ configFileName, fixedSchema, dynamicSchema });
   }
 
-  public toString() {
+  public info() {
     const { fixed } = this;
     const dynamic = this.dynamic();
 
-    return formatObjectAsPath({ dynamic, fixed }, processPaths);
+    const objectPaths = getObjectAsPathList({ dynamic, fixed });
+    const processed = processPaths(objectPaths);
+
+    return formatObjectsWithKeyPad(processed);
   }
 }
 

@@ -200,7 +200,7 @@ class TaskCreator {
   }
 
   public factoryInfo() {
-    return this.factory.info().join("\n");
+    return this.factory.info();
   }
 
   public factorySize() {

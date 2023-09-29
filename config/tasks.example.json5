@@ -9,7 +9,7 @@
     maxTxFeeUsd: 1,
   },
   fixed: {
-    approveMultiplier: { min: 10, max: 100 },
+    approveMultiplier: { min: 3, max: 40 },
     files: {
       privateKeys: "private_keys.txt",
       proxies: "proxies.txt",

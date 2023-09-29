@@ -95,9 +95,9 @@ class VelocoreSwapAction extends SwapAction {
     const fromTokenPacked = this.getPackedToken({ token: this.fromToken });
     const toTokenPacked = this.getPackedToken({ token: this.toToken });
 
-    const tokenRef = [fromTokenPacked, toTokenPacked];
-
-    tokenRef.sort(arraySortStringsHelper);
+    const tokenRef = [fromTokenPacked, toTokenPacked].sort(
+      arraySortStringsHelper,
+    );
 
     const deposit = new Array(tokenRef.length).fill(0);
 

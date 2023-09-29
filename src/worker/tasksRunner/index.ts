@@ -226,13 +226,15 @@ class TasksRunner {
 
     this._proxy = new Proxy({ ...proxy, proxies });
 
+    const configInfo = this.config.info();
+    const accountsInfo = accounts.length;
     const factoryInfo = this.creator.factoryInfo();
-    const factorySize = this.creator.factorySize();
+    const proxyInfo = this._proxy.info();
 
-    logger.info(`config:\n${this.config.toString()}`);
-    logger.info(`accounts: ${accounts.length}`);
-    logger.info(`proxies: ${this._proxy.size()}`);
-    logger.info(`possible routes: ${factorySize}\n${factoryInfo}`);
+    logger.info(`config:\n${configInfo}`);
+    logger.info(`accounts: ${accountsInfo}`);
+    logger.info(`proxies: ${proxyInfo}`);
+    logger.info(`possible routes: ${factoryInfo}`);
 
     await confirmRun();
 

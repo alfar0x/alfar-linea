@@ -15,6 +15,7 @@ import randomInteger from "../../../utils/random/randomInteger";
 import Chain from "../../../core/chain";
 import ActionContext from "../../../core/actionContext";
 import { ActionProvider } from "../../../core/action";
+import formatObjectsWithKeyPad from "../../../utils/formatters/formatObjectsWithKeyPad";
 import getFactoryTokens from "./getFactoryTokens";
 import getFactoryPairs from "./getFactoryPairs";
 import getLendActions from "./getLendActions";
@@ -116,18 +117,6 @@ class OperationFactory {
     return operations;
   }
 
-  private shouldRandomTypeOperationsBeAdded() {
-    const randomTypeRouterData = this.routers.find((r) => r.key === "RANDOM");
-
-    if (!randomTypeRouterData) return false;
-
-    const { value, weight } = randomTypeRouterData;
-
-    if (!value.size()) return false;
-
-    return Big(weight).div(this.totalWeight).gte(Math.random());
-  }
-
   private async addRandomTypeOperations(
     account: Account,
     operations: Operation[],
@@ -148,22 +137,53 @@ class OperationFactory {
     return [...firstPart, ...randomOperations, ...secondPart];
   }
 
+  private randomTypePossibility() {
+    const randomTypeRouterData = this.routers.find((r) => r.key === "RANDOM");
+
+    if (!randomTypeRouterData) return 0;
+
+    const { value, weight } = randomTypeRouterData;
+
+    if (!value.size()) return 0;
+
+    return Big(weight).div(this.totalWeight).toNumber();
+  }
+
   public async getRandomOperations(params: { account: Account }) {
     const { account } = params;
 
     const steps = await this.generateRandomOperations({ account });
 
-    if (!this.shouldRandomTypeOperationsBeAdded()) return steps;
+    const randomTypePossibility = this.randomTypePossibility();
+
+    const shouldRandomTypeOperationsBeAdded = Big(randomTypePossibility).gte(
+      Math.random(),
+    );
+
+    if (!shouldRandomTypeOperationsBeAdded) return steps;
 
     return await this.addRandomTypeOperations(account, steps);
   }
 
   public info() {
-    const routesInfo = this.routers.map(
-      ({ value }) => `${value.description}: ${value.size()}`,
-    );
+    const routesInfo = this.routers
+      .map(({ value }) => ({
+        key: value.description,
+        value: value.size(),
+      }))
+      .sort((a, b) => b.value - a.value);
 
-    return routesInfo;
+    const formattedRoutersInfo = formatObjectsWithKeyPad(routesInfo);
+
+    const randomTypePossibility = this.randomTypePossibility();
+    const randomTypePossibilityPercent = Big(randomTypePossibility)
+      .times(100)
+      .round(2)
+      .toString();
+
+    const randomInfo = `(probability of adding a random steps to any = ${randomTypePossibilityPercent}%)`;
+
+    return `${this.size()} ${randomInfo}\n${formattedRoutersInfo}`;
   }
   public size() {
     return this.routers

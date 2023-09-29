@@ -31,7 +31,7 @@ class Account {
 
     if (privateKey) {
       this._privateKey = this.initializePrivateKey(privateKey);
-      this.address = ethers.computeAddress(privateKey);
+      this.address = ethers.computeAddress(this._privateKey);
     } else if (address) {
       this.address = this.initializeAddressFromGiven(address);
     } else {
@@ -57,7 +57,7 @@ class Account {
   private initializePrivateKey(privateKey: string) {
     const privateKeyParsed = evmPrivateKeySchema.safeParse(privateKey);
 
-    if (privateKeyParsed.success) return privateKey;
+    if (privateKeyParsed.success) return privateKeyParsed.data;
 
     const indexOrd = formatOrdinals(this.fileIndex + 1);
 
