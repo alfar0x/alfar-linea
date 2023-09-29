@@ -1,7 +1,12 @@
-import getObjectAsPathList from "../other/getObjectAsPathList";
+import getObjectAsPathList, { PathValue } from "../other/getObjectAsPathList";
 
-const formatObjectAsPath = (obj: object): string => {
-  const paths = getObjectAsPathList(obj);
+const formatObjectAsPath = (
+  obj: object,
+  processPaths?: (path: PathValue[]) => PathValue[],
+): string => {
+  const paths = processPaths
+    ? processPaths(getObjectAsPathList(obj))
+    : getObjectAsPathList(obj);
 
   const maxLength = Math.max(...paths.map((p) => p.path.length));
 

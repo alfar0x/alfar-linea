@@ -3,19 +3,14 @@ import formatObject from "../formatters/formatObject";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type GenericObject = { [key: string]: any };
 
-type PathValue = {
-  path: string;
-  value: string;
-};
+export type PathValue = { path: string; value: string };
 
-// Function to get the type of a value
 const getType = (value: any): string => {
   if (Array.isArray(value)) return "array";
   if (typeof value === "object" && value !== null) return "object";
   return "primitive";
 };
 
-// Function to format value based on its type
 const formatValue = (value: any): string => {
   const type = getType(value);
   switch (type) {

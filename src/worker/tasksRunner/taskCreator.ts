@@ -199,8 +199,12 @@ class TaskCreator {
     this.tasks.splice(randomIndex, 0, task);
   }
 
-  public getFactoryInfoStr() {
+  public factoryInfo() {
     return this.factory.info().join("\n");
+  }
+
+  public factorySize() {
+    return this.factory.size();
   }
 
   private async addOperationsAndSetInProgress(task: Task) {

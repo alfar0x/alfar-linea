@@ -149,6 +149,10 @@ class Proxy {
 
     throw new Error(`ip change failed. check ip change url`);
   }
+
+  public size() {
+    return this.proxyList.length;
+  }
 }
 
 export default Proxy;

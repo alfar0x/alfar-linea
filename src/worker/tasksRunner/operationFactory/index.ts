@@ -57,7 +57,7 @@ class OperationFactory {
       randomActions,
     });
 
-    this.totalWeight = Object.values(this.routers)
+    this.totalWeight = this.routers
       .reduce((sum, { weight }) => sum.plus(weight), Big(0))
       .toNumber();
   }
@@ -164,6 +164,11 @@ class OperationFactory {
     );
 
     return routesInfo;
+  }
+  public size() {
+    return this.routers
+      .reduce((sum, { value }) => sum.plus(value.size()), Big(0))
+      .toNumber();
   }
 }
 
