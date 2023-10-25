@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 import Big from "big.js";
 import { Web3, HttpProvider } from "web3";
 
@@ -6,12 +7,15 @@ import sleep from "../utils/other/sleep";
 
 import CHAIN_NAMES from "../constants/chainNames";
 import Token from "./token";
+import { Agent } from "http";
 
 type ChainName = (typeof CHAIN_NAMES)[number];
 
-type HttpProviderOptions = NonNullable<
+type ProviderOptions = NonNullable<
   ConstructorParameters<typeof HttpProvider>["1"]
->;
+>["providerOptions"] & {
+  agent: Agent;
+};
 
 class Chain {
   public readonly name: ChainName;
@@ -58,12 +62,15 @@ class Chain {
   }
 
   public updateHttpProviderOptions(params: {
-    httpProviderOptions: HttpProviderOptions;
+    providerOptions: ProviderOptions;
     rpc?: string;
   }) {
-    const { httpProviderOptions, rpc = this.rpc } = params;
+    const { providerOptions, rpc = this.rpc } = params;
 
-    const httpProvider = new HttpProvider(rpc, httpProviderOptions);
+    const httpProvider = new HttpProvider(rpc, {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      providerOptions: providerOptions as ProviderOptions as any,
+    });
 
     this.w3.setProvider(httpProvider);
   }

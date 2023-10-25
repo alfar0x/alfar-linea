@@ -52,9 +52,9 @@ class TasksRunner {
 
     if (!https) return;
 
-    const httpProviderOptions = { providerOptions: { agent: https } };
+    const providerOptions = { agent: https };
 
-    this.chain.updateHttpProviderOptions({ httpProviderOptions });
+    this.chain.updateHttpProviderOptions({ providerOptions });
 
     await this.proxy.onProviderChange();
   }
