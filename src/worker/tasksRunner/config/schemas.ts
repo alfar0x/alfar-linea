@@ -19,7 +19,7 @@ const delaySecSchema = z.object({
   step: z
     .object({
       min: z.number().multipleOf(1).positive().min(60),
-      max: z.number().multipleOf(1).positive().max(10000),
+      max: z.number().multipleOf(1).positive().max(100000),
     })
     .refine(...minMaxRefine),
 });
