@@ -8,7 +8,7 @@ const getFactoryTokens = (chain: Chain) => {
     usdc: chain.getTokenByName("USDC"),
     dai: chain.getTokenByName("DAI"),
     wbtc: chain.getTokenByName("WBTC"),
-    cebusd: chain.getTokenByName("ceBUSD"),
+    // cebusd: chain.getTokenByName("ceBUSD"),
     iusd: chain.getTokenByName("IUSD"),
     izi: chain.getTokenByName("IZI"),
     wavax: chain.getTokenByName("wAVAX"),

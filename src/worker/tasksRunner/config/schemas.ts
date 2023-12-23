@@ -33,7 +33,7 @@ const maxParallelAccountsSchema = z
 
 export const dynamicSchema = z.object({
   delaySec: delaySecSchema,
-  maxLineaGwei: z.number().multipleOf(0.05).positive().max(1000),
+  maxLineaGwei: z.number().multipleOf(0.01).positive().max(1000),
   maxParallelAccounts: maxParallelAccountsSchema,
   maxTxFeeUsd: z.number().multipleOf(0.1).positive().max(100),
 });
@@ -83,8 +83,8 @@ const approveMultiplierSchema = z
 export const fixedSchema = z.object({
   approveMultiplier: approveMultiplierSchema,
   files: filesSchema,
-  maxAccountFeeUsd: z.number().multipleOf(0.1).positive().max(1000),
-  minEthBalance: z.number().multipleOf(0.0001).min(0.002),
+  maxAccountFeeUsd: z.number().multipleOf(0.01).positive().max(1000),
+  minEthBalance: z.number().multipleOf(0.0001).min(0.0001),
   onCurrentTaskEnd: onCurrentTaskEndSchema,
   providers: providersSchema,
   proxy: proxySchema,

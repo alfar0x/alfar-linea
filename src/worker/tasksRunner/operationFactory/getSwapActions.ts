@@ -20,21 +20,21 @@ const getProviderActions = (
     case "SYNCSWAP": {
       return [
         new SyncswapSwapAction({ ...pairs.eth_usdc, context }),
-        new SyncswapSwapAction({ ...pairs.eth_cebusd, context }),
+        // new SyncswapSwapAction({ ...pairs.eth_cebusd, context }),
         new SyncswapSwapAction({ ...pairs.eth_wbtc, context }),
 
         new SyncswapSwapAction({ ...pairs.usdc_eth, context }),
-        new SyncswapSwapAction({ ...pairs.cebusd_eth, context }),
+        // new SyncswapSwapAction({ ...pairs.cebusd_eth, context }),
         new SyncswapSwapAction({ ...pairs.wbtc_eth, context }),
       ];
     }
     case "VELOCORE": {
       return [
         new VelocoreSwapAction({ ...pairs.eth_usdc, context }),
-        new VelocoreSwapAction({ ...pairs.eth_cebusd, context }),
+        // new VelocoreSwapAction({ ...pairs.eth_cebusd, context }),
 
         new VelocoreSwapAction({ ...pairs.usdc_eth, context }),
-        new VelocoreSwapAction({ ...pairs.cebusd_eth, context }),
+        // new VelocoreSwapAction({ ...pairs.cebusd_eth, context }),
       ];
     }
     case "OPEN_OCEAN": {
