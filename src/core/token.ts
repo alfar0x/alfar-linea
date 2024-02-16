@@ -69,6 +69,12 @@ class Token {
     return contract(this.chain.w3, this.address);
   }
 
+  public get operationId() {
+    return this.isNative
+      ? "native"
+      : this.name.replace(/[^a-zA-Z]/g, "").toLocaleLowerCase();
+  }
+
   public getAddressOrWrappedForNative() {
     return this.isNative ? this.chain.getWrappedNative().address : this.address;
   }

@@ -6,26 +6,6 @@ import prompts from "prompts";
 import greetingsStr from "../other/greetingsStr";
 import sleep from "../other/sleep";
 
-const modeChoices = [
-  {
-    title: "task runner",
-    value: "task-runner",
-    description: "run random linea transactions",
-  },
-  {
-    title: "checker",
-    value: "checker",
-    description: "check your wallets analytics",
-  },
-  {
-    title: "encrypter",
-    value: "encrypter",
-    description: "encrypt your private keys to use task runner on server",
-  },
-];
-
-type Mode = "checker" | "encrypter" | "task-runner";
-
 const configPath = "config";
 
 const getConfigChoices = () => {
@@ -52,22 +32,22 @@ const startMenu = async () => {
   console.info(greetingsStr);
   await sleep(2);
 
+  const configs = getConfigChoices();
+
+  if (configs.length === 1) return { config: configs[0].value };
+
   const response = await prompts([
-    {
-      type: "select",
-      name: "mode",
-      message: "select your mode",
-      choices: modeChoices,
-    },
     {
       type: "autocomplete",
       name: "config",
       message: "pick a config file",
-      choices: getConfigChoices(),
+      choices: configs,
     },
   ]);
 
-  return { mode: response.mode as Mode, config: response.config };
+  return {
+    config: response.config,
+  };
 };
 
 export default startMenu;

@@ -1,0 +1,13 @@
+# chain:action:provider:operation
+
+linea:random:dmail:send_mail
+
+linea:lend:linea_bank:usdc
+linea:redeem:linea_bank:usdc
+
+linea:lend:linea_bank:native
+linea:redeem:linea_bank:native
+
+linea:swap:open_ocean:native_usdc
+linea:swap:open_ocean:usdc_native
+

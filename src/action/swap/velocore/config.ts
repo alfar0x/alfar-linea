@@ -5,7 +5,7 @@ import formatToChecksum from "../../../utils/formatters/formatToChecksum";
 
 const config = new ActionConfig({
   chainConfigs: {
-    Linea: {
+    linea: {
       tokenTypes: {
         erc20: 0,
         erc721: 1,

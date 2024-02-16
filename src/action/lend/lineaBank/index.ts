@@ -14,10 +14,15 @@ class LineaBankLend extends LendAction {
   private readonly config: ChainConfig<typeof config>;
   private readonly marketAddress: string;
 
-  public constructor(params: { token: Token; context: ActionContext }) {
-    super({ ...params, provider: "LINEA_BANK" });
+  public constructor(params: {
+    token: Token;
+    context: ActionContext;
+    name: string;
+  }) {
+    super(params);
 
     this.config = config.getChainConfig(params.token.chain);
+
     this.marketAddress = this.getMarketAddress();
   }
 

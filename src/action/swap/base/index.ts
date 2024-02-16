@@ -1,10 +1,7 @@
 import Big from "big.js";
 
 import Account from "../../../core/account";
-import Action, {
-  DefaultActionFunctionResult,
-  ActionProvider,
-} from "../../../core/action";
+import Action, { DefaultActionFunctionResult } from "../../../core/action";
 import Step from "../../../core/step";
 import Token from "../../../core/token";
 import RunnableTransaction from "../../../core/transaction";
@@ -24,16 +21,18 @@ abstract class SwapAction extends Action {
   protected constructor(params: {
     fromToken: Token;
     toToken: Token;
-    provider: ActionProvider;
+    provider: string;
     context: ActionContext;
   }) {
-    const { fromToken, toToken, ...superParams } = params;
+    const { fromToken, toToken, provider, context } = params;
 
     SwapAction.checkPair(fromToken, toToken);
 
-    const operation = `${fromToken}_${toToken}`;
+    const chainName = `${fromToken.chain.name}`;
 
-    super({ ...superParams, operation, actionType: "SWAP" });
+    const operation = `${fromToken.operationId}_${toToken.operationId}`;
+
+    super({ provider, context, operation, action: "swap", chainName });
 
     this.fromToken = fromToken;
     this.toToken = toToken;

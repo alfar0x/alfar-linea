@@ -1,6 +1,6 @@
-import readFileAndEncryptByLine from "../../../utils/file/readFileAndEncryptByLine";
+import readFileByLine from "../../../utils/file/readFileByLine";
 
-const getProxies = async (params: {
+const getProxies = (params: {
   baseFileName: string;
   accountsLength: number;
   isServerRandom: boolean;
@@ -9,7 +9,7 @@ const getProxies = async (params: {
 
   const fileName = `./assets/${baseFileName}`;
 
-  const allFileData = await readFileAndEncryptByLine(fileName);
+  const allFileData = readFileByLine(fileName);
   const proxies = allFileData.map((v) => v.trim()).filter(Boolean);
 
   const proxiesLength = proxies.length;

@@ -5,7 +5,7 @@ import formatToChecksum from "../../../utils/formatters/formatToChecksum";
 
 const config = new ActionConfig({
   chainConfigs: {
-    Linea: {
+    linea: {
       marketAddresses: {
         ETH: formatToChecksum("0xc7D8489DaE3D2EbEF075b1dB2257E2c231C9D231"),
         USDC: formatToChecksum("0x2aD69A0Cf272B9941c7dDcaDa7B0273E9046C4B0"),

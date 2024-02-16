@@ -1,94 +1,74 @@
 import { z } from "zod";
 
-import ACTION_PROVIDERS from "../../../constants/actionProviders";
-import createUnionSchema from "../../../utils/zod/createUnionSchema";
 import getFilenameRefineSchema from "../../../utils/zod/getFilenameRefineSchema";
+import createRecordSchema from "../../../utils/zod/createRecordSchema";
+import CHAIN_NAMES from "../../../constants/chainNames";
+import createMinMaxObjectSchema from "../../../utils/zod/createMinMaxObjectSchema";
 
-const minMaxRefine = [
-  (schema: { min: number; max: number }) => schema.max >= schema.min,
-  "Max must be greater than min",
-] as const;
+const number = (multipleOf: number, min: number, max: number) =>
+  z.number().multipleOf(multipleOf).min(min).max(max);
+
+const dynamicChainsSchema = createRecordSchema(
+  CHAIN_NAMES,
+  z.object({
+    maxGwei: number(0.01, 0.01, 100),
+    maxTxFeeUsd: number(0.1, 0.1, 100),
+  }),
+);
 
 const delaySecSchema = z.object({
-  transaction: z
-    .object({
-      min: z.number().multipleOf(1).positive().min(20),
-      max: z.number().multipleOf(1).positive().max(10000),
-    })
-    .refine(...minMaxRefine),
-  step: z
-    .object({
-      min: z.number().multipleOf(1).positive().min(60),
-      max: z.number().multipleOf(1).positive().max(100000),
-    })
-    .refine(...minMaxRefine),
+  transaction: createMinMaxObjectSchema(1, 20, 600),
+  step: createMinMaxObjectSchema(1, 60, 7 * 24 * 60 * 60),
 });
-
-const maxParallelAccountsSchema = z
-  .number()
-  .multipleOf(1)
-  .positive()
-  .min(1)
-  .max(10);
 
 export const dynamicSchema = z.object({
   delaySec: delaySecSchema,
-  maxLineaGwei: z.number().multipleOf(0.01).positive().max(1000),
-  maxParallelAccounts: maxParallelAccountsSchema,
-  maxTxFeeUsd: z.number().multipleOf(0.1).positive().max(100),
+  chains: dynamicChainsSchema,
+  maxParallelAccounts: number(1, 1, 10),
 });
 
-const providersSchema = z.array(createUnionSchema(ACTION_PROVIDERS)).min(1);
+const fixedChainsSchema = createRecordSchema(
+  CHAIN_NAMES,
+  z
+    .object({
+      minWorkNativeBalance: number(0.0001, 0.0001, 100000),
+      minRescueNativeBalance: number(0.0001, 0.0001, 100000),
+      rpc: z.string().url(),
+    })
+    .refine(
+      (schema: {
+        minWorkNativeBalance: number;
+        minRescueNativeBalance: number;
+      }) => schema.minRescueNativeBalance > schema.minWorkNativeBalance,
+      "minRescueNativeBalance must be greater or equals than minWorkNativeBalance",
+    ),
+);
 
-const transactionsLimitSchema = z
-  .object({
-    min: z.number().multipleOf(1).positive().min(1),
-    max: z.number().multipleOf(1).positive().max(10000),
-  })
-  .refine(...minMaxRefine);
+const transactionsLimitSchema = createMinMaxObjectSchema(1, 1, 10000);
 
 const filesSchema = z.object({
   privateKeys: getFilenameRefineSchema(".txt"),
   proxies: getFilenameRefineSchema(".txt"),
+  operations: getFilenameRefineSchema(".txt"),
 });
 
-const proxySchema = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("none") }),
-  z.object({ type: z.literal("server"), serverIsRandom: z.boolean() }),
-  z.object({ type: z.literal("mobile"), mobileIpChangeUrl: z.string().url() }),
-]);
-
-const rpcSchema = z.object({ linea: z.string().url() });
-
-const workingAmountPercentSchema = z
-  .object({
-    min: z.number().multipleOf(0.1).positive().min(0.1),
-    max: z.number().positive().multipleOf(0.1).max(30),
-  })
-  .refine(...minMaxRefine);
+const workingAmountPercentSchema = createMinMaxObjectSchema(0.1, 0.1, 30);
 
 const onCurrentTaskEndSchema = z.union([
   z.literal("CREATE_NEXT_TASK"),
-  z.literal("WAIT_OTHERS"),
+  z.literal("WAIT_OTHER"),
   z.literal("MOVE_RANDOMLY"),
 ]);
 
-const approveMultiplierSchema = z
-  .object({
-    min: z.number().multipleOf(1).positive().min(1),
-    max: z.number().multipleOf(1).positive().max(100),
-  })
-  .refine(...minMaxRefine);
+const approveMultiplierSchema = createMinMaxObjectSchema(1, 1, 1000);
 
 export const fixedSchema = z.object({
   approveMultiplier: approveMultiplierSchema,
   files: filesSchema,
-  maxAccountFeeUsd: z.number().multipleOf(0.01).positive().max(1000),
-  minEthBalance: z.number().multipleOf(0.0001).min(0.0001),
+  maxAccountFeeUsd: number(0.01, 1, 1000),
   onCurrentTaskEnd: onCurrentTaskEndSchema,
-  providers: providersSchema,
-  proxy: proxySchema,
-  rpc: rpcSchema,
+  chains: fixedChainsSchema,
+  isRandomProxy: z.boolean(),
   transactionsLimit: transactionsLimitSchema,
   workingAmountPercent: workingAmountPercentSchema,
 });

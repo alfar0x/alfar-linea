@@ -1,5 +1,3 @@
-import ACTION_PROVIDERS from "../constants/actionProviders";
-import ACTION_TYPES from "../constants/actionTypes";
 import { Amount } from "../types";
 
 import Account from "./account";
@@ -7,40 +5,27 @@ import ActionContext from "./actionContext";
 import Token from "./token";
 import { CreateTransactionResult } from "./transaction";
 
-export type ActionProvider = (typeof ACTION_PROVIDERS)[number];
-
-export type ActionType = (typeof ACTION_TYPES)[number];
-
 export type DefaultActionFunctionResult = CreateTransactionResult;
 
 abstract class Action {
-  private readonly actionType: ActionType;
-  private readonly provider: ActionProvider;
-  private readonly operation: string;
-
+  public readonly id: string;
   protected readonly context: ActionContext;
 
   protected constructor(params: {
-    actionType: ActionType;
-    provider: ActionProvider;
-    operation: string;
     context: ActionContext;
+    chainName: string;
+    action: string;
+    operation: string;
+    provider: string;
   }) {
-    const { actionType, provider, operation, context } = params;
+    const { context, chainName, action, provider, operation } = params;
 
-    this.actionType = actionType;
-    this.provider = provider;
-    this.operation = operation;
-
+    this.id = [chainName, action, provider, operation].join(":");
     this.context = context;
   }
 
-  public get name() {
-    return `${this.provider}_${this.actionType}_${this.operation}`.toUpperCase();
-  }
-
   protected getTxName(name: string) {
-    return `${this.name}-${name}`;
+    return `${this.id}#tx-${name}`;
   }
 
   protected static async getDefaultApproveTransaction(params: {
@@ -62,7 +47,7 @@ abstract class Action {
   }
 
   public toString() {
-    return this.name;
+    return this.id;
   }
 }
 

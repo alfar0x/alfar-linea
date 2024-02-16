@@ -11,14 +11,10 @@ import logger from "../../utils/other/logger";
 import sleep from "../../utils/other/sleep";
 import waitInternetConnection from "../../utils/other/waitInternetConnection";
 import randomShuffle from "../../utils/random/randomShuffle";
-
 import TasksRunnerConfig from "./config";
 import getAccounts from "./helpers/getAccounts";
 import getProxies from "./helpers/getProxies";
-import printTasks from "./helpers/printTasks";
-import TaskCreator from "./taskCreator";
 import Waiter from "./waiter";
-import WorkerState from "./workerState";
 
 class TasksRunner {
   private readonly config: TasksRunnerConfig;

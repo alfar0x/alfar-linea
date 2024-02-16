@@ -1,10 +1,7 @@
 import Big from "big.js";
 
 import Account from "../../../core/account";
-import Action, {
-  DefaultActionFunctionResult,
-  ActionProvider,
-} from "../../../core/action";
+import Action, { DefaultActionFunctionResult } from "../../../core/action";
 import Step from "../../../core/step";
 import Token from "../../../core/token";
 import RunnableTransaction from "../../../core/transaction";
@@ -17,12 +14,12 @@ abstract class LendAction extends Action {
 
   protected constructor(params: {
     token: Token;
-    provider: ActionProvider;
+    name: string;
     context: ActionContext;
   }) {
-    const { token, ...superParams } = params;
+    const { token, context, name } = params;
 
-    super({ ...superParams, actionType: "LEND", operation: `${token}` });
+    super({ name, context });
 
     this.token = token;
   }
@@ -125,7 +122,7 @@ abstract class LendAction extends Action {
   public supplyStep(params: { account: Account; isAllBalance?: boolean }) {
     const { account, isAllBalance } = params;
 
-    const step = new Step({ name: `${this.name}_SUPPLY` });
+    const step = new Step({ name: `${this.name}` });
 
     if (!this.token.isNative) {
       const createTransaction = this.getCreateApproveTransaction({ account });

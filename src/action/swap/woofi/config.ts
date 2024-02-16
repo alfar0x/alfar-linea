@@ -5,7 +5,7 @@ import formatToChecksum from "../../../utils/formatters/formatToChecksum";
 
 const config = new ActionConfig({
   chainConfigs: {
-    Linea: {
+    linea: {
       routerAddress: formatToChecksum(
         "0x39d361e66798155813b907a70d6c2e3fdafb0877",
       ),

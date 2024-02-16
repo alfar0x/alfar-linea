@@ -11,7 +11,7 @@ class Linea extends Chain {
     const { rpc } = params;
 
     super({
-      name: "Linea",
+      name: "linea",
       chainId: 59144,
       rpc,
       explorer: "https://lineascan.build",

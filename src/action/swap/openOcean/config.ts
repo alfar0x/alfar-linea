@@ -6,7 +6,7 @@ const API_URL = "https://open-api.openocean.finance/v3";
 
 const config = new ActionConfig({
   chainConfigs: {
-    Linea: {
+    linea: {
       apiUrl: `${API_URL}/linea`,
       routerAddress: formatToChecksum(
         "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64",

@@ -5,7 +5,7 @@ import formatToChecksum from "../../../utils/formatters/formatToChecksum";
 
 const config = new ActionConfig({
   chainConfigs: {
-    Linea: {
+    linea: {
       fee: 100,
       sqrtPriceLimitX96: 0,
       unwrapEthAddress: "0x0000000000000000000000000000000000000002",

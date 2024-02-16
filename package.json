@@ -59,13 +59,13 @@
   ],
   "license": "BSD-3-Clause",
   "main": "src/app.ts",
-  "name": "alfar-linea",
+  "name": "alfar-evm",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alfar0x/alfar-linea.git"
+    "url": "https://github.com/alfar0x/alfar-evm.git"
   },
   "scripts": {
-    "gent": "ts-node src/scripts/generateContractTypes/index.ts && eslint src/abi --fix --ext .ts",
+    "gent": "ts-node src/dev/generateContractTypes/index.ts && eslint src/abi --fix --ext .ts",
     "lint": "eslint src/ --ext .ts",
     "start": "ts-node src/app.ts",
     "update": "git reset --hard HEAD && git pull",
