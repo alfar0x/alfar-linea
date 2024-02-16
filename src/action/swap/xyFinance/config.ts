@@ -6,7 +6,7 @@ const API_URL = "https://aggregator-api.xy.finance/v1/";
 
 const config = new ActionConfig({
   chainConfigs: {
-    Linea: {
+    linea: {
       routerAddress: formatToChecksum(
         "0xc693C8AAD9745588e95995fef4570d6DcEF98000",
       ),

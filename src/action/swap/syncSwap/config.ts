@@ -5,7 +5,7 @@ import formatToChecksum from "../../../utils/formatters/formatToChecksum";
 
 const config = new ActionConfig({
   chainConfigs: {
-    Linea: {
+    linea: {
       withdrawalMode: {
         vaultInternalTransfer: 0,
         withdrawEth: 1,

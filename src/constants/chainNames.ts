@@ -1,5 +1,5 @@
-export const CHAIN_NAME_LINEA = "Linea";
-export const CHAIN_NAME_ARBITRUM = "Arbitrum";
+export const CHAIN_NAME_LINEA = "linea";
+export const CHAIN_NAME_ARBITRUM = "arbitrum";
 
 const CHAIN_NAMES = [CHAIN_NAME_ARBITRUM, CHAIN_NAME_LINEA] as const;
 

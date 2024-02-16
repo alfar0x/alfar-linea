@@ -4,7 +4,7 @@ import formatToChecksum from "../../../utils/formatters/formatToChecksum";
 
 const config = new ActionConfig({
   chainConfigs: {
-    Linea: {
+    linea: {
       dmailAddress: formatToChecksum(
         "0xd1a3abf42f9e66be86cfdea8c5c2c74f041c5e14",
       ),
